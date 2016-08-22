@@ -98,6 +98,9 @@ public class RateService implements IRateService {
 
 		}
 		for (int i = 0; i < mHotelIdArray.length; i++) {
+			if(sHotelIdArrays==null||sHotelIdArrays.size()<=0){
+				break;
+			}
 			String[] sHotelIdArray = sHotelIdArrays.get(i);
 			if(sHotelIdArray==null||sHotelIdArray.length<=0){
 				continue;
