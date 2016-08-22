@@ -16,8 +16,8 @@ import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.common.util.CommonsUtil;
 import com.elong.nb.common.util.ValidateUtil;
-import com.elong.nb.model.InventoryCondition;
-import com.elong.nb.model.InventoryResult;
+import com.elong.nb.model.inventory.InventoryCondition;
+import com.elong.nb.model.inventory.InventoryResult;
 import com.elong.nb.service.IInventoryService;
 
 /**
@@ -49,15 +49,16 @@ public class InventoryService implements IInventoryService{
 	 */
 	@Override
 	public RestResponse<InventoryResult> getInventories(HttpServletRequest request) throws IOException {
-		RestRequest<InventoryCondition> restRequest=GsonUtil.toReq(request, InventoryCondition.class);
-		RestResponse<InventoryResult> restResponse=new RestResponse<InventoryResult>(restRequest.getGuid());
-		String errorStr=validateInventoryRequest(restRequest);
-		if(StringUtils.isNoneBlank(errorStr)){
-			restResponse.setCode(errorStr);
-		}else {
-			//restResponse.getResult().setInventories(inventories);
-		}
-		return restResponse;
+//		RestRequest<InventoryCondition> restRequest=GsonUtil.toReq(request, InventoryCondition.class);
+//		RestResponse<InventoryResult> restResponse=new RestResponse<InventoryResult>(restRequest.getGuid());
+//		String errorStr=validateInventoryRequest(restRequest);
+//		if(StringUtils.isNoneBlank(errorStr)){
+//			restResponse.setCode(errorStr);
+//		}else {
+//			//restResponse.getResult().setInventories(inventories);
+//		}
+//		return restResponse;
+		return null;
 	}
 	
 	private String validateInventoryRequest(RestRequest<InventoryCondition>restRequest){

@@ -3,9 +3,11 @@
  *     
  * Copyrights (C) 2016艺龙旅行网保留所有权利
  */
-package com.elong.nb.model;
+package com.elong.nb.model.inventory;
 
 import java.util.List;
+
+import com.elong.nb.model.inventory.bean.Inventory;
 
 /**
  * (类型功能说明描述)

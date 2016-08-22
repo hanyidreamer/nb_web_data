@@ -18,8 +18,8 @@ import org.apache.commons.lang3.StringUtils;
 import com.elong.nb.common.ComparableUtil;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.util.CommonsUtil;
-import com.elong.nb.model.Inventory;
-import com.elong.nb.model.InventoryCondition;
+import com.elong.nb.model.inventory.InventoryCondition;
+import com.elong.nb.model.inventory.bean.Inventory;
 
 /**
  * (类型功能说明描述)

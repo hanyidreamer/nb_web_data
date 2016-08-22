@@ -11,8 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
-import com.elong.nb.model.InventoryCondition;
-import com.elong.nb.model.InventoryResult;
+import com.elong.nb.model.inventory.InventoryResult;
 
 /**
  * (类型功能说明描述)

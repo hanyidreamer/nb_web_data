@@ -33,7 +33,7 @@ import com.elong.nb.common.util.CommonsUtil;
 public class M_SRelationRepository {
 	private static final String KEY_SUPPLIER_MAP="data.hotel.supplier";
 	private static final String KEY_ID_M_S="data.ms.mid_sid";
-	private static final RedisManager redis=RedisManager.getInstance();
+	private static final RedisManager redis=RedisManager.getInstance(null, null);
 	
 	
 	public static List<String> getSupplierHotels(String[] supplier){
