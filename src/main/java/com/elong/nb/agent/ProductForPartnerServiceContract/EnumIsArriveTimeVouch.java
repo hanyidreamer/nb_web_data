@@ -1,0 +1,51 @@
+
+package com.elong.nb.agent.ProductForPartnerServiceContract;
+
+import javax.xml.bind.annotation.XmlEnum;
+import javax.xml.bind.annotation.XmlEnumValue;
+import javax.xml.bind.annotation.XmlType;
+
+
+/**
+ * <p>EnumIsArriveTimeVouch的 Java 类。
+ * 
+ * <p>以下模式片段指定包含在此类中的预期内容。
+ * <p>
+ * <pre>
+ * &lt;simpleType name="EnumIsArriveTimeVouch"&gt;
+ *   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string"&gt;
+ *     &lt;enumeration value="No"/&gt;
+ *     &lt;enumeration value="Yes"/&gt;
+ *   &lt;/restriction&gt;
+ * &lt;/simpleType&gt;
+ * </pre>
+ * 
+ */
+@XmlType(name = "EnumIsArriveTimeVouch", namespace = "http://schemas.datacontract.org/2004/07/com.eLong.Hotel.Product.Entities.Enums")
+@XmlEnum
+public enum EnumIsArriveTimeVouch {
+
+    @XmlEnumValue("No")
+    NO("No"),
+    @XmlEnumValue("Yes")
+    YES("Yes");
+    private final String value;
+
+    EnumIsArriveTimeVouch(String v) {
+        value = v;
+    }
+
+    public String value() {
+        return value;
+    }
+
+    public static EnumIsArriveTimeVouch fromValue(String v) {
+        for (EnumIsArriveTimeVouch c: EnumIsArriveTimeVouch.values()) {
+            if (c.value.equals(v)) {
+                return c;
+            }
+        }
+        throw new IllegalArgumentException(v);
+    }
+
+}
