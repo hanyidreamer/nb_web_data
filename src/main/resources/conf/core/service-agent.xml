@@ -26,4 +26,19 @@
 			ConnectionTimeout="10000"
 			ReceiveTimeout="10000" />
 	</http-conf:conduit>
+	<!--ProductForPartnerServiceContract -->
+	<jaxws:client id="productForPartnerServiceContract"
+		serviceClass="com.elong.nb.agent.ProductForPartnerServiceContract.IProductForPartnerServiceContract"
+		address="${services.productForPartnerServiceContract.address}">
+		<jaxws:properties>
+			<entry key="set-jaxb-validation-event-handler" value="false" />
+		</jaxws:properties>
+	</jaxws:client>
+	<http-conf:conduit
+		name="{http://tempuri.org/}IProductForPartnerServiceContractPort.http-conduit">
+		<http-conf:client Connection="close" MaxRetransmits="1"
+			AllowChunking="false"
+			ConnectionTimeout="10000"
+			ReceiveTimeout="10000" />
+	</http-conf:conduit>
 </beans>

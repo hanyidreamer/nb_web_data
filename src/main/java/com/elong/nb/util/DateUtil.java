@@ -17,18 +17,18 @@ public class DateUtil {
 		}
 	}
 	public static Date addYears(Date date,int years){
-		return addDate(1,date,years);
+		return addDate(GregorianCalendar.YEAR,date,years);
 	}
 	public static Date addMoths(Date date,int months){
-		return addDate(2,date,months);
+		return addDate(GregorianCalendar.MONTH,date,months);
 	}
 	public static Date addDays(Date date,int days){
-		return addDate(3,date,days);
+		return addDate(GregorianCalendar.DATE,date,days);
 	}
 	private static Date addDate(int type,Date date,int num){
 		GregorianCalendar gc=new GregorianCalendar(); 
 		gc.setTime(date); 
-		gc.add(1,num); 
+		gc.add(type,num); 
 		return gc.getTime();
 	}
 	public static Date getMinValue(){

@@ -26,11 +26,11 @@ public class RateDao {
 		req.setBookingChannel(MathUtil.Log(
 				proxyInfo.getBookingChannel().getValue(), 2).intValue());
 		req.setCustomerLevel(proxyInfo.getMemberLevel().getValue());
-		req.setSellChannel(1);
 		req.setSellChannel(MathUtil.Log(proxyInfo.getSellChannel().getValue(),
 				2).intValue());
-
-		req.setSettlementType(EnumPayMentType.PAY_TO_HOTEL_BY_CUSTOMER_SELF);
+		//支付类型转换
+		EnumPayMentType settlementType=paymentType==EnumPaymentType.Prepay?EnumPayMentType.PAY_TO_HOTEL_BY_CUSTOMER_SELF:EnumPayMentType.PAY_TO_HOTEL_BY_CUSTOMER_SELF;
+		req.setSettlementType(settlementType);
 		req.setHotelID(sHotelId);
 		req.setStartDate(DateUtil.toDateTime(startDate));
 		req.setEndDate(DateUtil.toDateTime(endDate));

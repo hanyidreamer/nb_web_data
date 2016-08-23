@@ -31,6 +31,8 @@ public class HotelDataController {
 	
 	private String hasNoPrepayAuth = CommonsUtil.CONFIG_PROVIDAR
 			.getProperty("HasNoPrepayAuth.restRequest.Request");
+	private String unKownException=CommonsUtil.CONFIG_PROVIDAR
+			.getProperty("UnKownException.restRequest.Request");
 
 	@Resource
 	private IRateService RateService;
@@ -68,8 +70,8 @@ public class HotelDataController {
 		try {
 			response = RateService.getRates(restRequest);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			response=new RestResponse<RateResult>(restRequest.getGuid());
+			response.setCode(unKownException+e.getMessage());
 		}
 		return new ResponseEntity(GsonUtil.toJson(
 				response,

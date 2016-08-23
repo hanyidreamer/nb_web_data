@@ -32,7 +32,8 @@ public class RateService implements IRateService {
 	@Resource
 	private RateDao rateDao;
 	@Resource
-    private M_SRelationCache m_SRelationCache;
+	private M_SRelationCache m_SRelationCache;
+
 	@Override
 	public RestResponse<RateResult> getRates(RestRequest<RateCondition> request)
 			throws Exception {
@@ -56,17 +57,20 @@ public class RateService implements IRateService {
 			rates.addAll(getRate(request.getProxyInfo(), request.getRequest()
 					.getHotelIds(), request.getRequest().getHotelCodes(),
 					request.getRequest().getStartDate(), request.getRequest()
-							.getEndDate(), EnumPaymentType.SelfPay, 0));
+							.getEndDate(), EnumPaymentType.SelfPay, request
+							.getProxyInfo().getLowestProfitPercent()));
 			rates.addAll(getRate(request.getProxyInfo(), request.getRequest()
 					.getHotelIds(), request.getRequest().getHotelCodes(),
 					request.getRequest().getStartDate(), request.getRequest()
-							.getEndDate(), EnumPaymentType.Prepay, 0));
+							.getEndDate(), EnumPaymentType.Prepay, request
+							.getProxyInfo().getLowestProfitPercent()));
 		} else {
 			rates.addAll(getRate(request.getProxyInfo(), request.getRequest()
 					.getHotelIds(), request.getRequest().getHotelCodes(),
 					request.getRequest().getStartDate(), request.getRequest()
 							.getEndDate(), request.getRequest()
-							.getPaymentType(), 0));
+							.getPaymentType(), request.getProxyInfo()
+							.getLowestProfitPercent()));
 		}
 		result.setRates(rates);
 		response.setResult(result);
@@ -80,7 +84,8 @@ public class RateService implements IRateService {
 		List<Rate> result = new ArrayList<Rate>();
 		// 仅提供昨天和近90天的房态数据
 		int days = proxyInfo.getMaxDays() != null ? proxyInfo.getMaxDays() : 90;
-		if (startDate.before(DateUtil.addDays(new Date(), -1))) {
+		Date date= DateUtil.addDays(new Date(), -1);
+		if (startDate.before(date)) {
 			startDate = DateUtil.addDays(new Date(), -1);
 		}
 		if (endDate.after(DateUtil.addDays(new Date(), days))) {
@@ -98,11 +103,11 @@ public class RateService implements IRateService {
 
 		}
 		for (int i = 0; i < mHotelIdArray.length; i++) {
-			if(sHotelIdArrays==null||sHotelIdArrays.size()<=0){
+			if (sHotelIdArrays == null || sHotelIdArrays.size() <= 0) {
 				break;
 			}
 			String[] sHotelIdArray = sHotelIdArrays.get(i);
-			if(sHotelIdArray==null||sHotelIdArray.length<=0){
+			if (sHotelIdArray == null || sHotelIdArray.length <= 0) {
 				continue;
 			}
 			sHotelId = StringUtils.join(sHotelIdArray, ',');
@@ -145,10 +150,14 @@ public class RateService implements IRateService {
 							rate.setEndDate(rateEndDate);
 							Double membserCose = (paymentType == EnumPaymentType.Prepay || proxyInfo
 									.getEnableReturnAgentcyRateCost()) ? proxyInfo
-									.getSettlementPrice(item.getGenSaleCost()
-											.doubleValue(), item
-											.getMemberRate().doubleValue(),
-											false) : -1d;
+									.getSettlementPrice(
+											item.getGenSaleCost() != null ? item
+													.getGenSaleCost()
+													.doubleValue() : -1d,
+											item.getMemberRate() != null ? item
+													.getMemberRate()
+													.doubleValue() : -1d, false)
+									: -1d;
 							rate.setMemberCost(membserCose);
 							rate.setRateplanId(item.getRatePlanID());
 							rate.setRoomTypeId(item.getRoomTypeID());
@@ -156,7 +165,7 @@ public class RateService implements IRateService {
 									.getStartDate().toDate() : DateUtil
 									.getMinValue());
 							rate.setStatus(item.getIsEffective() != null
-									&& item.getIsEffective().equals(1));
+									&& item.getIsEffective() == 1);
 							double weekend = item.getWeekendMemberRate() != null ? item
 									.getWeekendMemberRate().doubleValue() : -1d;
 							weekend = toIntegerPrice(weekend,
@@ -165,10 +174,12 @@ public class RateService implements IRateService {
 							double weekendCost = (paymentType == EnumPaymentType.Prepay || proxyInfo
 									.getEnableReturnAgentcyRateCost()) ? proxyInfo
 									.getSettlementPrice(
-											item.getWeekendSaleCost()
-													.doubleValue(), item
+											item.getWeekendSaleCost() != null ? item
+													.getWeekendSaleCost()
+													.doubleValue() : -1d,
+											item.getWeekendMemberRate() != null ? item
 													.getWeekendMemberRate()
-													.doubleValue(), false)
+													.doubleValue() : -1d, false)
 									: -1d;
 							rate.setWeekendCost(weekendCost);
 							rate.setAddBed(item.getAllowAddBed() == 1 ? item
@@ -180,7 +191,7 @@ public class RateService implements IRateService {
 					}
 				}
 			} else if (response.getResult() != null
-					&& !StringUtil.isBlank(response.getResult()
+					&& StringUtils.isNotBlank(response.getResult()
 							.getErrorMessage())) {
 				throw new Exception(String.format("Inner Error: %s", response
 						.getResult().getErrorMessage()));
