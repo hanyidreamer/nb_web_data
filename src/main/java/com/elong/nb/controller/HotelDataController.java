@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.elong.nb.common.gson.GsonUtil;
+import com.elong.nb.common.model.ErrorCode;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.common.util.CommonsUtil;
@@ -23,6 +24,9 @@ import com.elong.nb.common.util.ValidateUtil;
 import com.elong.nb.model.bean.enums.EnumPaymentType;
 import com.elong.nb.model.rate.RateCondition;
 import com.elong.nb.model.rate.RateResult;
+import com.elong.nb.model.rateplan.RatePlanCondition;
+import com.elong.nb.model.rateplan.RatePlanResult;
+import com.elong.nb.service.IRatePlansService;
 import com.elong.nb.service.IRateService;
 import com.google.gson.TypeAdapter;
 
@@ -36,6 +40,9 @@ public class HotelDataController {
 
 	@Resource
 	private IRateService RateService;
+	@Resource
+	private IRatePlansService ratePlansService;
+	
 	@RequestMapping(value = "/api/Hotel/GetInventories", method = RequestMethod.POST)
 	public ResponseEntity<byte[]> getInventories(HttpServletRequest request)
 	{
@@ -97,4 +104,57 @@ public class HotelDataController {
 		}
 		return sb.toString();
 	}
+	
+	//获取产品
+	@SuppressWarnings("rawtypes")
+	@RequestMapping(value = "/api/Hotel/GetRatePlans", method = RequestMethod.POST)
+	public ResponseEntity<byte[]> GetRatePlans(HttpServletRequest request) throws IOException
+	{
+		//基本校验
+		Map<Class, TypeAdapter> m = new HashMap<Class, TypeAdapter>();
+		RestRequest<RatePlanCondition> restRequest = GsonUtil.toReq(request,
+				RatePlanCondition.class, m);
+		String rst = validateRatePlanRequest(restRequest);
+		if (StringUtils.isNotBlank(rst)) {
+			RestResponse<RatePlanCondition> response = new RestResponse<RatePlanCondition>(
+					restRequest.getGuid());
+			response.setCode(rst);
+			return new ResponseEntity(GsonUtil.toJson(response,
+					restRequest.getVersion() == null ? 0d : restRequest.getVersion()).getBytes(), HttpStatus.OK);
+		}
+		
+		//调用Service
+		RestResponse<RatePlanResult> response=null;
+		try {
+			
+			response = ratePlansService.GetRatePlans(restRequest);
+			
+		} catch (Exception e) {
+			response=new RestResponse<RatePlanResult>(restRequest.getGuid());
+			response.setCode(unKownException+e.getMessage());
+		}
+		
+		//反回JSON
+		return new ResponseEntity(GsonUtil.toJson(
+				response,
+				restRequest.getVersion()).getBytes(), HttpStatus.OK);
+		
+	}
+	
+	private String validateRatePlanRequest(RestRequest<RatePlanCondition> restRequest){
+		;
+		StringBuffer sb = new StringBuffer(
+				ValidateUtil.validateRestRequest(restRequest));
+		RatePlanCondition req = restRequest.getRequest();
+		/**
+		 * 付款类型不能为空
+		 */
+		if (req.getPaymentType() ==null || req.getPaymentType().getValue()<0)
+		{
+			sb.append(ErrorCode.Common_PaymentTypeRequired)	;
+		}
+		return sb.toString();
+	}
+	
+	
 }
