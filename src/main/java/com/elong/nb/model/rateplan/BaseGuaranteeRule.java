@@ -2,10 +2,11 @@ package com.elong.nb.model.rateplan;
 
 import java.util.Date;
 
+import com.elong.nb.common.util.DateUtils;
 import com.elong.nb.model.bean.enums.EnumDateType;
 import com.elong.nb.model.bean.enums.EnumGuaranteeChangeRule;
 import com.elong.nb.model.bean.enums.EnumGuaranteeMoneyType;
-import com.elong.nb.util.DateUtil;
+
 
 public class BaseGuaranteeRule extends BaseRule {
 
@@ -329,7 +330,7 @@ public class BaseGuaranteeRule extends BaseRule {
 
             //#region 中文
             //sb.append("担保条件：在" + rule.StartDate.toString("yy.MM.dd") + "至" + rule.EndDate.toString("yy.MM.dd"));
-            sb.append("担保条件：在" + DateUtil.toDateTime(rule.StartDate) + "至" +DateUtil.toDateTime(rule.EndDate));
+            sb.append("担保条件：在" + DateUtils.convertDate(rule.StartDate,"yy.MM.dd") + "至" +DateUtils.convertDate(rule.EndDate,"yy.MM.dd"));
 
             if (rule.DateType == EnumDateType.CheckInDay)
             {
@@ -361,7 +362,7 @@ public class BaseGuaranteeRule extends BaseRule {
             }
             else if (rule.ChangeRule == EnumGuaranteeChangeRule.NeedSomeDay)
             {
-                sb.append("在" + DateUtil.toDateTime(rule.Day) + "日" + rule.Time + ":00点前可以变更取消，之后无法变更取消，");
+                sb.append("在" + DateUtils.convertDate(rule.Day,"yy.MM.dd") + "日" + rule.Time + ":00点前可以变更取消，之后无法变更取消，");
 
             }
             else if (rule.ChangeRule == EnumGuaranteeChangeRule.NeedCheckinTime)
@@ -401,12 +402,12 @@ public class BaseGuaranteeRule extends BaseRule {
             //#region 英文
             if (rule.DateType == EnumDateType.CheckInDay)
             {
-                sb.append("For Bookings with  check-in date between " + DateUtil.toDateTime(rule.StartDate) + " and " + DateUtil.toDateTime(rule.EndDate) + ",");
+                sb.append("For Bookings with  check-in date between " + DateUtils.convertDate(rule.StartDate,"yy.MM.dd") + " and " + DateUtils.convertDate(rule.EndDate,"yy.MM.dd") + ",");
             }
             else if (rule.DateType == EnumDateType.StayDay)
             {
                 //sb.append("For Bookings with  check-in date between " + rule.StartDate.ToString("yy.MM.dd") + " and " + rule.EndDate.ToString("yy.MM.dd") + ",");
-                sb.append("For Bookings with  check-in date between " + DateUtil.toDateTime(rule.StartDate) + " and " + DateUtil.toDateTime(rule.EndDate) + ",");
+                sb.append("For Bookings with  check-in date between " + DateUtils.convertDate(rule.StartDate,"yy.MM.dd") + " and " + DateUtils.convertDate(rule.EndDate,"yy.MM.dd") + ",");
 
             }
 
@@ -432,7 +433,7 @@ public class BaseGuaranteeRule extends BaseRule {
             else if (rule.ChangeRule == EnumGuaranteeChangeRule.NeedSomeDay)
             {
                 //sb.append("free cancellation or change is allowed before " + rule.Time + ", " + rule.Day.ToString("yy.MM.dd") + ".");
-                sb.append("free cancellation or change is allowed before " + rule.Time + ", " + DateUtil.toDateTime(rule.Day) + ".");
+                sb.append("free cancellation or change is allowed before " + rule.Time + ", " + DateUtils.convertDate(rule.Day,"yy.MM.dd") + ".");
 
             }
             else if (rule.ChangeRule == EnumGuaranteeChangeRule.NeedCheckinTime)

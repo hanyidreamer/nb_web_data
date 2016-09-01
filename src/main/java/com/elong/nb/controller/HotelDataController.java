@@ -22,10 +22,16 @@ import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.common.util.CommonsUtil;
 import com.elong.nb.common.util.ValidateUtil;
 import com.elong.nb.model.bean.enums.EnumPaymentType;
+import com.elong.nb.model.bookingdata.BookingDataCondition;
+import com.elong.nb.model.bookingdata.BookingDataResult;
+import com.elong.nb.model.rackrate.RackRateRequest;
+import com.elong.nb.model.rackrate.RackRateResponse;
 import com.elong.nb.model.rate.RateCondition;
 import com.elong.nb.model.rate.RateResult;
 import com.elong.nb.model.rateplan.RatePlanCondition;
 import com.elong.nb.model.rateplan.RatePlanResult;
+import com.elong.nb.service.IBookingDataService;
+import com.elong.nb.service.IRackRateService;
 import com.elong.nb.service.IRatePlansService;
 import com.elong.nb.service.IRateService;
 import com.google.gson.TypeAdapter;
@@ -42,6 +48,10 @@ public class HotelDataController {
 	private IRateService RateService;
 	@Resource
 	private IRatePlansService ratePlansService;
+	@Resource
+	private IBookingDataService bookingDataService;
+	@Resource
+	private IRackRateService rackRateService;
 	
 	@RequestMapping(value = "/api/Hotel/GetInventories", method = RequestMethod.POST)
 	public ResponseEntity<byte[]> getInventories(HttpServletRequest request)
@@ -156,5 +166,103 @@ public class HotelDataController {
 		return sb.toString();
 	}
 	
+	
+	    //获取GetBookingData
+		@SuppressWarnings("rawtypes")
+		@RequestMapping(value = "/api/Hotel/GetBookingData", method = RequestMethod.POST)
+		public ResponseEntity<byte[]> GetBookingData(HttpServletRequest request) throws IOException
+		{
+			//基本校验
+			Map<Class, TypeAdapter> m = new HashMap<Class, TypeAdapter>();
+			RestRequest<BookingDataCondition> restRequest = GsonUtil.toReq(request,
+					BookingDataCondition.class, m);
+			String rst = validateBookingDataRequest(restRequest);
+			if (StringUtils.isNotBlank(rst)) {
+				RestResponse<BookingDataResult> response = new RestResponse<BookingDataResult>(
+						restRequest.getGuid());
+				response.setCode(rst);
+				return new ResponseEntity(GsonUtil.toJson(response,
+						restRequest.getVersion() == null ? 0d : restRequest.getVersion()).getBytes(), HttpStatus.OK);
+			}
+			
+			//调用Service
+			RestResponse<BookingDataResult> response=null;
+			try {
+				
+				response = bookingDataService.GetBookingData(restRequest);
+				
+			} catch (Exception e) {
+				response=new RestResponse<BookingDataResult>(restRequest.getGuid());
+				response.setCode(unKownException+e.getMessage());
+			}
+			
+			//反回JSON
+			return new ResponseEntity(GsonUtil.toJson(
+					response,
+					restRequest.getVersion()).getBytes(), HttpStatus.OK);
+			
+		}
+		
+		private String validateBookingDataRequest(RestRequest<BookingDataCondition> restRequest){
+			;
+			StringBuffer sb = new StringBuffer(
+					ValidateUtil.validateRestRequest(restRequest));
+			BookingDataCondition req = restRequest.getRequest();
+			
+			//这里加入相关校验
+			
+			return sb.toString();
+		}
+		
+		
+		
+		
+		 //获取GetBookingData
+		@SuppressWarnings("rawtypes")
+		@RequestMapping(value = "/api/Hotel/GetRackRates", method = RequestMethod.POST)
+		public ResponseEntity<byte[]> GetRackRates(HttpServletRequest request) throws IOException
+		{
+			//基本校验
+			Map<Class, TypeAdapter> m = new HashMap<Class, TypeAdapter>();
+			RestRequest<RackRateRequest> restRequest = GsonUtil.toReq(request,
+					RackRateRequest.class, m);
+			String rst = validateGetRackRatesRequest(restRequest);
+			if (StringUtils.isNotBlank(rst)) {
+				RestResponse<RackRateResponse> response = new RestResponse<RackRateResponse>(
+						restRequest.getGuid());
+				response.setCode(rst);
+				return new ResponseEntity(GsonUtil.toJson(response,
+						restRequest.getVersion() == null ? 0d : restRequest.getVersion()).getBytes(), HttpStatus.OK);
+			}
+			
+			//调用Service
+			RestResponse<RackRateResponse> response=null;
+			try {
+				
+				response = rackRateService.GetRackRates(restRequest);
+				
+			} catch (Exception e) {
+				response=new RestResponse<RackRateResponse>(restRequest.getGuid());
+				response.setCode(unKownException+e.getMessage());
+			}
+			
+			//反回JSON
+			return new ResponseEntity(GsonUtil.toJson(
+					response,
+					restRequest.getVersion()).getBytes(), HttpStatus.OK);
+			
+		}
+		
+		private String validateGetRackRatesRequest(RestRequest<RackRateRequest> restRequest){
+			;
+			StringBuffer sb = new StringBuffer(
+					ValidateUtil.validateRestRequest(restRequest));
+			RackRateRequest req = restRequest.getRequest();
+			
+			//这里加入相关校验
+			
+			return sb.toString();
+		}
+		
 	
 }

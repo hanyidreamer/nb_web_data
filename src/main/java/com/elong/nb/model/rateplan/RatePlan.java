@@ -68,12 +68,12 @@ public class RatePlan extends BaseRatePlan {
     /// <summary>
     /// 担保规则
     /// </summary>
-    private List<BaseGuaranteeRule> GuaranteeRules;
+    private List<com.elong.nb.model.bean.base.BaseGuaranteeRule> GuaranteeRules;
 
     /// <summary>
     /// 预付规则
     /// </summary>
-    private List<BasePrepayRule> PrepayRules;
+    private List<com.elong.nb.model.bean.base.BasePrepayRule> PrepayRules;
 
     /// <summary>
     /// 促销
@@ -83,12 +83,12 @@ public class RatePlan extends BaseRatePlan {
     /// <summary>
     /// 增值服务
     /// </summary>
-    private List<BaseValueAddRule> ValueAdds;
+    private List<com.elong.nb.model.bean.base.BaseValueAddRule> ValueAdds;
 
     /// <summary>
     /// 促销规则
     /// </summary>
-    private List<BaseDrrRule> DrrRules;
+    private List<com.elong.nb.model.bean.base.BaseDrrRule> DrrRules;
 
     /// <summary>
     /// 返现或立减
@@ -120,6 +120,8 @@ public class RatePlan extends BaseRatePlan {
     /// </summary>
     @Since(1.27)
     private int CooperationType ;
+    
+    
 	public String getHotelCode() {
 		return HotelCode;
 	}
@@ -174,28 +176,28 @@ public class RatePlan extends BaseRatePlan {
 	public void setMaxAdvHours(int maxAdvHours) {
 		MaxAdvHours = maxAdvHours;
 	}
-	public List<BaseGuaranteeRule> getGuaranteeRules() {
+	public List<com.elong.nb.model.bean.base.BaseGuaranteeRule> getGuaranteeRules() {
 		return GuaranteeRules;
 	}
-	public void setGuaranteeRules(List<BaseGuaranteeRule> guaranteeRules) {
+	public void setGuaranteeRules(List<com.elong.nb.model.bean.base.BaseGuaranteeRule> guaranteeRules) {
 		GuaranteeRules = guaranteeRules;
 	}
-	public List<BasePrepayRule> getPrepayRules() {
+	public List<com.elong.nb.model.bean.base.BasePrepayRule> getPrepayRules() {
 		return PrepayRules;
 	}
-	public void setPrepayRules(List<BasePrepayRule> prepayRules) {
+	public void setPrepayRules(List<com.elong.nb.model.bean.base.BasePrepayRule> prepayRules) {
 		PrepayRules = prepayRules;
 	}
-	public List<BaseValueAddRule> getValueAdds() {
+	public List<com.elong.nb.model.bean.base.BaseValueAddRule> getValueAdds() {
 		return ValueAdds;
 	}
-	public void setValueAdds(List<BaseValueAddRule> valueAdds) {
+	public void setValueAdds(List<com.elong.nb.model.bean.base.BaseValueAddRule> valueAdds) {
 		ValueAdds = valueAdds;
 	}
-	public List<BaseDrrRule> getDrrRules() {
+	public List<com.elong.nb.model.bean.base.BaseDrrRule> getDrrRules() {
 		return DrrRules;
 	}
-	public void setDrrRules(List<BaseDrrRule> drrRules) {
+	public void setDrrRules(List<com.elong.nb.model.bean.base.BaseDrrRule> drrRules) {
 		DrrRules = drrRules;
 	}
 	public Coupon getCoupon() {

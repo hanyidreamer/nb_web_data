@@ -10,6 +10,12 @@
         <dependent-module archiveName="nb_common_cache-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/nb_common_cache/nb_common_cache">
             <dependency-type>uses</dependency-type>
         </dependent-module>
+        <dependent-module archiveName="nb_common_db-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/nb_common_db/nb_common_db">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="nb_model_search-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/nb_model_search/nb_model_search">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <property name="context-root" value="nb_web_data"/>
         <property name="java-output-path" value="/nb_web_data/target/classes"/>
         <property name="component.exclusion.patterns" value="WEB-INF/classes/conf/custom/env/rabbit.properties"/>

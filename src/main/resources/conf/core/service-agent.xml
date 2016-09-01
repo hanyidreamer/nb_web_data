@@ -41,4 +41,31 @@
 			ConnectionTimeout="10000"
 			ReceiveTimeout="10000" />
 	</http-conf:conduit>
+	
+	<jaxws:client id="supplierService"
+		serviceClass="com.elong.nb.agent.SupplierService.ISupplierServiceContract"
+		address="${services.supplierservice.address}">
+		<jaxws:properties>
+			<entry key="set-jaxb-validation-event-handler" value="false" />
+		</jaxws:properties>
+	</jaxws:client>
+	<http-conf:conduit
+		name="{http://tempuri.org/}ISupplierServiceContractPort.http-conduit">
+		<http-conf:client Connection="close" MaxRetransmits="1"
+			AllowChunking="false" ConnectionTimeout="10000" ReceiveTimeout="10000" />
+	</http-conf:conduit>
+	
+	<jaxws:client id="northBoundForAPIService"
+		serviceClass="com.elong.nb.agent.NorthBoundForAPIService.INorthBoundForAPIService"
+		address="${services.INorthBoundForAPIService.address}">
+		<jaxws:properties>
+			<entry key="set-jaxb-validation-event-handler" value="false" />
+		</jaxws:properties>
+	</jaxws:client>
+	<http-conf:conduit
+		name="{http://tempuri.org/}INorthBoundForAPIServicePort.http-conduit">
+		<http-conf:client Connection="close" MaxRetransmits="1"
+			AllowChunking="false" ConnectionTimeout="10000" ReceiveTimeout="10000" />
+	</http-conf:conduit>
+	
 </beans>

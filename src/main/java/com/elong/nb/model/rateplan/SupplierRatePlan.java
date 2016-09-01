@@ -25,7 +25,7 @@ public class SupplierRatePlan {
     /// <summary>
     /// 预定规则
     /// </summary>
-    private List<BaseBookingRule> BookingRules ;
+    private List<com.elong.nb.model.bean.base.BaseBookingRule> BookingRules ;
 
     /// <summary>
     /// 房型的M-S的关系
@@ -63,11 +63,11 @@ public class SupplierRatePlan {
 		WeekendEnd = weekendEnd;
 	}
 
-	public List<BaseBookingRule> getBookingRules() {
+	public List<com.elong.nb.model.bean.base.BaseBookingRule> getBookingRules() {
 		return BookingRules;
 	}
 
-	public void setBookingRules(List<BaseBookingRule> bookingRules) {
+	public void setBookingRules(List<com.elong.nb.model.bean.base.BaseBookingRule> bookingRules) {
 		BookingRules = bookingRules;
 	}
 

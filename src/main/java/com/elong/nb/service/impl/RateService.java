@@ -77,7 +77,7 @@ public class RateService implements IRateService {
 		return response;
 	}
 
-	private List<Rate> getRate(ProxyAccount proxyInfo, String mHotelId,
+	public List<Rate> getRate(ProxyAccount proxyInfo, String mHotelId,
 			String sHotelId, Date startDate, Date endDate,
 			EnumPaymentType paymentType, double lowestProfitPercent)
 			throws Exception {

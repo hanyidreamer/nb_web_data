@@ -16,6 +16,16 @@ public class DateUtil {
 			return new DateTime();
 		}
 	}
+	
+	public static Date toDate(String date) {
+		try {
+			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+			return df.parse(date);
+		} catch (Exception e) {
+			return new Date();
+		}
+	}
+	
 	public static Date addYears(Date date,int years){
 		return addDate(GregorianCalendar.YEAR,date,years);
 	}

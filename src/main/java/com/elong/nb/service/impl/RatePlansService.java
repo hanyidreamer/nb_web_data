@@ -1,5 +1,7 @@
 package com.elong.nb.service.impl;
 
+import javax.annotation.Resource;
+
 import org.springframework.stereotype.Service;
 
 import com.elong.nb.common.model.ErrorCode;
@@ -8,11 +10,15 @@ import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.model.bean.enums.EnumPaymentType;
 import com.elong.nb.model.rateplan.RatePlanCondition;
 import com.elong.nb.model.rateplan.RatePlanResult;
+import com.elong.nb.repository.RatePlanRepository;
 import com.elong.nb.service.IRatePlansService;
 
 @Service
 public class RatePlansService implements IRatePlansService {
 
+	@Resource
+	private RatePlanRepository ratePlanRepository;
+	
 	@Override
 	public RestResponse<RatePlanResult> GetRatePlans(
 			RestRequest<RatePlanCondition> request) {
@@ -24,7 +30,7 @@ public class RatePlansService implements IRatePlansService {
         }
         else 
         	{
-        	//response.getResult().setHotels("this.HotelDataRepository.GetRatePlans(request)");
+        	  response.getResult().setHotels(ratePlanRepository.GetRatePlans(request));
         	}
         
         return response;

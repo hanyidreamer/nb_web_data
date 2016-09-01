@@ -1,5 +1,5 @@
 package com.elong.nb.util;
 
-public class SafeConvert {
-
+public class SafeConvert<T> {
+	
 }
