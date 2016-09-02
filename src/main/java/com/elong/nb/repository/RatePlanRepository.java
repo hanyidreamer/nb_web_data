@@ -112,7 +112,7 @@ public class RatePlanRepository {
 
         for (String[] ids : sHotelIdArrays)
         {
-            if (ids == null || ids.length <= 0)
+            if (ids == null || ids.length <= 0 || ids[0]==null)
                 continue;
 
             String mhotelId = mHotelArrays[index];

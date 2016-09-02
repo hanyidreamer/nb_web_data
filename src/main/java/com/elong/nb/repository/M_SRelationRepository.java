@@ -128,8 +128,9 @@ public class M_SRelationRepository {
 		   List<String> idList = redis.hashMGet(CacheKEY_ID_M_S, str);
 		   if(idList !=null && idList.size()>0)
 		   {
-		   String[] idArray =(String[])(idList.toArray());
-		   result.add(idArray);
+			   String[] param = new String[idList.size()];
+			   String[] idArray =(String[])(idList.toArray(param));
+			   result.add(idArray);
 		   }
 		}
           return result;
