@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Repository;
 
 import com.elong.nb.common.ComparableUtil;
 import com.elong.nb.common.model.RestRequest;
@@ -35,6 +36,8 @@ import com.elong.nb.model.inventory.bean.Inventory;
  * @version		1.0  
  * @since		JDK1.7
  */
+
+@Repository
 public class InventoryRepository {
 	private static final long orderFrom5665=Long.parseLong(CommonsUtil.CONFIG_PROVIDAR.getProperty("OrderFrom5665"));
 	private static final String supplier23284=CommonsUtil.CONFIG_PROVIDAR.getProperty("Supplier23284");

@@ -10,6 +10,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
 
 import com.elong.nb.common.gson.GsonUtil;
 import com.elong.nb.common.model.RestRequest;
@@ -34,6 +35,8 @@ import com.elong.nb.service.IInventoryService;
  * @version		1.0  
  * @since		JDK1.7
  */
+
+@Service
 public class InventoryService implements IInventoryService{
 	
 	private String idsLessTen=CommonsUtil.CONFIG_PROVIDAR.getProperty("NumberIdsFormatErrorAndLessThanTen.restRequest.Request");

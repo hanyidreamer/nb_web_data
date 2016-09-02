@@ -4,6 +4,8 @@ import java.util.Date;
 
 import javax.annotation.Resource;
 
+import org.springframework.stereotype.Repository;
+
 import com.elong.nb.agent.ProductForSearchServiceForRealTimeCheck.ArrayOfPriceDaySimple;
 import com.elong.nb.agent.ProductForSearchServiceForRealTimeCheck.CheckInventoryAndPriceRequest;
 import com.elong.nb.agent.ProductForSearchServiceForRealTimeCheck.CheckInventoryAndPriceResponse;
@@ -11,9 +13,10 @@ import com.elong.nb.agent.ProductForSearchServiceForRealTimeCheck.IProductForSea
 import com.elong.nb.agent.ProductForSearchServiceForRealTimeCheck.InventoryAndPriceCheckResult;
 import com.elong.nb.util.DateUtil;
 
+@Repository
 public class ProductForMisServiceRepository {
 
-	@Resource(name="")
+	@Resource(name="productForSearchService")
 	private IProductForSearchServiceContract ProductForSearchServiceForRealTimeCheck;
 	
 	/// <summary>

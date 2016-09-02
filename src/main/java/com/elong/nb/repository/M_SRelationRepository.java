@@ -47,7 +47,7 @@ public class M_SRelationRepository {
 	private static final String KEY_ID_M_S="data.ms.mid_sid";
 	private static String KEY_ID_S_M = "data.ms.sid_mid";
 	private static String KEY_Hotel_S_M = "data.hotel.sid_mid";
-	private static final RedisManager redis=RedisManager.getInstance(null, null);
+	private static final RedisManager redis=RedisManager.getInstance("redis_data", "redis_data");
 	private static  Gson gson=new Gson();
 	
 	@Resource(name="supplierService")

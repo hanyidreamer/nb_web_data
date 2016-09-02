@@ -25,7 +25,7 @@ import com.google.gson.Gson;
 @Service
 public class RackRateService implements IRackRateService {
 
-	private static final RedisManager redis=RedisManager.getInstance(null, null);
+	private static final RedisManager redis=RedisManager.getInstance("redis_data", "redis_data");
 	private static  Gson gson=new Gson();
 	
 	@Resource 

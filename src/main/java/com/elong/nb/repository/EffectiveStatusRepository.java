@@ -2,6 +2,8 @@ package com.elong.nb.repository;
 
 import java.util.Date;
 
+import org.springframework.stereotype.Repository;
+
 import com.elong.nb.common.util.CommonsUtil;
 import com.elong.nb.model.effectivestatuscheck.EffectiveStatus;
 import com.elong.nb.model.effectivestatuscheck.EffectiveStatusRequest;
@@ -11,6 +13,7 @@ import com.elong.nb.model.effectivestatuscheck.SoaRestResponse;
 import com.elong.nb.util.HttpUtil;
 import com.google.gson.Gson;
 
+@Repository
 public class EffectiveStatusRepository {
 
 	private Gson gson=new Gson();

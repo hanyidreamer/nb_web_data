@@ -9,6 +9,8 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.stereotype.Repository;
+
 import antlr.StringUtils;
 
 import com.elong.nb.agent.NorthBoundForAPIService.AddValueInfoSimple;
@@ -70,6 +72,7 @@ import com.elong.nb.model.rateplan.RatePlanCondition;
 import com.elong.nb.model.rateplan.SupplierRatePlan;
 import com.elong.nb.util.DateUtil;
 
+@Repository
 public class RatePlanRepository {
 	
 	@Resource

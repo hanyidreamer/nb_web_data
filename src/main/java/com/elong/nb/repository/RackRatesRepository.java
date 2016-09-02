@@ -7,11 +7,13 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.http.client.utils.DateUtils;
+import org.springframework.stereotype.Repository;
 
 import com.elong.nb.model.rackrate.RackRateHotel;
 import com.elong.nb.model.rackrate.RackRateRoomType;
 import com.elong.nb.sql.SqlHelper;
 
+@Repository
 public class RackRatesRepository {
 
 	private static SqlHelper SqlHelper = new SqlHelper("conf/custom/env/jobjdbc.properties");

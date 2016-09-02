@@ -69,7 +69,7 @@ import com.google.gson.Gson;
 public class BookingDataService implements IBookingDataService {
 
 	private Gson gson=new Gson();
-	private static final RedisManager redis=RedisManager.getInstance(null, null);
+	private static final RedisManager redis=RedisManager.getInstance("redis_data", "redis_data");
 	
 	@Resource 
 	EffectiveStatusRepository effectiveStatusRepository;
