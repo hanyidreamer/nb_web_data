@@ -81,13 +81,17 @@ public class RackRateService implements IRackRateService {
 	    	   
 	    	   //gson.fromJson(redis.get(HOTEL_HOTELIMAGES), new TypeToken<List<HotelImg>>() {}.getType())
 	    	   
-	    	   List<RackRateRoomType> roomTypeList = gson.fromJson(redis.get(key), new TypeToken<List<RackRateRoomType>>() {
-			}.getType());
-	    	   
-	    	   RackRateHotel hotel = new RackRateHotel();
-	    	   hotel.setHotelCode(hcode);
-	    	   hotel.setRoomTypes(roomTypeList);
-	    	   rackHotels.add(hotel); 
+	    	   String res = redis.get(key);
+	    	   if(res!=null && !res.isEmpty())
+	    	   {
+		    	   List<RackRateRoomType> roomTypeList = gson.fromJson(res, new TypeToken<List<RackRateRoomType>>() {
+				                                                                 }.getType());
+		    	   
+		    	   RackRateHotel hotel = new RackRateHotel();
+		    	   hotel.setHotelCode(hcode);
+		    	   hotel.setRoomTypes(roomTypeList);
+		    	   rackHotels.add(hotel); 
+	    	   }
 		}
 		
         if (rackHotels.size() != hotelCodes.length)
@@ -118,7 +122,7 @@ public class RackRateService implements IRackRateService {
         	for(RackRateRoomType room : hotel.getRoomTypes())
         	{
         		Calendar cal = Calendar.getInstance();
-        		cal.add(Calendar.DATE, 1);
+        		cal.add(Calendar.YEAR, 1);
         		
         		if(DateUtil.formatDate(room.getEndDate(), "yyyy-MM-dd").
         				compareTo(DateUtil.formatDate(cal.getTime(), "yyyy-MM-dd"))>0)
