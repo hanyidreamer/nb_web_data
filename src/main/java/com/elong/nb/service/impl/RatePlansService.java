@@ -30,6 +30,8 @@ public class RatePlansService implements IRatePlansService {
         }
         else 
         	{
+        	  RatePlanResult res = new RatePlanResult();
+        	  response.setResult(res);
         	  response.getResult().setHotels(ratePlanRepository.GetRatePlans(request));
         	}
         

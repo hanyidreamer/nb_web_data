@@ -126,8 +126,11 @@ public class M_SRelationRepository {
 		for(String str : mHotelIds)
 		{
 		   List<String> idList = redis.hashMGet(CacheKEY_ID_M_S, str);
+		   if(idList !=null && idList.size()>0)
+		   {
 		   String[] idArray =(String[])(idList.toArray());
 		   result.add(idArray);
+		   }
 		}
           return result;
 	}
