@@ -150,7 +150,7 @@ public class M_SRelationRepository {
          return (MSHotelRelation)obj;
 	}
 	
-public int GetCooperationTypeBySupplierID(int supplierID) {
+	public int GetCooperationTypeBySupplierID(int supplierID) {
 		
 		final String hotelKey="SupplierCooType_"+supplierID;
 		ICacheKey cacheKey=new ICacheKey() {
@@ -200,94 +200,101 @@ public int GetCooperationTypeBySupplierID(int supplierID) {
         return type;
 	}
 	
-private static final ICacheKey CacheKEY_ID_S_M=new ICacheKey() {
+	private static final ICacheKey CacheKEY_ID_S_M=new ICacheKey() {
+		
+		@Override
+		public String getKey() {
+			return KEY_ID_S_M;
+		}
+		
+		@Override
+		public int getExpirationTime() {
+			return -1;
+		}
+	};
 	
-	@Override
-	public String getKey() {
-		return KEY_ID_S_M;
-	}
+	public String GetMHotelId(String sHotelID) {
+		//KEY_ID_S_M
+		String res = redis.hashGet(CacheKEY_ID_S_M, sHotelID);
 	
-	@Override
-	public int getExpirationTime() {
-		return -1;
+	    if (res==null || res.isEmpty())
+	    {
+	        if (!redis.exists(CacheKEY_ID_S_M))
+	        {
+	            return sHotelID;
+	        }
+	        
+	        res = sHotelID;
+	    }
+	
+	    return res;	
 	}
-};
-public String GetMHotelId(String sHotelID) {
-	//KEY_ID_S_M
-	String res = redis.hashGet(CacheKEY_ID_S_M, sHotelID);
 
-    if (res==null || res.isEmpty())
-    {
-        if (!redis.exists(CacheKEY_ID_S_M))
-        {
-            return sHotelID;
-        }
-        
-        res = sHotelID;
-    }
+	public List<com.elong.nb.model.rateplan.MSRoomRelation> GetMSRoomRelation(String sHotelId) {
+		
+		//return redis.HGet<List<MSRoomRelation>>(KEY_RoomType_H_MS, sHotelId);
+		
+		CacheKEY_RoomType_H_MS cacheKey =new CacheKEY_RoomType_H_MS();
+		  cacheKey.setSuffixKey(sHotelId);
+		    
+		  String res =  redis.get(cacheKey);
+		  if(res !=null && !res.isEmpty())
+		  {
+			return gson.fromJson(res, new TypeToken<List<com.elong.nb.model.rateplan.MSRoomRelation>>() {
+			                                   }.getType());
+		  }
+		  
+		  return null;
+	}
 
-    return res;	
+	
 }
 
-public List<com.elong.nb.model.rateplan.MSRoomRelation> GetMSRoomRelation(String sHotelId) {
+	class CacheKEY_Hotel_S_M implements ICacheKey{
+		private static String KEY_Hotel_S_M = "data.hotel.sid_mid";
 	
-	//return redis.HGet<List<MSRoomRelation>>(KEY_RoomType_H_MS, sHotelId);
+		private String suffixKey ;
+		
+		public String getSuffixKey() {
+			return suffixKey;
+		}
 	
-	CacheKEY_RoomType_H_MS cacheKey =new CacheKEY_RoomType_H_MS();
-	    cacheKey.setSuffixKey(sHotelId);
-	return gson.fromJson(redis.get(cacheKey), new TypeToken<List<com.elong.nb.model.rateplan.MSRoomRelation>>() {
-	}.getType());
+		public void setSuffixKey(String suffixKey) {
+			this.suffixKey = suffixKey;
+		}
 	
-}
-
-	
-}
-
-class CacheKEY_Hotel_S_M implements ICacheKey{
-	private static String KEY_Hotel_S_M = "data.hotel.sid_mid";
-
-	private String suffixKey ;
-	
-	public String getSuffixKey() {
-		return suffixKey;
+		@Override
+		public String getKey() {
+			return KEY_Hotel_S_M + suffixKey;
+		}
+		
+		@Override
+		public int getExpirationTime() {
+			return -1;
+		}
 	}
 
-	public void setSuffixKey(String suffixKey) {
-		this.suffixKey = suffixKey;
-	}
-
-	@Override
-	public String getKey() {
-		return KEY_Hotel_S_M + suffixKey;
-	}
+	class CacheKEY_RoomType_H_MS implements ICacheKey{
+		
+		private static String KEY_RoomType_H_MS = "data.room.shid_msid";
+		
+	    private String suffixKey ;
+		
+		public String getSuffixKey() {
+			return suffixKey;
+		}
 	
-	@Override
-	public int getExpirationTime() {
-		return -1;
+		public void setSuffixKey(String suffixKey) {
+			this.suffixKey = suffixKey;
+		}
+		
+		@Override
+		public String getKey() {
+			return KEY_RoomType_H_MS + suffixKey;
+		}
+		
+		@Override
+		public int getExpirationTime() {
+			return -1;
+		}
 	}
-}
-
-class CacheKEY_RoomType_H_MS implements ICacheKey{
-	
-	private static String KEY_RoomType_H_MS = "data.room.shid_msid";
-	
-    private String suffixKey ;
-	
-	public String getSuffixKey() {
-		return suffixKey;
-	}
-
-	public void setSuffixKey(String suffixKey) {
-		this.suffixKey = suffixKey;
-	}
-	
-	@Override
-	public String getKey() {
-		return KEY_RoomType_H_MS + suffixKey;
-	}
-	
-	@Override
-	public int getExpirationTime() {
-		return -1;
-	}
-}
