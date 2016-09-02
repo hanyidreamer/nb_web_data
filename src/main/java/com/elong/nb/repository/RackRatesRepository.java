@@ -21,7 +21,7 @@ public class RackRatesRepository {
 	public List<RackRateHotel> GetRackRates(String hotelIds)
     {
         hotelIds = "''" + hotelIds.replace(",", "'',''") + "''";
-        String sql = String.format("usp_execute_sql_prod 'select HotelID HotelCode,RoomTypeID,BeginDate,EndDate,RackRate,CurrencyCode from RackRateInfo(NOLOCK) where HotelId in({1}) AND EndDate>=''{0}'''",DateUtils.formatDate(new Date(), "yyyy-MM-dd"), hotelIds);
+        String sql = String.format("usp_execute_sql_prod 'select HotelID HotelCode,RoomTypeID,BeginDate,EndDate,RackRate,CurrencyCode from RackRateInfo(NOLOCK) where HotelId in(%s) AND EndDate>=''%s'''",hotelIds,DateUtils.formatDate(new Date(), "yyyy-MM-dd"));
 
         //var rackRooms = SqlHelper.ExecuteDataTable<RackRateRoomType>(sql);
         //List<RackRateHotel> rackHotels = rackRooms.GroupBy(room => room.HotelCode).Select(kv => new RackRateHotel { HotelCode = kv.Key, RoomTypes = kv.Select(hotel => hotel).ToList() }).ToList();
