@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -14,9 +12,10 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Resource;
 
 import org.apache.http.client.utils.DateUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import com.elong.nb.agent.ProductForSearchServiceForRealTimeCheck.InventoryAndPriceCheckResult;
 import com.elong.nb.bookingdata.thread.InventoryThread;
 import com.elong.nb.bookingdata.thread.RatePlanThread;
 import com.elong.nb.bookingdata.thread.RateThread;
@@ -44,15 +43,9 @@ import com.elong.nb.model.bookingdata.BookingDataResult;
 import com.elong.nb.model.bookingdata.CheckMinitor;
 import com.elong.nb.model.bookingdata.ObjectEffectiveStatus;
 import com.elong.nb.model.bookingdata.OrderFromResult;
-import com.elong.nb.model.bookingdata.ResponseResult;
 import com.elong.nb.model.effectivestatuscheck.EffectiveStatus;
-import com.elong.nb.model.effectivestatuscheck.SoaRestRequest;
 import com.elong.nb.model.inventory.bean.Inventory;
 import com.elong.nb.model.rate.bean.Rate;
-import com.elong.nb.model.rateplan.BaseDrrRule;
-import com.elong.nb.model.rateplan.BaseGuaranteeRule;
-import com.elong.nb.model.rateplan.BasePrepayRule;
-import com.elong.nb.model.rateplan.BaseValueAddRule;
 import com.elong.nb.model.rateplan.GiftForRP;
 import com.elong.nb.model.rateplan.HotelRatePlan;
 import com.elong.nb.model.rateplan.RatePlan;
@@ -68,6 +61,7 @@ import com.google.gson.Gson;
 @Service
 public class BookingDataService implements IBookingDataService {
 
+	private static Logger LocalMsg=LogManager.getLogger(BookingDataService.class);
 	private Gson gson=new Gson();
 	private static final RedisManager redis=RedisManager.getInstance("redis_data", "redis_data");
 	
@@ -739,6 +733,7 @@ public class BookingDataService implements IBookingDataService {
                     //checkJson = JsonConvert.SerializeObject(checkMinitor);
                     checkJson = gson.toJson(checkMinitor);
                     //KafkaClient.SendOrderCheckTopic(checkJson);
+                    LocalMsg.log(LocalMsg.getChainedPriority(), checkJson);
                 }
                 catch (Exception e) { }
 
