@@ -61,7 +61,7 @@ import com.google.gson.Gson;
 @Service
 public class BookingDataService implements IBookingDataService {
 
-	private static Logger LocalMsg=LogManager.getLogger(BookingDataService.class);
+	private static Logger logger = LogManager.getLogger("biglog");
 	private Gson gson=new Gson();
 	private static final RedisManager redis=RedisManager.getInstance("redis_data", "redis_data");
 	
@@ -713,7 +713,7 @@ public class BookingDataService implements IBookingDataService {
                     checkMinitor.setOrderCheckTime(DateUtils.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss"));
                     checkMinitor.setRoomNightsCount(roomNightsCount+"");
                     String checkJson;
-                    if (result.getCode() != "0"||checkResult!=null)
+                    if (result.getCode() != "0" || !checkResult.toString().isEmpty())
                     {
                         checkMinitor.setOrderCheckStatus("N");
                         if ( result.getCode() != "0" )
@@ -735,7 +735,8 @@ public class BookingDataService implements IBookingDataService {
                     //checkJson = JsonConvert.SerializeObject(checkMinitor);
                     checkJson = gson.toJson(checkMinitor);
                     //KafkaClient.SendOrderCheckTopic(checkJson);
-                    LocalMsg.log(LocalMsg.getChainedPriority(), checkJson);
+                    //输出到大日志，大日志再输入到kafka
+                    logger.info(checkJson);
                 }
                 catch (Exception e) { }
 
