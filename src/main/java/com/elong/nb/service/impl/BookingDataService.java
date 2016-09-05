@@ -96,7 +96,7 @@ public class BookingDataService implements IBookingDataService {
             boolean isHaveSearchResult = true;
 
             //#region 参数校验
-            String errorCode = null;
+            StringBuilder errorCode = new StringBuilder();
 
             Calendar cdArrival = Calendar.getInstance();
             cdArrival.add(Calendar.DATE, -1);
@@ -106,26 +106,26 @@ public class BookingDataService implements IBookingDataService {
             
             if ( request.getVersion() < 1.13 )
             {
-                errorCode = String.format(ErrorCode.Common_VersionToLow, 1.13);
+                errorCode.append(String.format(ErrorCode.Common_VersionToLow, 1.13));
             }
             else if ( request.getRequest().getPaymentType() == EnumPaymentType.All )
             {
-                errorCode = ErrorCode.Common_PaymentTypeRequired;
+                errorCode.append(ErrorCode.Common_PaymentTypeRequired);
             }
             //else if ( request.getRequest().getArrivalDate() < DateTime.Now.Date.AddDays(-1) )
             else if(request.getRequest().getArrivalDate().compareTo(cdArrival.getTime())<0)
             {
-                errorCode = ErrorCode.Search_ArrivalDateRangeInvalid;
+                errorCode.append( ErrorCode.Search_ArrivalDateRangeInvalid);
             }
             //else if ( request.getRequest().getDepartureDate() < request.Request.ArrivalDate.AddDays(1) )
             else if ( request.getRequest().getDepartureDate().compareTo(cdDeparture.getTime())<0)
             {
-                errorCode = ErrorCode.Search_DepartureDateRangeInvalid;
+                errorCode.append(ErrorCode.Search_DepartureDateRangeInvalid);
             }
 
-            if ( errorCode != null )
+            if ( errorCode!= null &&  !errorCode.toString().isEmpty())
             {
-                result.setCode(errorCode);
+                result.setCode(errorCode.toString());
                 result.setResult(null);
                 return result;
             }
@@ -218,7 +218,7 @@ public class BookingDataService implements IBookingDataService {
                     EffectiveStatus effectiveStatus = effectiveStatusRepository.GetEffectiveStatus(request.getRequest().getHotelId(), request.getRequest().getRoomTypeId(), request.getRequest().getRatePlanId(),
                         request.getRequest().getArrivalDate(),request.getRequest().getDepartureDate(), errorCode,1);//ref errorCode);
 
-                    if (errorCode == "0" && effectiveStatus!=null)
+                    if (errorCode.toString() == "0" && effectiveStatus!=null)
                     {
                     	ObjectEffectiveStatus objectStatus = new ObjectEffectiveStatus();
                         {
@@ -307,61 +307,7 @@ public class BookingDataService implements IBookingDataService {
             taskFactory.shutdown();
             taskFactory.awaitTermination(1, TimeUnit.MINUTES);
            
-            /*
-            List<Task> taskList = new List<Task>();
-
-           
-            for ( var t in tasks )
-            {
-                Task task = t.ContinueWith(completed =>
-                {
-                    switch ( completed.Status )
-                    {
-                        case TaskStatus.RanToCompletion:
-                            if ( completed.Result != null )
-                            {
-                                if ( completed.Result is List<Rate> )
-                                {
-                                    result.Result.Rates = (List<Rate>) completed.Result;
-                                }
-                                else if ( completed.Result is List<Inventory> )
-                                {
-                                    result.Result.Inventories = (List<Inventory>) completed.Result;
-                                }
-                                else if ( completed.Result is HotelRatePlan )
-                                {
-                                    HotelRatePlan hotel = (HotelRatePlan) completed.Result;
-                                    if ( hotel != null && hotel.RatePlans != null && hotel.RatePlans.Count > 0 )
-                                    {
-                                        try
-                                        {
-                                            result.Result.RatePlan = hotel.RatePlans.FirstOrDefault(x => x.RatePlanId == request.Request.RatePlanId);
-                                            if ( result.Result.RatePlan != null && hotel.Suppliers != null && hotel.Suppliers.Count > 0 )
-                                            {
-                                                result.Result.BookingRules = hotel.Suppliers[0].BookingRules;
-                                                result.Result.WeekendStart = hotel.Suppliers[0].WeekendStart;
-                                                result.Result.WeekendEnd = hotel.Suppliers[0].WeekendEnd;
-                                            }
-                                        }
-                                        catch ( Exception ex )
-                                        {
-
-                                        }
-
-                                    }
-                                }
-                            }
-                            break;
-                        case TaskStatus.Faulted:
-                            exceptions.Add(completed.Exception.InnerException);
-                            break;
-                    }
-
-
-                }, TaskScheduler.Current);
-                taskList.Add(task);
-            }
-             */
+          
             
             for(Future<Object> task : tasks)
             {

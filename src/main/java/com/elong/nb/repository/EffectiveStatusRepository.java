@@ -42,7 +42,7 @@ public class EffectiveStatusRepository {
     /// <param name="DepartureDate"></param>
     /// <param name="errorCode"></param>
     /// <returns></returns>
-    public EffectiveStatus GetEffectiveStatus(String mhotelId, String roomTypeId, int ratePlanId, Date ArrivalDate, Date DepartureDate, String errorCode,int retryTimes)
+    public EffectiveStatus GetEffectiveStatus(String mhotelId, String roomTypeId, int ratePlanId, Date ArrivalDate, Date DepartureDate, StringBuilder errorCode,int retryTimes)
     {
         EffectiveStatus effectiveStatus = null;
         String url = GetEffectiveStatusServiceURL("/rest/com/elong/hotel/product/entity/req/nbapi/EffectiveStatusRequest");
@@ -71,11 +71,11 @@ public class EffectiveStatusRepository {
             if (result != null && result.getResponseCode() == 0 && result.getRealResponse() != null && result.getRealResponse().getResponseCode() == 0)
             {
                 effectiveStatus = result.getRealResponse().getEffectiveStatus();
-                errorCode = "0";
+                errorCode.append("0");
             }
             else
             {
-                errorCode = "-1";
+                errorCode.append("-1");
             }
         }
         else if (retryTimes > 0)
