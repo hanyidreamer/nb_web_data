@@ -44,9 +44,7 @@ import com.elong.nb.model.bookingdata.CheckMinitor;
 import com.elong.nb.model.bookingdata.ObjectEffectiveStatus;
 import com.elong.nb.model.bookingdata.OrderFromResult;
 import com.elong.nb.model.effectivestatuscheck.EffectiveStatus;
-import com.elong.nb.model.effectivestatuscheck.EffectiveStatusResponse;
-import com.elong.nb.model.effectivestatuscheck.SoaRestResponse;
-import com.elong.nb.model.inventory.bean.Inventory;
+import com.elong.nb.model.bean.Inventory;
 import com.elong.nb.model.rate.bean.Rate;
 import com.elong.nb.model.rateplan.GiftForRP;
 import com.elong.nb.model.rateplan.HotelRatePlan;
@@ -322,9 +320,9 @@ public class BookingDataService implements IBookingDataService {
             					result.getResult().setRates((List<Rate>)obj);
             				}
             				
-            				if(list.size()>0 && list.get(0) instanceof Inventory)
+            				if(list.size()>0 && list.get(0) instanceof com.elong.nb.model.bean.Inventory)
             				{
-            					result.getResult().setInventories((List<Inventory>)obj);
+            					result.getResult().setInventories((List<com.elong.nb.model.bean.Inventory>)obj);
             				}
               			}
             			if(obj instanceof Boolean)

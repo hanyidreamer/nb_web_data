@@ -28,7 +28,7 @@ public class BookingDataResult {
      private List<com.elong.nb.model.bean.base.BaseBookingRule> BookingRules;
 
 
-     private List<Inventory> Inventories;
+     private List<com.elong.nb.model.bean.Inventory> Inventories;
 
      private List<Rate> Rates;
 
@@ -67,11 +67,11 @@ public class BookingDataResult {
 		BookingRules = bookingRules;
 	}
 
-	public List<Inventory> getInventories() {
+	public List<com.elong.nb.model.bean.Inventory> getInventories() {
 		return Inventories;
 	}
 
-	public void setInventories(List<Inventory> inventories) {
+	public void setInventories(List<com.elong.nb.model.bean.Inventory> inventories) {
 		Inventories = inventories;
 	}
 
