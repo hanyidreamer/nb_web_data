@@ -701,7 +701,7 @@ public class BookingDataService implements IBookingDataService {
 
 	}
 
-	public void CheckBookingDataResult (RestResponse<BookingDataResult>result, String checkOrderResult)
+	public void CheckBookingDataResult (RestResponse<BookingDataResult>result, StringBuilder checkOrderResult)
     {
         if ( result != null && result.getResult() != null )
         {
@@ -727,15 +727,15 @@ public class BookingDataService implements IBookingDataService {
             }
             if ( result.getResult().getRatePlan() == null)
             {
-                checkOrderResult=ErrorCode.Order_CanNotFindRatePlan;
+                checkOrderResult.append(ErrorCode.Order_CanNotFindRatePlan);
             }
             else if ( result.getResult().getInventories() == null || result.getResult().getInventories().size() == 0 || !isAvaliableInv )
             {
-                checkOrderResult = ErrorCode.Order_CheckInventory;
+                checkOrderResult.append(ErrorCode.Order_CheckInventory);
             }
             else if ( result.getResult().getRates() == null || result.getResult().getRates().size() == 0 ||!isAvaliableRate)
             {
-                checkOrderResult = ErrorCode.Order_CheckRate;
+                checkOrderResult.append(ErrorCode.Order_CheckRate);
             }
         }
     }
@@ -757,7 +757,7 @@ public class BookingDataService implements IBookingDataService {
             {
                 try
                 {
-                    String checkResult = null;
+                    StringBuilder checkResult = new StringBuilder();
                     
                         RestResponse<BookingDataResult> bookingDataResult = new RestResponse<BookingDataResult>(request.getGuid());
                         bookingDataResult = result;
@@ -782,8 +782,8 @@ public class BookingDataService implements IBookingDataService {
                         }
                         else
                         {
-                            checkMinitor.setOrderCheckCode(checkResult.split("\\|")[0]);
-                            checkMinitor.setCheckFailureReason(checkResult);
+                            checkMinitor.setOrderCheckCode(checkResult.toString().split("\\|")[0]);
+                            checkMinitor.setCheckFailureReason(checkResult.toString());
                         }
                     }
                     else

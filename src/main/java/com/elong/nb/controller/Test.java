@@ -3,6 +3,8 @@ package com.elong.nb.controller;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -14,12 +16,20 @@ public class Test {
 	@Resource
 	HotelDataController controller;
 	
+	
+	
 	@org.junit.Test
 	public void test() throws Exception {
 
 		//HttpServletRequest req=null;
 		
 		//controller.GetRackRates(req);
+		
+		List<String> al=new ArrayList<String>();
+		 StringBuilder str=new StringBuilder();
+		
+		AL(al,str);
+		
 	try
 	{
 		ratePlan();
@@ -35,7 +45,14 @@ public class Test {
 		
 	}
 	
-	
+	void AL(List<String> al ,StringBuilder str)
+	{
+		//al = new ArrayList<String>();
+		al.add("abc");
+		al.add("123");
+		str.append("abc");
+		str.append("123");
+	}
 	
 	
 	void ratePlan() throws Exception
