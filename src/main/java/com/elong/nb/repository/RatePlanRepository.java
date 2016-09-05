@@ -11,8 +11,6 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Repository;
 
-import antlr.StringUtils;
-
 import com.elong.nb.agent.NorthBoundForAPIService.AddValueInfoSimple;
 import com.elong.nb.agent.NorthBoundForAPIService.AddValuePolicyInfo;
 import com.elong.nb.agent.NorthBoundForAPIService.ArrayOfHotelDetail;
@@ -30,7 +28,6 @@ import com.elong.nb.agent.NorthBoundForAPIService.HotelBookingRule;
 import com.elong.nb.agent.NorthBoundForAPIService.HotelDetail;
 import com.elong.nb.agent.NorthBoundForAPIService.HotelRatePlanCondition;
 import com.elong.nb.agent.NorthBoundForAPIService.INorthBoundForAPIService;
-import com.elong.nb.agent.NorthBoundForAPIService.NorthBoundForAPIService;
 import com.elong.nb.agent.NorthBoundForAPIService.PrePayInfo;
 import com.elong.nb.agent.NorthBoundForAPIService.RatePlanBaseInfo;
 import com.elong.nb.agent.NorthBoundForAPIService.RoomTypeInfo;
@@ -59,11 +56,6 @@ import com.elong.nb.model.bean.enums.EnumPaymentType;
 import com.elong.nb.model.bean.enums.EnumPrepayChangeRule;
 import com.elong.nb.model.bean.enums.EnumPrepayCutPayment;
 import com.elong.nb.model.bean.enums.EnumValueAddPriceOption;
-import com.elong.nb.model.rateplan.BaseBookingRule;
-import com.elong.nb.model.rateplan.BaseDrrRule;
-import com.elong.nb.model.rateplan.BaseGuaranteeRule;
-import com.elong.nb.model.rateplan.BasePrepayRule;
-import com.elong.nb.model.rateplan.BaseValueAddRule;
 import com.elong.nb.model.rateplan.HotelGift;
 import com.elong.nb.model.rateplan.HotelRatePlan;
 import com.elong.nb.model.rateplan.MSHotelRelation;
@@ -106,7 +98,7 @@ public class RatePlanRepository {
         String[] mHotelArrays = request.getRequest().getHotelIds().split(",");
         List<String[]> sHotelIdArrays = M_SRelationRepository.GetSHotelIds(mHotelArrays);
         HashSet<String> sHotelIdSet = new HashSet<String>();
-        int index = 0;
+        //int index = 0;
 
         //默认携程5931，去哪300573
         //string[] orderFroms = CommonRepository.GetAppServerConfig("hotel.rp.filtersupplier", "5931,300573").Split(',');
@@ -116,7 +108,7 @@ public class RatePlanRepository {
             if (ids == null || ids.length <= 0 || ids[0]==null)
                 continue;
 
-            String mhotelId = mHotelArrays[index];
+            //String mhotelId = mHotelArrays[index];
             for (String shotelId : ids)
             {
                 //if (orderFroms.Contains(request.ProxyInfo.OrderFrom.ToString())) 
@@ -330,7 +322,7 @@ public class RatePlanRepository {
             else 
             {
                 //获取合作类型，是艺龙直签还是其它供应商
-            	MSHotelRelation hotelRelation = mSRelationRepository.GetHotelRelation(hotel.getHotelBaseInfo().getHotelId());
+            	MSHotelRelation hotelRelation = M_SRelationRepository.GetHotelRelation(hotel.getHotelBaseInfo().getHotelId());
                 if (hotelRelation != null)
                 {
                     int type = mSRelationRepository.GetCooperationTypeBySupplierID(hotelRelation.getSupplierId());
@@ -1147,7 +1139,7 @@ public class RatePlanRepository {
     {
         List<SupplierRatePlan> result = new ArrayList<SupplierRatePlan>();
         EnumInvoiceMode InvoiceMode = EnumInvoiceMode.Hotel;
-        MSHotelRelation hotelRelation = mSRelationRepository.GetHotelRelation(hotel.getHotelBaseInfo().getHotelId());
+        MSHotelRelation hotelRelation = M_SRelationRepository.GetHotelRelation(hotel.getHotelBaseInfo().getHotelId());
         if (hotelRelation != null)
         {
             InvoiceMode = GetInvoiceMode(hotelRelation.getSupplierId());
