@@ -439,9 +439,9 @@ public class BookingDataService implements IBookingDataService {
                     rp.setGuaranteeRules(new ArrayList<com.elong.nb.model.bean.base.BaseGuaranteeRule>());
                     rp.setHotelCode(rpOfSearch.getHotelCode());
                     rp.setIsLimitTimeSale(rpOfSearch.isIsLastMinuteSale());
-                    //rp.setMaxAdvHours(rpOfSearch.getMaxAdvHours().HasValue ? rpOfSearch.getMaxAdvHours().Value : 365 * 24);
+                    rp.setMaxAdvHours(rpOfSearch.getMaxAdvHours()>0 ? rpOfSearch.getMaxAdvHours() : 365 * 24);
                     rp.setMaxDays(rpOfSearch.getMaxDays());
-                    //rp.setMinAdvHours(rpOfSearch.getMinAdvHours().HasValue ? rpOfSearch.MinAdvHours.Value : 0);
+                    rp.setMinAdvHours(rpOfSearch.getMinAdvHours()>0 ? rpOfSearch.getMinAdvHours() : 0);
                     rp.setMinAmount(rpOfSearch.getMinAmount());
                     rp.setMinDays(rpOfSearch.getMinDays());
                     rp.setPaymentType(rpOfSearch.getPaymentType());
@@ -556,8 +556,8 @@ public class BookingDataService implements IBookingDataService {
 
                 result.getResult().setRatePlan(rp);
                 result.getResult().setBookingRules(bookingRules);
-                //result.getResult().setWeekendStart(rpOfSearch.getWeekendStart());
-                //result.getResult().setWeekendEnd(rpOfSearch.getWeekendEnd());
+                result.getResult().setWeekendStart(rpOfSearch.getWeekendStart());
+                result.getResult().setWeekendEnd(rpOfSearch.getWeekendEnd());
             }
             //#endregion  产品信息
 
