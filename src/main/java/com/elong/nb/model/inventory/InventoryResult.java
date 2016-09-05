@@ -7,7 +7,7 @@ package com.elong.nb.model.inventory;
 
 import java.util.List;
 
-import com.elong.nb.model.inventory.bean.Inventory;
+import com.elong.nb.model.bean.Inventory;
 
 /**
  * (类型功能说明描述)

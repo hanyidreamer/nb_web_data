@@ -7,6 +7,8 @@ package com.elong.nb.model.inventory;
 
 import java.util.Date;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * (类型功能说明描述)
  *
@@ -22,11 +24,17 @@ import java.util.Date;
  * @since		JDK1.7
  */
 public class InventoryCondition {
+@SerializedName(value = "HotelIds", alternate = "hotelIds")	
 private String HotelIds;
+@SerializedName(value = "HotelCodes", alternate = "hotelCodes")
 private String HotelCodes;
+@SerializedName(value = "RoomTypeId", alternate = "roomTypeId")
 private String RoomTypeId;
+@SerializedName(value = "StartDate", alternate = "startDate")
 private Date StartDate;
+@SerializedName(value = "EndDate", alternate = "endDate")
 private Date EndDate;
+@SerializedName(value = "IsNeedInstantConfirm", alternate = "isNeedInstantConfirm")
 private boolean IsNeedInstantConfirm;
 public String getHotelIds() {
 	return HotelIds;

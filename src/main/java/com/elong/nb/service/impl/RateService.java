@@ -7,7 +7,6 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.jetty.util.StringUtil;
 import org.springframework.stereotype.Service;
 
 import com.elong.nb.agent.ProductForNBServiceContract.GetHotelRoomPriceResponse2;
@@ -15,7 +14,8 @@ import com.elong.nb.agent.ProductForNBServiceContract.PriceInfoForNB;
 import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
-import com.elong.nb.dao.adapter.wcf.RateDao;
+import com.elong.nb.dao.adapter.repository.InventoryRepository;
+import com.elong.nb.dao.adapter.repository.RateRepository;
 import com.elong.nb.dao.cache.M_SRelationCache;
 import com.elong.nb.model.bean.enums.EnumPaymentType;
 import com.elong.nb.model.rate.RateCondition;
@@ -30,7 +30,7 @@ import edu.emory.mathcs.backport.java.util.Arrays;
 @Service
 public class RateService implements IRateService {
 	@Resource
-	private RateDao rateDao;
+	private RateRepository rateDao;
 	@Resource
 	private M_SRelationCache m_SRelationCache;
 

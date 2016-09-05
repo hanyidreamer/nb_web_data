@@ -15,30 +15,32 @@ import com.mysql.jdbc.StringUtils;
 public class M_SRelationCache {
 	private static final String KEY_SUPPLIER_MAP = "data.hotel.supplier";
 	private static final String KEY_ID_M_S = "data.ms.mid_sid";
+	private RedisManager redis = RedisManager.getInstance("redis_data",
+			"redis_data");
 
-	// public List<String> getSupplierHotels(String[] supplier){
-	// List<String> supplierHotels=new ArrayList<String>();
-	//
-	// if(supplier!=null&&supplier.length>0){
-	// List<String>supplierList=Arrays.asList(supplier);
-	// for (String s : supplierList) {
-	// String sHotel = redis.hashGet(new ICacheKey() {
-	//
-	// @Override
-	// public String getKey() {
-	// return KEY_SUPPLIER_MAP;
-	// }
-	//
-	// @Override
-	// public int getExpirationTime() {
-	// return -1;
-	// }
-	// }, s);
-	// supplierHotels.add(sHotel);
-	// }
-	// }
-	// return supplierHotels;
-	// }
+	public List<String> getSupplierHotels(String[] supplier) {
+		List<String> supplierHotels = new ArrayList<String>();
+
+		if (supplier != null && supplier.length > 0) {
+			List<String> supplierList = Arrays.asList(supplier);
+			for (String s : supplierList) {
+				String sHotel = redis.hashGet(new ICacheKey() {
+
+					@Override
+					public String getKey() {
+						return KEY_SUPPLIER_MAP;
+					}
+
+					@Override
+					public int getExpirationTime() {
+						return -1;
+					}
+				}, s);
+				supplierHotels.add(sHotel);
+			}
+		}
+		return supplierHotels;
+	}
 
 	/**
 	 * 获取hotelCode
@@ -49,13 +51,12 @@ public class M_SRelationCache {
 	public List<String[]> getSHotelIds(String[] mHotelIds) {
 
 		try {
-			RedisManager redis = RedisManager.getInstance("redis_inventory",
-					"redis_inventory");
+
 			String[] mHotelIdStrs = new String[mHotelIds.length];
 			for (int i = 0; i < mHotelIds.length; i++) {
 				mHotelIdStrs[i] = "\"" + mHotelIds[i] + "\"";
 			}
-			List<String[]> result=new ArrayList<String[]>();
+			List<String[]> result = new ArrayList<String[]>();
 			List<String> rst = new ArrayList<String>();
 			rst = redis.hashMGet(new ICacheKey() {
 				@Override
@@ -71,7 +72,7 @@ public class M_SRelationCache {
 			for (int i = 0; i < mHotelIds.length; i++) {
 				if (!StringUtils.isNullOrEmpty(rst.get(i))) {
 					result.add(JSON.parseObject(rst.get(i), String[].class));
-				}else{
+				} else {
 					result.add(null);
 				}
 			}

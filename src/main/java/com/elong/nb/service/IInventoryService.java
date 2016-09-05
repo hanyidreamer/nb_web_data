@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
+import com.elong.nb.model.inventory.InventoryCondition;
 import com.elong.nb.model.inventory.InventoryResult;
 
 /**
@@ -28,5 +29,5 @@ import com.elong.nb.model.inventory.InventoryResult;
  * @since		JDK1.7
  */
 public interface IInventoryService {
-	RestResponse<InventoryResult> getInventories(HttpServletRequest request) throws IOException;
+	RestResponse<InventoryResult> getInventories(RestRequest<InventoryCondition> restRequest) throws IOException, Exception;
 }
