@@ -225,7 +225,7 @@
 		<dependency>
 			<groupId>com.elong.nbapi</groupId>
 			<artifactId>nb_model_rule</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
