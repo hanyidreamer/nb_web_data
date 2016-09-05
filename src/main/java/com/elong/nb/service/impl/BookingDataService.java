@@ -50,10 +50,10 @@ import com.elong.nb.model.rateplan.GiftForRP;
 import com.elong.nb.model.rateplan.HotelRatePlan;
 import com.elong.nb.model.rateplan.RatePlan;
 import com.elong.nb.repository.EffectiveStatusRepository;
-import com.elong.nb.repository.InventoryRepository;
 import com.elong.nb.repository.ProductForMisServiceRepository;
 import com.elong.nb.repository.RatePlanRepository;
 import com.elong.nb.service.IBookingDataService;
+import com.elong.nb.service.IInventoryService;
 import com.elong.nb.util.HttpUtil;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
@@ -74,7 +74,7 @@ public class BookingDataService implements IBookingDataService {
 	@Resource
 	RateService rateService;
 	@Resource
-	InventoryRepository inventoryRepository;
+	IInventoryService inventoryService;
 	
 	@Override
 	public RestResponse<BookingDataResult> GetBookingData(RestRequest<BookingDataCondition> request) 
@@ -261,7 +261,7 @@ public class BookingDataService implements IBookingDataService {
 
             //Inventory
                             
-            Future<Object> invTask = taskFactory.submit(new InventoryThread(request,inventoryRepository,isInstantConfirmInSearch));
+            Future<Object> invTask = taskFactory.submit(new InventoryThread(request,inventoryService,isInstantConfirmInSearch));
             tasks.add(invTask);
                             
             //end Inventory

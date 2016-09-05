@@ -9,14 +9,14 @@ import com.elong.nb.agent.ProductForPartnerServiceContract.ResourceInvAndInstant
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.model.bookingdata.BookingDataCondition;
 import com.elong.nb.model.inventory.bean.Inventory;
-import com.elong.nb.repository.InventoryRepository;
+import com.elong.nb.service.IInventoryService;
 
 public class InventoryThread implements Callable<Object> {
 
 	RestRequest<BookingDataCondition> request;
-	InventoryRepository inventoryRepository;
+	IInventoryService inventoryRepository;
 	boolean isInstantConfirmInSearch;
-	public InventoryThread(RestRequest<BookingDataCondition> request,InventoryRepository inventoryRepository,boolean isInstantConfirmInSearch)
+	public InventoryThread(RestRequest<BookingDataCondition> request,IInventoryService inventoryRepository,boolean isInstantConfirmInSearch)
 	{
 		this.request =request;
 		this.inventoryRepository =inventoryRepository;

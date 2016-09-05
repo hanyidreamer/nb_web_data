@@ -45,6 +45,7 @@ import com.elong.nb.agent.SupplierService.InvoiceMode;
 import com.elong.nb.common.model.EnumLocal;
 import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestRequest;
+import com.elong.nb.dao.adapter.cache.M_SRelationRepository;
 import com.elong.nb.model.bean.enums.EnumBookingRule;
 import com.elong.nb.model.bean.enums.EnumDateType;
 import com.elong.nb.model.bean.enums.EnumDrrFeeType;

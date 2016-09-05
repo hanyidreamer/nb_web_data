@@ -1,4 +1,4 @@
-package com.elong.nb.dao.cache;
+package com.elong.nb.dao.adapter.cache;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,7 +63,6 @@ public class M_SRelationCache {
 				public String getKey() {
 					return KEY_ID_M_S;
 				}
-
 				@Override
 				public int getExpirationTime() {
 					return 0;

@@ -13,7 +13,6 @@ import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.model.bean.Inventory;
 import com.elong.nb.model.inventory.InventoryCondition;
-import com.elong.nb.model.inventory.InventoryResult;
 import com.elong.nb.model.inventory.ValidateInventoryCondition;
 import com.elong.nb.model.inventory.ValidateInventoryResult;
 import com.elong.nb.service.IInventoryService;
