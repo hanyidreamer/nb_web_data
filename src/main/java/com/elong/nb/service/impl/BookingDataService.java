@@ -174,11 +174,11 @@ public class BookingDataService implements IBookingDataService {
             {
                 //detailres = IHotelManager.GetHotelDetailFromWCF(detailreq);
             	
-            	String url ="http://localhost:8080/api/Hotel/detail";
+            	String url ="http://nbapi-searchhd.vip.elong.com/OpenApiWeb/api/Hotel/InnerDetail";
             	String data = gson.toJson(detailreq, new TypeToken<RestRequest<HotelDetailRequest>>() {
             	                                            }.getType());
             	
-                String responseStr = HttpUtil.httpPost(url + "?requestJson=", data);
+                String responseStr = HttpUtil.httpPost(url, data);
                 
                 detailres = gson.fromJson(responseStr, new TypeToken<RestResponse<HotelListResponse>>() {
 	                                                       }.getType());
