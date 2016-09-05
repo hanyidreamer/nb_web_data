@@ -44,6 +44,8 @@ import com.elong.nb.model.bookingdata.CheckMinitor;
 import com.elong.nb.model.bookingdata.ObjectEffectiveStatus;
 import com.elong.nb.model.bookingdata.OrderFromResult;
 import com.elong.nb.model.effectivestatuscheck.EffectiveStatus;
+import com.elong.nb.model.effectivestatuscheck.EffectiveStatusResponse;
+import com.elong.nb.model.effectivestatuscheck.SoaRestResponse;
 import com.elong.nb.model.inventory.bean.Inventory;
 import com.elong.nb.model.rate.bean.Rate;
 import com.elong.nb.model.rateplan.GiftForRP;
@@ -793,7 +795,8 @@ public class BookingDataService implements IBookingDataService {
         try
         {
         	String res = HttpUtil.httpGetData(url);
-            orderFromResult = gson.fromJson(res, OrderFromResult.class);
+            orderFromResult = gson.fromJson(res, new TypeToken<OrderFromResult>() {
+                                                         }.getType());
         }
         catch ( Exception ex )
         {
