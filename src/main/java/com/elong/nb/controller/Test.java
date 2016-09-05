@@ -25,6 +25,10 @@ public class Test {
 		
 		//controller.GetRackRates(req);
 		
+		
+		TestListObject();
+		
+		
 		List<String> al=new ArrayList<String>();
 		 StringBuilder str=new StringBuilder();
 		
@@ -54,6 +58,25 @@ public class Test {
 		str.append("123");
 	}
 	
+	
+	void TestListObject()
+	{
+		List<String> list= new ArrayList<String>();
+		list.add("abc");
+		
+		List<String> l2=null;
+				
+		Object obj = list;
+		if(obj instanceof List<?>)
+		{
+			List<?> l = (List<?>)obj;
+			
+			if(l.get(0) instanceof String)
+			{
+		      l2= (List<String>)obj;
+			}
+		}
+	}
 	
 	void ratePlan() throws Exception
 	{

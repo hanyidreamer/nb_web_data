@@ -313,12 +313,14 @@ public class BookingDataService implements IBookingDataService {
             		{
             			if(obj instanceof List<?>)
             			{
-            				if(((List) obj).get(0) instanceof Rate)
+            			    List<?> list =	(List<?>)obj;
+            			    
+            				if(list.size()>0 && list.get(0) instanceof Rate)
             				{
             					result.getResult().setRates((List<Rate>)obj);
             				}
             				
-            				if(((List) obj).get(0) instanceof Inventory)
+            				if(list.size()>0 && list.get(0) instanceof Inventory)
             				{
             					result.getResult().setInventories((List<Inventory>)obj);
             				}
