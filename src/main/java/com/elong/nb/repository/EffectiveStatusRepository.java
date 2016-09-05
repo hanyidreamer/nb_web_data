@@ -4,13 +4,16 @@ import java.util.Date;
 
 import org.springframework.stereotype.Repository;
 
+import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.common.util.CommonsUtil;
+import com.elong.nb.model.HotelListResponse;
 import com.elong.nb.model.effectivestatuscheck.EffectiveStatus;
 import com.elong.nb.model.effectivestatuscheck.EffectiveStatusRequest;
 import com.elong.nb.model.effectivestatuscheck.EffectiveStatusResponse;
 import com.elong.nb.model.effectivestatuscheck.SoaRestRequest;
 import com.elong.nb.model.effectivestatuscheck.SoaRestResponse;
 import com.elong.nb.util.HttpUtil;
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 
 @Repository
@@ -66,7 +69,8 @@ public class EffectiveStatusRepository {
         {
             //var result = Newtonsoft.Json.JsonConvert.DeserializeObject<SoaRestResponse<EffectiveStatusResponse>>(response.Data);
 
-        	SoaRestResponse<EffectiveStatusResponse> result = gson.fromJson(responseStr, SoaRestResponse.class);
+        	SoaRestResponse<EffectiveStatusResponse> result = gson.fromJson(responseStr,  new TypeToken<SoaRestResponse<EffectiveStatusResponse>>() {
+                                                                                                          }.getType());
         	
             if (result != null && result.getResponseCode() == 0 && result.getRealResponse() != null && result.getRealResponse().getResponseCode() == 0)
             {
