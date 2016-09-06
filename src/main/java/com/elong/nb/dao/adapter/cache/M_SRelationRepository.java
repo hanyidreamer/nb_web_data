@@ -7,12 +7,10 @@ package com.elong.nb.dao.adapter.cache;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.validator.Var;
 import org.springframework.stereotype.Repository;
 
 import com.elong.nb.agent.SupplierService.GetSupplierInfoBySupplierIDRequest;
@@ -20,7 +18,6 @@ import com.elong.nb.agent.SupplierService.GetSupplierInfoBySupplierIDResponse;
 import com.elong.nb.agent.SupplierService.ISupplierServiceContract;
 import com.elong.nb.cache.ICacheKey;
 import com.elong.nb.cache.RedisManager;
-import com.elong.nb.common.util.CommonsUtil;
 import com.elong.nb.model.rateplan.MSHotelRelation;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
@@ -82,7 +79,7 @@ public class M_SRelationRepository {
 	 * 该方法有问题
 	 * */
 	public static List<String> getSHotelIds(String... mHotelIds){
-		List<String> sHotelIds=new ArrayList();
+		List<String> sHotelIds=new ArrayList<String>();
 		ICacheKey cacheKey=new ICacheKey() {
 			
 			@Override
