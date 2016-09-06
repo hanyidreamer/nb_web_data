@@ -1,10 +1,7 @@
 package com.elong.nb.model.bookingdata;
 
 import java.util.List;
-
-import com.elong.nb.model.inventory.bean.Inventory;
 import com.elong.nb.model.rate.bean.Rate;
-import com.elong.nb.model.rateplan.BaseBookingRule;
 import com.google.gson.annotations.Since;
 import com.elong.nb.model.rateplan.RatePlan;
 

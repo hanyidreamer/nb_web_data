@@ -27,6 +27,9 @@ public class ValidateInventoryService implements IValidateInventoryService{
      {
          RestResponse<ValidateInventoryResult> result =new RestResponse<ValidateInventoryResult>(restRequest.getGuid());
          result.setCode("0");
+         ValidateInventoryResult validateInventoryResult=new ValidateInventoryResult();
+         validateInventoryResult.setIsOK(true);
+         result.setResult(validateInventoryResult);
          Date start = restRequest.getRequest().getArrivalDate();//Request.ArrivalDate.Date;
          Date end = DateUtil.addDays(restRequest.getRequest().getDepartureDate(),-1);
          Date now = new Date();
@@ -39,12 +42,13 @@ public class ValidateInventoryService implements IValidateInventoryService{
          req.setVersion(restRequest.getVersion());
          InventoryCondition request=new InventoryCondition();
          request.setHotelIds(restRequest.getRequest().getHotelId());
+         request.setHotelCodes(restRequest.getRequest().getHotelCode());
          request.setStartDate(start);
          request.setEndDate(end);
          request.setRoomTypeId(restRequest.getRequest().getRoomTypeId());
          req.setRequest(request);
         	 List<Inventory> inventories = this.InventoryService.getInventories(req).getResult().getInventories();
-         while (start.before(end)||start == end)
+         while (start.getTime()<=end.getTime())
          {
         	 	List<Inventory> q = new ArrayList<Inventory>();
         	 	for(Inventory item:inventories){

@@ -10,16 +10,10 @@
         <dependent-module archiveName="nb_common_cache-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/nb_common_cache/nb_common_cache">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="nb_common_db-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/nb_common_db/nb_common_db">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
         <dependent-module archiveName="nb_model_search-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/nb_model_search/nb_model_search">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="nb_model_data-1.0.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/nb_model_data/nb_model_data">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="nb_model_rule-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/nb_model_rule/nb_model_rule">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <property name="context-root" value="nb_web_data"/>
