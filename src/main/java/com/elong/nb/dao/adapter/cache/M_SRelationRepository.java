@@ -54,9 +54,12 @@ public class M_SRelationRepository {
 	public static List<String> getSupplierHotels(String[] supplier){
 		List<String> supplierHotels=new ArrayList<String>();
 		
-		if(supplier!=null&&supplier.length>0){
+		if(supplier!=null&&supplier.length>0)
+		{
 			List<String>supplierList=Arrays.asList(supplier);
+			
 			for (String s : supplierList) {
+				
 				String sHotel = redis.hashGet(new ICacheKey() {
 
 					@Override
@@ -69,6 +72,7 @@ public class M_SRelationRepository {
 						return -1;
 					}
 				}, s);
+				
 				supplierHotels.add(sHotel);
 			}
 		}
@@ -144,7 +148,16 @@ public class M_SRelationRepository {
 			 ms.setSHotelId(sHotelId);
              return ms;
          }
+		 
 		 Object obj = redis.getObj(mskey);
+		 if(obj==null)
+		 {
+			 MSHotelRelation ms =new MSHotelRelation();
+			 ms.setMHotelId(sHotelId);
+			 ms.setSHotelId(sHotelId);
+             return ms; 
+		 }
+		 
          return (MSHotelRelation)obj;
 	}
 	
