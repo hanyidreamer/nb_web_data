@@ -80,7 +80,10 @@ public class BookingDataService implements IBookingDataService {
 	public RestResponse<BookingDataResult> GetBookingData(RestRequest<BookingDataCondition> request) 
 	{
 		RestResponse<BookingDataResult> result = new RestResponse<BookingDataResult>(request.getGuid());
-        try
+		if(result.getResult() ==null)
+            result.setResult(new BookingDataResult());
+		
+		try
         {
 
             //boolean isUseRPInSearch = CommonRepository.GetAppServerConfig("hotel.data.validate.use_detail", "1") == "1";
@@ -177,7 +180,7 @@ public class BookingDataService implements IBookingDataService {
                 detailres = gson.fromJson(responseStr, new TypeToken<RestResponse<HotelListResponse>>() {
 	                                                       }.getType());
                 
-                if (detailres.getCode() == "0") 
+                if (detailres !=null && detailres.getCode() == "0") 
                 {
                     break;
                 }
@@ -185,15 +188,16 @@ public class BookingDataService implements IBookingDataService {
             }
             
 
-            if ( detailres.getCode() != "0" )
+            if (detailres ==null || detailres.getCode() != "0" )
             {
-                result.setCode(detailres.getCode());
+            	if(detailres !=null)
+                  result.setCode(detailres.getCode());
                 result.setResult(null);
                 return result;
             }
             else
             {
-                if (detailres.getResult() != null && detailres.getResult().getCount() > 0 && detailres.getResult().getHotels() != null && detailres.getResult().getHotels().size() > 0
+                if (detailres !=null && detailres.getResult() != null && detailres.getResult().getCount() > 0 && detailres.getResult().getHotels() != null && detailres.getResult().getHotels().size() > 0
                     && detailres.getResult().getHotels().get(0).getRooms() != null
                     && detailres.getResult().getHotels().get(0).getRooms().size() > 0
                     && detailres.getResult().getHotels().get(0).getRooms().get(0).getRatePlans() != null
@@ -223,6 +227,10 @@ public class BookingDataService implements IBookingDataService {
                         	objectStatus.setProductRelation(effectiveStatus.getSroomRatePlanRelation()==1);
                         	objectStatus.setRatePlanStaus(effectiveStatus.getRatePlanStaus()==1);
                         };
+                        
+                        
+                        if(result.getResult() ==null)
+                           result.setResult(new BookingDataResult());
                         result.getResult().setObjectEffectiveStatus(objectStatus);
                         
                         if (effectiveStatus.getMhotelStatus() != 0 || effectiveStatus.getMroomStatus() != 1 || effectiveStatus.getRatePlanStaus() != 1 || effectiveStatus.getShotelStatus() != 0 || 
@@ -367,7 +375,7 @@ public class BookingDataService implements IBookingDataService {
             }
 
             //#region 产品信息
-            if ( isUseRPInSearch&&isHaveSearchResult )
+            if ( isUseRPInSearch && isHaveSearchResult && rpOfSearch !=null)
             {
                 
                 RatePlan rp = new RatePlan();
@@ -551,7 +559,7 @@ public class BookingDataService implements IBookingDataService {
                     }
 
                     //#region 价格对象处理
-                    if (request.getRequest().isIsRatesWithDRR() && isHaveSearchResult)
+                    if (request.getRequest().isIsRatesWithDRR() && isHaveSearchResult && rpOfSearch!=null)
                     {
                         //检查库存是否可用
                         //boolean inventoryAvailable = result.Result.Inventories != null && result.Result.Inventories.Count > 0 &&
