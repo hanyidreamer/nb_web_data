@@ -37,7 +37,10 @@ public class HotelGiftRepository {
 
         GetHotelGiftListResponse res = SHotelGiftService.getHotelGiftListByHotelID(sHotelId);
 
-        if (res.getResult() != null && res.getResult().getResponseCode() == 0 && res.getHotelGiftList() != null && res.getHotelGiftList().getHotelGiftModel().size() > 0)
+        if (res !=null && res.getResult() != null && res.getResult().getResponseCode() == 0 
+        		&& res.getHotelGiftList() != null 
+        		&& res.getHotelGiftList().getHotelGiftModel() !=null
+        		&& res.getHotelGiftList().getHotelGiftModel().size() > 0)
         {
             Date today = new Date();
             for (HotelGiftModel item : res.getHotelGiftList().getHotelGiftModel())
@@ -107,16 +110,20 @@ public class HotelGiftRepository {
                 }
                 else
                 {
-                    for (HotelGiftRelationProduct p : item.getRelationProductList().getHotelGiftRelationProduct())
-                    {
-                        if (p.getRoomTypeID() != "none")
-                        {
-                        	HotelGiftProductRelation hgp =new HotelGiftProductRelation();
-                            hgp.setRatePlanId(p.getRatePlanID());
-                            hgp.setRoomTypeIds(p.getRoomTypeID());
-                            products.add(hgp);
-                        }
-                    }
+                	if(item !=null && item.getRelationProductList() !=null 
+                			&& item.getRelationProductList().getHotelGiftRelationProduct() !=null)
+                	{
+	                    for (HotelGiftRelationProduct p : item.getRelationProductList().getHotelGiftRelationProduct())
+	                    {
+	                        if (p.getRoomTypeID() != "none")
+	                        {
+	                        	HotelGiftProductRelation hgp =new HotelGiftProductRelation();
+	                            hgp.setRatePlanId(p.getRatePlanID());
+	                            hgp.setRoomTypeIds(p.getRoomTypeID());
+	                            products.add(hgp);
+	                        }
+	                    }
+                	}
                 }
 
 
