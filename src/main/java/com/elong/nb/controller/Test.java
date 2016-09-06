@@ -4,18 +4,26 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import com.elong.nb.model.effectivestatuscheck.EffectiveStatusRequest;
+import com.elong.nb.model.effectivestatuscheck.EffectiveStatusResponse;
+import com.elong.nb.model.effectivestatuscheck.SoaRestRequest;
+import com.elong.nb.model.effectivestatuscheck.SoaRestResponse;
 import com.elong.nb.util.HttpUtil;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 
 public class Test {
 
 	@Resource
 	HotelDataController controller;
 	
+	private Gson gson=new Gson();
 	
 	
 	@org.junit.Test
@@ -25,6 +33,9 @@ public class Test {
 		
 		//controller.GetRackRates(req);
 		
+		testJson();
+		
+		testString();
 		
 		TestListObject();
 		
@@ -49,6 +60,28 @@ public class Test {
 		
 	}
 	
+	void testJson()
+	{
+SoaRestRequest<EffectiveStatusRequest> req = new SoaRestRequest<EffectiveStatusRequest>();
+        
+        EffectiveStatusRequest eff = new EffectiveStatusRequest();
+        	eff.setMhotelId("123");
+        	eff.setRoomTypeId("444");
+        	eff.setRatePlanId(555);
+        	eff.setCheckinDate(new Date());
+        	eff.setCheckoutDate( new Date());
+        req.setRealRequest(eff);
+        
+       
+        String data = gson.toJson(req, SoaRestRequest.class);
+        
+        SoaRestRequest<EffectiveStatusRequest> str =gson.fromJson(data, new TypeToken<SoaRestRequest<EffectiveStatusRequest>>() {
+        }.getType());
+         
+        
+        Object obj =str;
+	}
+	
 	void AL(List<String> al ,StringBuilder str)
 	{
 		//al = new ArrayList<String>();
@@ -58,6 +91,19 @@ public class Test {
 		str.append("123");
 	}
 	
+	
+	void testString()
+	{
+		String str=",";
+		str+="123";
+    	str =str.substring(1);
+    	
+    	String str2="";
+		str2+="123,";
+    	str2 =str2.substring(0,str2.lastIndexOf(","));
+    	
+    	String str3=str2;
+	}
 	
 	void TestListObject()
 	{

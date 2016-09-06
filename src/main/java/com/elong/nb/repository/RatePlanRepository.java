@@ -233,6 +233,11 @@ public class RatePlanRepository {
                         //if (s == null)
                     	if(!hashSupp.containsKey(supplier.getHotelCode()))
                         {
+                    		if(mhotel.getSuppliers()==null)
+                    		{
+                    			List<SupplierRatePlan> suppList = new ArrayList<SupplierRatePlan>();
+                    			mhotel.setSuppliers(suppList);
+                    		}
                             mhotel.getSuppliers().add(supplier);
                             hashSupp.put(supplier.getHotelCode(), supplier);
                         }
@@ -257,6 +262,10 @@ public class RatePlanRepository {
                             	
                                 if (br2 == null)
                                 {
+                                	if(s.getBookingRules()==null)
+                                	{
+                                		s.setBookingRules(new ArrayList<com.elong.nb.model.bean.base.BaseBookingRule>());
+                                	}
                                     s.getBookingRules().add(br);
                                 }
                             }
@@ -265,6 +274,10 @@ public class RatePlanRepository {
                 }
                 if (shotel.getRatePlans() != null && shotel.getRatePlans().size() > 0)
                 {
+                	if(mhotel.getRatePlans() ==null)
+                	{
+                		mhotel.setRatePlans(new ArrayList<RatePlan>());
+                	}
                     mhotel.getRatePlans().addAll(shotel.getRatePlans());
                 }
             }
@@ -333,8 +346,15 @@ public class RatePlanRepository {
            
         }
 
+        if(hotel==null || hotel.getRoomBaseInfos() == null || hotel.getRoomBaseInfos().getRoomTypeInfo()==null)
+        	return result;
+        
         for (RoomTypeInfo roomType : hotel.getRoomBaseInfos().getRoomTypeInfo())
         {
+        	if(roomType.getRoomRate()==null || roomType.getRoomRate().getRatePlans()==null 
+        			|| roomType.getRoomRate().getRatePlans().getRatePlanBaseInfo()==null)
+        		continue;
+        	
             for (RatePlanBaseInfo oldrp : roomType.getRoomRate().getRatePlans().getRatePlanBaseInfo())
             {
                 //EnumPaymentType payType = Tools.ParseEnum<EnumPaymentType>(oldrp.SettlementType, EnumPaymentType.Prepay);
@@ -349,7 +369,8 @@ public class RatePlanRepository {
             	
             	RatePlan rp = new RatePlan();
                 {
-                    rp.setHotelCode(hotel.getHotelBaseInfo().getHotelId());
+                	if(hotel.getHotelBaseInfo() !=null)
+                      rp.setHotelCode(hotel.getHotelBaseInfo().getHotelId());
                     rp.setRatePlanId(oldrp.getRatePlanID());
                     //RatePlanCode = oldrp.RatePlanCode,
                     rp.setRatePlanName(language == EnumLocal.zh_CN ? oldrp.getCNRatePlanName() : oldrp.getENGRatePlanName());
@@ -477,6 +498,10 @@ public class RatePlanRepository {
     private List<com.elong.nb.model.bean.base.BaseDrrRule> GetDrrRules(RatePlanBaseInfo oldrp, EnumLocal language)
     {
         List<com.elong.nb.model.bean.base.BaseDrrRule> result = new ArrayList<com.elong.nb.model.bean.base.BaseDrrRule>();
+        
+        if(oldrp ==null || oldrp.getRatePlanDRRList()==null || oldrp.getRatePlanDRRList().getDRRInfo()==null)
+        	return result;
+        
         for (DRRInfo rule : oldrp.getRatePlanDRRList().getDRRInfo())
         {
         	com.elong.nb.model.bean.base.BaseDrrRule brule = new com.elong.nb.model.bean.base.BaseDrrRule();
@@ -533,12 +558,18 @@ public class RatePlanRepository {
                 	drrFee= EnumDrrFeeType.WeekendFee;
                 brule.setFeeType(drrFee);
                 
-                brule.setWeekSet(GetWeekSet(rule.getIsWeekEffective().getInt()));
-                brule.setCheckInNum(GetRuleValue(rule.getRuleValues().getDictionaryEntry(), "CheckInNum"));
-                brule.setDayNum(GetRuleValue(rule.getRuleValues().getDictionaryEntry(), "DayNum"));
-                brule.setLastDayNum(GetRuleValue(rule.getRuleValues().getDictionaryEntry(), "LastDayNum"));
-                brule.setEveryCheckInNum(GetRuleValue(rule.getRuleValues().getDictionaryEntry(), "EveryCheckInNum"));
-                brule.setWhichDayNum(GetRuleValue(rule.getRuleValues().getDictionaryEntry(), "WhichDayNum"));
+                if(rule.getIsWeekEffective() !=null)
+                   brule.setWeekSet(GetWeekSet(rule.getIsWeekEffective().getInt()));
+                if(rule.getRuleValues()!=null)
+                    brule.setCheckInNum(GetRuleValue(rule.getRuleValues().getDictionaryEntry(), "CheckInNum"));
+                if(rule.getRuleValues() !=null)
+                   brule.setDayNum(GetRuleValue(rule.getRuleValues().getDictionaryEntry(), "DayNum"));
+                if(rule.getRuleValues() !=null)
+                   brule.setLastDayNum(GetRuleValue(rule.getRuleValues().getDictionaryEntry(), "LastDayNum"));
+                if(rule.getRuleValues()!=null)
+                   brule.setEveryCheckInNum(GetRuleValue(rule.getRuleValues().getDictionaryEntry(), "EveryCheckInNum"));
+                if(rule.getRuleValues() !=null)
+                   brule.setWhichDayNum(GetRuleValue(rule.getRuleValues().getDictionaryEntry(), "WhichDayNum"));
                 brule.setRoomTypeIds(rule.getRoomTypeIds());
             }
             result.add(brule);
@@ -566,6 +597,9 @@ public class RatePlanRepository {
     
     private int GetRuleValue(List<DictionaryEntry> rules, String key)
     {
+    	if(rules ==null)
+    		return -1;
+    	
         int result;
         //var entry = rules.FirstOrDefault(item => item.Key.ToString() == key);
         DictionaryEntry entry =null;
@@ -602,6 +636,9 @@ public class RatePlanRepository {
     
     private Date GetRuleValue_Date(List<DictionaryEntry> rules, String key)
     {
+    	if(rules ==null)
+    		return new Date();
+    	
         Date result;
         //var entry = rules.FirstOrDefault(item => item.Key.ToString() == key);
         DictionaryEntry entry =null;
@@ -638,6 +675,9 @@ public class RatePlanRepository {
     
     private String GetRuleValue_String(List<DictionaryEntry> rules, String key)
     {
+    	if(rules ==null)
+    		return "";
+    	
         String result;
         //var entry = rules.FirstOrDefault(item => item.Key.ToString() == key);
         DictionaryEntry entry =null;
@@ -674,6 +714,9 @@ public class RatePlanRepository {
     
     private boolean GetRuleValue_bool(List<DictionaryEntry> rules, String key)
     {
+    	if(rules ==null)
+    		return false;
+    	
         boolean result;
         //var entry = rules.FirstOrDefault(item => item.Key.ToString() == key);
         DictionaryEntry entry =null;
@@ -711,6 +754,9 @@ public class RatePlanRepository {
     //private static Regex _hourPayRegex = new Regex("(\\d点)|(\\d:\\d)", RegexOptions.Compiled);
     public boolean IsHourPayRoom(String name)
     {
+    	if(name ==null)
+    		return false;
+    	
         //钟点、小时、半日房
         //\d点、8:0
     	boolean isRegex = name.matches("(//d点)|(//d://d)");
@@ -756,6 +802,11 @@ public class RatePlanRepository {
     private List<com.elong.nb.model.bean.base.BaseGuaranteeRule> GetGuaranteeRules(RatePlanBaseInfo oldrp, EnumLocal language)
     {
         List<com.elong.nb.model.bean.base.BaseGuaranteeRule> result = new ArrayList<com.elong.nb.model.bean.base.BaseGuaranteeRule>();
+        
+        if(oldrp==null || oldrp.getRatePlanVouchRuleList()==null 
+        		|| oldrp.getRatePlanVouchRuleList().getVouchInfo()==null)
+        	return result;
+        
         for (VouchInfo rule : oldrp.getRatePlanVouchRuleList().getVouchInfo())
         {
         	com.elong.nb.model.bean.base.BaseGuaranteeRule temp = new com.elong.nb.model.bean.base.BaseGuaranteeRule();
@@ -796,13 +847,16 @@ public class RatePlanRepository {
                 	 moneyType =EnumGuaranteeMoneyType.FirstNightCost;
                  temp.setGuaranteeType(moneyType);
                  
-                 temp.setWeekSet(GetWeekSet(rule.getIsWeekEffective().getInt()));
+                 if(rule.getIsWeekEffective() !=null)
+                    temp.setWeekSet(GetWeekSet(rule.getIsWeekEffective().getInt()));
 
-                 temp.setDay(GetRuleValue_Date(rule.getRuleValues().getDictionaryEntry(), "DayNum"));
-                 temp.setHour( GetRuleValue(rule.getRuleValues().getDictionaryEntry(), "HourNum"));
-                 temp.setTime(GetRuleValue_String(rule.getRuleValues().getDictionaryEntry(), "TimeNum"));
-                 temp.setIsTomorrow(GetRuleValue_bool(rule.getRuleValues().getDictionaryEntry(), "IsTomorrow"));
-
+                 if(rule.getRuleValues() !=null)
+                 {
+                    temp.setDay(GetRuleValue_Date(rule.getRuleValues().getDictionaryEntry(), "DayNum"));
+                    temp.setHour( GetRuleValue(rule.getRuleValues().getDictionaryEntry(), "HourNum"));
+                    temp.setTime(GetRuleValue_String(rule.getRuleValues().getDictionaryEntry(), "TimeNum"));
+                    temp.setIsTomorrow(GetRuleValue_bool(rule.getRuleValues().getDictionaryEntry(), "IsTomorrow"));
+                 }
              }
 
             //如果是无条件担保，需要将取消条款中的 最早到店时间前N小时修改成 到店日24点前N+10小时---这样就是将最早到店时间默认为14点
@@ -821,6 +875,10 @@ public class RatePlanRepository {
     private List<com.elong.nb.model.bean.base.BasePrepayRule> GetPrepayRules(RatePlanBaseInfo oldrp, EnumLocal language)
     {
         List<com.elong.nb.model.bean.base.BasePrepayRule> result = new ArrayList<com.elong.nb.model.bean.base.BasePrepayRule>();
+        if(oldrp ==null || oldrp.getRatePlanPrePayRuleList()==null 
+        		|| oldrp.getRatePlanPrePayRuleList().getPrePayInfo()==null)
+        	return result;
+        
         for (PrePayInfo rule : oldrp.getRatePlanPrePayRuleList().getPrePayInfo())
         {
         	//给酒店的预付规则不需要返回给合作伙伴
@@ -874,11 +932,13 @@ public class RatePlanRepository {
             basePrepay.setDescription(language == EnumLocal.zh_CN ? rule.getCNDescription() : rule.getENDescription());
             basePrepay.setWeekSet(GetWeekSet(rule.getIsWeekEffective().getInt()));
 
-            basePrepay.setHour(GetRuleValue(rule.getRuleValues().getDictionaryEntry(), "HourNum"));
-            basePrepay.setHour2(GetRuleValue(rule.getRuleValues().getDictionaryEntry(), "HourNum2"));
-            basePrepay.setTime(GetRuleValue_String(rule.getRuleValues().getDictionaryEntry(), "TimeNum"));
-            basePrepay.setDateNum(GetRuleValue_Date(rule.getRuleValues().getDictionaryEntry(), "DateNum"));
-            
+            if(rule.getRuleValues() !=null)
+            {
+	            basePrepay.setHour(GetRuleValue(rule.getRuleValues().getDictionaryEntry(), "HourNum"));
+	            basePrepay.setHour2(GetRuleValue(rule.getRuleValues().getDictionaryEntry(), "HourNum2"));
+	            basePrepay.setTime(GetRuleValue_String(rule.getRuleValues().getDictionaryEntry(), "TimeNum"));
+	            basePrepay.setDateNum(GetRuleValue_Date(rule.getRuleValues().getDictionaryEntry(), "DateNum"));
+            }
             
             result.add(basePrepay);
         }
@@ -943,6 +1003,11 @@ public class RatePlanRepository {
     private List<com.elong.nb.model.bean.base.BaseValueAddRule> GetValueAddRules(RatePlanBaseInfo oldrp, EnumLocal language)
     {
         List<com.elong.nb.model.bean.base.BaseValueAddRule> result = new ArrayList<com.elong.nb.model.bean.base.BaseValueAddRule>();
+        
+        if(oldrp==null || oldrp.getRateplanRelationAddValue() ==null 
+        		|| oldrp.getRateplanRelationAddValue().getAddValueInfoSimple()==null)
+        	return result;
+        
         for (AddValueInfoSimple rule : oldrp.getRateplanRelationAddValue().getAddValueInfoSimple())
         {
         	com.elong.nb.model.bean.base.BaseValueAddRule baserule = new com.elong.nb.model.bean.base.BaseValueAddRule();
@@ -983,6 +1048,10 @@ public class RatePlanRepository {
             result.add(baserule);
         }
 
+        if(oldrp==null || oldrp.getAddValuePolicyList()==null 
+        		|| oldrp.getAddValuePolicyList().getAddValuePolicyInfo() ==null)
+        	return result;
+        
         for (AddValuePolicyInfo rule : oldrp.getAddValuePolicyList().getAddValuePolicyInfo())
         {
             String cnDescription = rule.getStartDate().toString("yyyy-MM-dd") + " - " + rule.getEndDate().toString("yyyy-MM-dd") + ((rule.getIsInclude() == 0) ? " 不含早餐" : " 包含 " + rule.getShare() + " 份早餐");
@@ -1148,11 +1217,15 @@ public class RatePlanRepository {
         SupplierRatePlan suprp = new SupplierRatePlan();
         
             suprp.setBookingRules(GetBookingRules(hotel, language));
-            suprp.setHotelCode( hotel.getHotelBaseInfo().getHotelId());
-            suprp.setWeekendStart(hotel.getHotelBaseInfo().getWeekEndStart());
-            suprp.setWeekendEnd(hotel.getHotelBaseInfo().getWeekEndEnd());
-            List<MSRoomRelation> msList = mSRelationRepository.GetMSRoomRelation(hotel.getHotelBaseInfo().getHotelId());
-            suprp.setRooms(msList);
+            
+            if( hotel.getHotelBaseInfo() !=null)
+            {
+	            suprp.setHotelCode( hotel.getHotelBaseInfo().getHotelId());
+	            suprp.setWeekendStart(hotel.getHotelBaseInfo().getWeekEndStart());
+	            suprp.setWeekendEnd(hotel.getHotelBaseInfo().getWeekEndEnd());
+	            List<MSRoomRelation> msList = mSRelationRepository.GetMSRoomRelation(hotel.getHotelBaseInfo().getHotelId());
+	            suprp.setRooms(msList);
+            }
             suprp.setInvoiceMode(InvoiceMode);
         
         result.add(suprp);
@@ -1187,7 +1260,9 @@ public class RatePlanRepository {
     {
         HashMap<Long, HotelBookingRule> dict = new HashMap<Long, HotelBookingRule>();
 
-        if (hotel.getHotelBaseInfo().getHotelBookingRuleList() != null)
+        if (hotel!=null &&hotel.getHotelBaseInfo() !=null 
+        		&& hotel.getHotelBaseInfo().getHotelBookingRuleList() != null
+        		&&hotel.getHotelBaseInfo().getHotelBookingRuleList().getHotelBookingRule() !=null)
         {
             for (HotelBookingRule rule : hotel.getHotelBaseInfo().getHotelBookingRuleList().getHotelBookingRule())
             {
@@ -1198,11 +1273,12 @@ public class RatePlanRepository {
             }
 
         }
-        if (hotel.getRoomBaseInfos() != null)
+        if (hotel !=null && hotel.getRoomBaseInfos() != null 
+        		&& hotel.getRoomBaseInfos().getRoomTypeInfo() !=null)
         {
             for (RoomTypeInfo room : hotel.getRoomBaseInfos().getRoomTypeInfo())
             {
-                if (room.getRoomBookingRuleList() != null)
+                if (room.getRoomBookingRuleList() != null && room.getRoomBookingRuleList().getHotelBookingRule() !=null)
                 {
                     for (HotelBookingRule rule : room.getRoomBookingRuleList().getHotelBookingRule())
                     {
