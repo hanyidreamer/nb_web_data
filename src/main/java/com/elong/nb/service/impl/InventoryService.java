@@ -80,6 +80,11 @@ public class InventoryService implements IInventoryService{
 		response.setResult(result);
 		return response;
 	}
+	/**
+	 * 需要规则验证的库存数据转换
+	 * @param list
+	 * @return
+	 */
 	private List<RuleInventory> toRuleInventory(List<Inventory> list){
 		List<RuleInventory> result=new ArrayList<RuleInventory>();
 		for(int index=0;index<list.size();index++){
@@ -102,6 +107,7 @@ public class InventoryService implements IInventoryService{
 		}
 		return result;
 	}
+	//合并黑名单数据
 	private void convertToInventory(List<RuleInventory> ruleList,List<Inventory> list){
 		if(ruleList!=null){
 			for(RuleInventory ruleInventory:ruleList){
@@ -118,12 +124,13 @@ public class InventoryService implements IInventoryService{
 		}
 		
 	}
+	//获取库存
 	private List<Inventory> getInentory(ProxyAccount proxyInfo,String hotelId,String hotelCodeString,String roomTypeId,Date startDate,Date endDate,boolean isNeedInstantConfirm,int orderFrom){
 		
 		// 仅提供昨天和近90天的房态数据
 		int days = proxyInfo.getMaxDays() != null ? proxyInfo.getMaxDays() : 90;
 		Date date= DateUtil.addDays(new Date(), -1);
-		if (startDate.before(date)) {
+		if (startDate.getTime()<date.getTime()) {
 			startDate = DateUtil.addDays(new Date(), -1);
 		}
 		if (endDate.after(DateUtil.addDays(new Date(), days))) {
@@ -144,8 +151,10 @@ public class InventoryService implements IInventoryService{
 			sHotelIdArrays = new ArrayList<String[]>();
 			String[] hotelCodes=hotelCodeString.split(",");
 			sHotelIdArrays.add(hotelCodes);
-		} else {
-			mHotelIdArray = hotelId.split(",");
+		} else{
+			List<String> hotelIdList=ComparableUtil.convertDistinctList(Arrays.asList(hotelId.split(",")));
+			String tmp=StringUtils.join(hotelIdList, ',');
+			mHotelIdArray=tmp.split(",");
 			sHotelIdArrays = m_SRelationCache.getSHotelIds(mHotelIdArray);
 		}
 		//如果代理商有供应商限制，则只取其有权限的供应商下的s酒店

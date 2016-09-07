@@ -85,5 +85,15 @@ public class ComparableUtil {
   
         String[] result = {};   
         return list.toArray(result);   
-    }   
+    } 
+    //去重
+    public static List<String> convertDistinctList(List<String> list){
+	    	List<String> distinctList= new ArrayList<String>();  
+	        for(String i:list){  
+	            if(!distinctList.contains(i)){  
+	            		distinctList.add(i);  
+	            }  
+	        }  
+	    return distinctList;
+    }
 }
