@@ -109,24 +109,18 @@ public class M_SRelationRepository {
 		return sHotelIds;
 	}
 	
-    private static final ICacheKey CacheKEY_ID_M_S=new ICacheKey() {
-		
-		@Override
-		public String getKey() {
-			return KEY_ID_M_S;
-		}
-		
-		@Override
-		public int getExpirationTime() {
-			return -1;
-		}
-	};
+    
 	public static List<String[]> GetSHotelIds(String... mHotelIds) {
 
 		List<String[]> result = new ArrayList<String[]>();
 		for(String str : mHotelIds)
 		{
-		   List<String> idList = redis.hashMGet(CacheKEY_ID_M_S, str);
+			CacheKEY_ID_M_S msKey = new CacheKEY_ID_M_S();
+			msKey.setSuffixKey(str);
+			
+		   List<String> idList = new ArrayList<String>();
+		   if(redis.getObj(msKey) !=null)
+		   idList =(List<String>)(redis.getObj(msKey));
 		   if(idList !=null && idList.size()>0)
 		   {
 			   String[] param = new String[idList.size()];
@@ -309,4 +303,29 @@ public class M_SRelationRepository {
 			return -1;
 		}
 	}
+	
+    class  CacheKEY_ID_M_S implements ICacheKey{
+		
+    	private static String KEY_ID_M_S = "data.ms.mid_sid";
+    	
+		private String suffixKey ;
+		
+		public String getSuffixKey() {
+			return suffixKey;
+		}
+	
+		public void setSuffixKey(String suffixKey) {
+			this.suffixKey = suffixKey;
+		}
+		
+		@Override
+		public String getKey() {
+			return KEY_ID_M_S+suffixKey;
+		}
+		
+		@Override
+		public int getExpirationTime() {
+			return -1;
+		}
+	};
 	
