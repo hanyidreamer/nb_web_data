@@ -38,6 +38,7 @@ public class InventoryRuleRepository {
 		request.setLogId("");
 		Gson gson=new Gson();
 		String content=gson.toJson(request);
+		System.out.println(content);
 		String url=getServerUrl("/api/Hotel/GetChangedInventory");
 		String str=HttpUtil.httpPost(url, content);
 		InventoryRuleSoaResponse response=gson.fromJson(str, InventoryRuleSoaResponse.class);
