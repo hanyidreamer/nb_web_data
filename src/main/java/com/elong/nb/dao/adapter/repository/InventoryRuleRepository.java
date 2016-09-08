@@ -42,7 +42,7 @@ public class InventoryRuleRepository {
 		String url=getServerUrl("/api/Hotel/GetChangedInventory");
 		String str=HttpUtil.httpPost(url, content);
 		InventoryRuleSoaResponse response=gson.fromJson(str, InventoryRuleSoaResponse.class);
-		if(response.getResponseCode()=="0"){
+		if("0".equals(response.getResponseCode())){
 			response.getRealResponse().getInventorys();
 		}else{
 			throw new Exception("Inner Exception" + response.getExceptionMsg());

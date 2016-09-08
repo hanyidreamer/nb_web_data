@@ -25,8 +25,19 @@ public class InventoryRepository {
 
 	@Resource
 	private IProductForPartnerServiceContract ProductForPartnerServiceContract;
+	/**
+	 * 获取库存
+	 * @param mHotelId
+	 * @param sHotelId
+	 * @param roomTypeId
+	 * @param startDate
+	 * @param endDate
+	 * @param isNeedInstantConfirm
+	 * @return
+	 */
 	public List<Inventory> getInventorys(String mHotelId,String sHotelId,String roomTypeId,Date startDate,Date endDate,boolean isNeedInstantConfirm){
 		List<Inventory> inventorys=new ArrayList<Inventory>();
+		//需要即时确认的库存
 		if(isNeedInstantConfirm){
 			GetInvChangeAndInstantConfirmRequest request=new GetInvChangeAndInstantConfirmRequest();
 			request.setHotelID(sHotelId);
@@ -95,6 +106,7 @@ public class InventoryRepository {
 		}
 		return inventorys;
 	}
+	//超售状态转换
 	private void convertInventory(Inventory inv){
 		if(inv.getAvailableAmount()>3){
 			inv.setAvailableAmount(3);
