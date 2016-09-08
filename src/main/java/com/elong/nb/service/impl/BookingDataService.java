@@ -87,7 +87,7 @@ public class BookingDataService implements IBookingDataService {
         {
 
             //boolean isUseRPInSearch = CommonRepository.GetAppServerConfig("hotel.data.validate.use_detail", "1") == "1";
-        	boolean isUseRPInSearch = CommonsUtil.CONFIG_PROVIDAR.getProperty("hotel.data.validate.use_detail") =="1";
+        	boolean isUseRPInSearch =CommonsUtil.CONFIG_PROVIDAR.getProperty("hotel.data.validate.use_detail").equals("1");
 
         	boolean isInstantConfirmInSearch = true;
             boolean isHaveSearchResult = true;

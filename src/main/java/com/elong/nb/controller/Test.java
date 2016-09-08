@@ -33,25 +33,25 @@ public class Test {
 		
 		//controller.GetRackRates(req);
 		
-		testJson();
+		//testJson();
 		
-		testString();
+		//testString();
 		
-		TestListObject();
+		//TestListObject();
 		
 		
-		List<String> al=new ArrayList<String>();
-		 StringBuilder str=new StringBuilder();
+		//List<String> al=new ArrayList<String>();
+		 //StringBuilder str=new StringBuilder();
 		
-		AL(al,str);
+		//AL(al,str);
 		
 	try
 	{
-		ratePlan();
+		//ratePlan();
 		
 		bookingData();
 		
-		rackRates();
+		//rackRates();
 	}
 	catch(Exception e)
 	{
