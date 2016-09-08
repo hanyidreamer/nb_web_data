@@ -34,6 +34,7 @@ public class EffectiveStatusRepository {
           url = "http://jcp.mis.elong.com:8110";
 
         }
+   
         return url + query;
     }
     /// <summary>
