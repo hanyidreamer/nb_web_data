@@ -99,7 +99,7 @@ public class InventoryService implements IInventoryService{
 			ruleInventory.setIsInstantConfirm(inventory.isIsInstantConfirm());
 			ruleInventory.setOverBooking(inventory.getOverBooking());
 			ruleInventory.setRoomTypeID(inventory.getRoomTypeID());
-			ruleInventory.setRuleKey(""+index);
+			ruleInventory.setRuleKey(String.valueOf(index));
 			ruleInventory.setStartDate(inventory.getStartDate());
 			ruleInventory.setStartTime(inventory.getStartTime());
 			ruleInventory.setStatus(inventory.isStatus());
