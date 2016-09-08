@@ -63,8 +63,8 @@ public class EffectiveStatusRepository {
         try
         {
         String data = gson.toJson(req, SoaRestRequest.class);
-        String responseStr = HttpUtil.httpPost(url + "?requestJson=", data);
-        
+        //String responseStr = HttpUtil.httpPost(url, "?requestJson="+data);
+        String responseStr = HttpUtil.httpPostData(url+"?requestJson=",data);
         
         if (responseStr !=null && !responseStr.isEmpty())
         {

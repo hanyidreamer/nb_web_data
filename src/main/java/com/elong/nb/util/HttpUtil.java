@@ -74,6 +74,46 @@ public class HttpUtil {
 				}
 		}
 	}
+	
+	public static String httpPostData(String reqUrl,String reqData)throws Exception{
+		HttpURLConnection conn = null;
+		try{
+			String enReqData = java.net.URLEncoder.encode(reqData,"UTF-8"); 
+			URL url = new URL(reqUrl+enReqData);
+			conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod("POST");
+			conn.setDoInput(true);// 设置是否从httpUrlConnection读入，默认情况下是true;   
+			conn.setDoOutput(true);
+			conn.setUseCaches(false);   // Post 请求不能使用缓存
+			conn.setConnectTimeout(8 * 1000);
+			conn.setReadTimeout(30 * 1000);
+			conn.setInstanceFollowRedirects(true);
+			conn.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
+			conn.connect();
+	        // DataOutputStream.writeBytes将字符串中的16位的unicode字符以8位的字符形式写道流里面
+			//DataOutputStream out = new DataOutputStream(conn.getOutputStream());
+			//out.write(reqData.getBytes("UTF-8")); 
+			//out.flush();
+	        //out.close();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(),"UTF-8"));
+			String lines;
+			StringBuilder sb = new StringBuilder();
+			while ((lines = reader.readLine()) != null)
+				sb.append(lines);
+			return sb.toString();
+		}catch(Exception ex){
+			logger.error("http Error,reqUrl:"+reqUrl+",Exception:"+ex.getMessage());
+			throw ex;
+			
+		}finally{
+			if(null != conn)try{
+				conn.disconnect();
+			}catch(Exception ex){
+				logger.error("method:httpPost,使用finally块来关闭输入流,Exception:"+ex.getMessage());
+				throw ex;
+				}
+		}
+	}
 	 
 	 public static com.elong.nb.model.bookingdata.ResponseResult httpGet(String url) throws Exception {
 		 ResponseResult result=new ResponseResult();
