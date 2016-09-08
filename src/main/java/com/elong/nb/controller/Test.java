@@ -25,7 +25,17 @@ public class Test {
 	
 	private Gson gson=new Gson();
 	
+	private Integer max;
 	
+	
+	public Integer getMax() {
+		return max;
+	}
+
+	public void setMax(Integer max) {
+		this.max = max;
+	}
+
 	@org.junit.Test
 	public void test() throws Exception {
 
@@ -35,6 +45,8 @@ public class Test {
 		
 		testJson();
 		
+		Integer a = this.getMax();
+		a=0;
 		//testString();
 		
 		//TestListObject();

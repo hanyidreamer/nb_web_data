@@ -403,9 +403,18 @@ public class BookingDataService implements IBookingDataService {
                     rp.setGuaranteeRules(new ArrayList<com.elong.nb.model.bean.base.BaseGuaranteeRule>());
                     rp.setHotelCode(rpOfSearch.getHotelCode());
                     rp.setIsLimitTimeSale(rpOfSearch.isIsLastMinuteSale());
-                    rp.setMaxAdvHours(rpOfSearch.getMaxAdvHours()>0 ? rpOfSearch.getMaxAdvHours() : 365 * 24);
+                    
+                    Integer max = rpOfSearch.getMaxAdvHours();
+                    if(max==null)
+                    	max =0;
+                    rp.setMaxAdvHours(max>0 ? rpOfSearch.getMaxAdvHours() : 365 * 24);
                     rp.setMaxDays(rpOfSearch.getMaxDays());
-                    rp.setMinAdvHours(rpOfSearch.getMinAdvHours()>0 ? rpOfSearch.getMinAdvHours() : 0);
+                    
+                    Integer min =rpOfSearch.getMinAdvHours();
+                    if(min==null)
+                    	min=0;
+                    rp.setMinAdvHours(min>0 ? rpOfSearch.getMinAdvHours() : 0);
+                    
                     rp.setMinAmount(rpOfSearch.getMinAmount());
                     rp.setMinDays(rpOfSearch.getMinDays());
                     rp.setPaymentType(rpOfSearch.getPaymentType());
@@ -520,8 +529,16 @@ public class BookingDataService implements IBookingDataService {
 
                 result.getResult().setRatePlan(rp);
                 result.getResult().setBookingRules(bookingRules);
-                result.getResult().setWeekendStart(rpOfSearch.getWeekendStart());
-                result.getResult().setWeekendEnd(rpOfSearch.getWeekendEnd());
+
+                Integer WeekendStart =rpOfSearch.getWeekendStart();
+                if(WeekendStart ==null)
+                	WeekendStart =0;
+                result.getResult().setWeekendStart(WeekendStart);
+                
+                Integer WeekendEnd = rpOfSearch.getWeekendEnd();
+                if(WeekendEnd ==null)
+                	WeekendEnd= 0;
+                result.getResult().setWeekendEnd(WeekendEnd);
             }
             //#endregion  产品信息
 
