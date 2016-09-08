@@ -3,7 +3,9 @@ package com.elong.nb.service.impl;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -22,6 +24,8 @@ import com.elong.nb.bookingdata.thread.RateThread;
 import com.elong.nb.bookingdata.thread.RealTimeInvCheckThread;
 import com.elong.nb.cache.ICacheKey;
 import com.elong.nb.cache.RedisManager;
+import com.elong.nb.common.gson.DateTypeAdapter;
+import com.elong.nb.common.gson.GsonUtil;
 import com.elong.nb.common.model.ErrorCode;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
@@ -33,6 +37,7 @@ import com.elong.nb.model.bean.DrrRule;
 import com.elong.nb.model.bean.GuaranteeRule;
 import com.elong.nb.model.bean.Hotel;
 import com.elong.nb.model.bean.ListRatePlan;
+import com.elong.nb.model.bean.Position;
 import com.elong.nb.model.bean.PrepayRule;
 import com.elong.nb.model.bean.ValueAdd;
 import com.elong.nb.model.bean.base.BaseBookingRule;
@@ -57,6 +62,7 @@ import com.elong.nb.service.IInventoryService;
 import com.elong.nb.util.HttpUtil;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import com.google.gson.TypeAdapter;
 
 @Service
 public class BookingDataService implements IBookingDataService {
@@ -176,13 +182,18 @@ public class BookingDataService implements IBookingDataService {
             	if(url==null || url.isEmpty())
             		url ="http://nbapi-searchhd.vip.elong.com/OpenApiWeb/api/Hotel/InnerDetail";
             	
-            	String data = gson.toJson(detailreq, new TypeToken<RestRequest<HotelDetailRequest>>() {
-            	                                            }.getType());
+            	
+            	//String data = gson.toJson(detailreq, new TypeToken<RestRequest<HotelDetailRequest>>(){}.getType());
+            	String data = GsonUtil.toJson(detailreq, 1.26);
             	
                 String responseStr = HttpUtil.httpPost(url, data);
                 
-                detailres = gson.fromJson(responseStr, new TypeToken<RestResponse<HotelListResponse>>() {
-	                                                       }.getType());
+                //detailres = gson.fromJson(responseStr, new TypeToken<RestResponse<HotelListResponse>>() { }.getType());
+                
+                Map<Class, TypeAdapter> m = new HashMap<Class, TypeAdapter>();
+        		m.put(Date.class, new DateTypeAdapter());
+                detailres = GsonUtil.toResponse(responseStr,new TypeToken<RestResponse<HotelListResponse>>() { }.getType(), m);
+                
                 
                 if (detailres !=null && detailres.getCode().equals("0")) 
                 {
@@ -311,10 +322,9 @@ public class BookingDataService implements IBookingDataService {
             
             List<Exception> exceptions = new ArrayList<Exception>();
             taskFactory.shutdown();
-            taskFactory.awaitTermination(1, TimeUnit.MINUTES);
+            //taskFactory.awaitTermination(1, TimeUnit.MINUTES);
            
           
-            
             for(Future<Object> task : tasks)
             {
             	//if(task.isDone())
