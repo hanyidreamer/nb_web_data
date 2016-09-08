@@ -360,11 +360,11 @@ public class RatePlanRepository {
                 //EnumPaymentType payType = Tools.ParseEnum<EnumPaymentType>(oldrp.SettlementType, EnumPaymentType.Prepay);
                 // 全部，仅用于检索All(0), 前台自付SelfPay(1), 预付Prepay(2);
             	EnumPaymentType payType =EnumPaymentType.Prepay;
-            	if(oldrp.getSettlementType()==null ||oldrp.getSettlementType()=="" ||oldrp.getSettlementType()=="2")
+            	if(oldrp.getSettlementType()==null ||oldrp.getSettlementType().equals("") ||oldrp.getSettlementType().equals("2"))
             		payType =EnumPaymentType.Prepay;
-            	else if(oldrp.getSettlementType()=="0")
+            	else if(oldrp.getSettlementType().equals("0"))
             		payType =EnumPaymentType.All;
-            	else if(oldrp.getSettlementType()=="1")
+            	else if(oldrp.getSettlementType().equals("1"))
             		payType =EnumPaymentType.Prepay;
             	
             	RatePlan rp = new RatePlan();
@@ -380,15 +380,15 @@ public class RatePlanRepository {
                     //Tools.ParseEnum<EnumGuestTypeCode>(oldrp.getPriceType(), EnumGuestTypeCode.Chinese)
                     //客人国籍类别：1-统一价；2-内宾；3-外宾；4-港澳台；5-日本
                     EnumGuestTypeCode gtype =EnumGuestTypeCode.Chinese;
-                    if(oldrp.getPriceType()=="1")
+                    if(oldrp.getPriceType().equals("1"))
                     	gtype =EnumGuestTypeCode.All;
-                    else if(oldrp.getPriceType()=="2")
+                    else if(oldrp.getPriceType().equals("2"))
                     	gtype = EnumGuestTypeCode.Chinese;
-                    else if(oldrp.getPriceType()=="3")
+                    else if(oldrp.getPriceType().equals("3"))
                     	gtype = EnumGuestTypeCode.OtherForeign;
-                    else if(oldrp.getPriceType()=="4")
+                    else if(oldrp.getPriceType().equals("4"))
                     	gtype = EnumGuestTypeCode.HongKong;
-                    else if(oldrp.getPriceType()=="5")
+                    else if(oldrp.getPriceType().equals("5"))
                     	gtype = EnumGuestTypeCode.Japanese;
                     rp.setCustomerType(gtype);
                     
@@ -605,7 +605,7 @@ public class RatePlanRepository {
         DictionaryEntry entry =null;
         for(DictionaryEntry dictEntry:rules)
         {
-        	if(dictEntry.getKey()!=null && dictEntry.getKey().toString()==key)
+        	if(dictEntry.getKey()!=null && dictEntry.getKey().toString().equals(key))
         	{
         		entry = dictEntry;
         	}
@@ -644,7 +644,7 @@ public class RatePlanRepository {
         DictionaryEntry entry =null;
         for(DictionaryEntry dictEntry:rules)
         {
-        	if(dictEntry.getKey()!=null && dictEntry.getKey().toString()==key)
+        	if(dictEntry.getKey()!=null && dictEntry.getKey().toString().equals(key))
         	{
         		entry = dictEntry;
         	}
@@ -683,7 +683,7 @@ public class RatePlanRepository {
         DictionaryEntry entry =null;
         for(DictionaryEntry dictEntry:rules)
         {
-        	if(dictEntry.getKey()!=null && dictEntry.getKey().toString()==key)
+        	if(dictEntry.getKey()!=null && dictEntry.getKey().toString().equals(key))
         	{
         		entry = dictEntry;
         	}
@@ -722,7 +722,7 @@ public class RatePlanRepository {
         DictionaryEntry entry =null;
         for(DictionaryEntry dictEntry:rules)
         {
-        	if(dictEntry.getKey()!=null && dictEntry.getKey().toString()==key)
+        	if(dictEntry.getKey()!=null && dictEntry.getKey().toString().equals(key))
         	{
         		entry = dictEntry;
         	}
@@ -787,7 +787,7 @@ public class RatePlanRepository {
         {
             productTypes = "101";
         }
-        if (productTypes =="") 
+        if (productTypes.equals("")) 
         {
         	productTypes = null;
         }
@@ -1199,9 +1199,9 @@ public class RatePlanRepository {
 
         if (language == EnumLocal.zh_CN)
         {
-            return sb3.toString() == "" ? "" : "附加服务：" + sb3.toString();
+            return sb3.toString().equals("") ? "" : "附加服务：" + sb3.toString();
         }
-        return sb3.toString() == "" ? "" : "Other service：" + sb3.toString();
+        return sb3.toString().equals("") ? "" : "Other service：" + sb3.toString();
     }
     
     private List<SupplierRatePlan> GetSuppliers(HotelDetail hotel, EnumLocal language)
