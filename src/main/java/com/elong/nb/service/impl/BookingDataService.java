@@ -184,7 +184,7 @@ public class BookingDataService implements IBookingDataService {
                 detailres = gson.fromJson(responseStr, new TypeToken<RestResponse<HotelListResponse>>() {
 	                                                       }.getType());
                 
-                if (detailres !=null && detailres.getCode() == "0") 
+                if (detailres !=null && detailres.getCode().equals("0")) 
                 {
                     break;
                 }
@@ -192,7 +192,7 @@ public class BookingDataService implements IBookingDataService {
             }
             
 
-            if (detailres ==null || detailres.getCode() != "0" )
+            if (detailres ==null || !detailres.getCode().equals("0") )
             {
             	if(detailres !=null)
                   result.setCode(detailres.getCode());
@@ -220,7 +220,7 @@ public class BookingDataService implements IBookingDataService {
                     EffectiveStatus effectiveStatus = effectiveStatusRepository.GetEffectiveStatus(request.getRequest().getHotelId(), request.getRequest().getRoomTypeId(), request.getRequest().getRatePlanId(),
                         request.getRequest().getArrivalDate(),request.getRequest().getDepartureDate(), errorCode,1);//ref errorCode);
 
-                    if (errorCode.toString() == "0" && effectiveStatus!=null)
+                    if (errorCode.toString().equals("0") && effectiveStatus!=null)
                     {
                     	ObjectEffectiveStatus objectStatus = new ObjectEffectiveStatus();
                         {
@@ -283,7 +283,7 @@ public class BookingDataService implements IBookingDataService {
             boolean realtimeInvAvailable = true;
             //string realtimeInvCheckSwitcher = ConfigService.GetAppServerConfig("hotel.booking.realtime.checkinv", "0");
             String realtimeInvCheckSwitcher = CommonsUtil.CONFIG_PROVIDAR.getProperty("hotel.booking.realtime.checkinv");
-            if (realtimeInvCheckSwitcher == "1")
+            if (realtimeInvCheckSwitcher.equals("1"))
             {      
                    Future<Object> invRealTimeTask = taskFactory.submit(new RealTimeInvCheckThread(request,productForMisServiceRepository));
                    tasks.add(invRealTimeTask);
@@ -704,7 +704,7 @@ public class BookingDataService implements IBookingDataService {
         //开关控制可定性检查
         //var minitor = ConfigService.GetAppServerConfig("hotel.order.minitor", "0");
 		String minitor =CommonsUtil.CONFIG_PROVIDAR.getProperty("hotel.order.minitor");
-        if ( minitor == "1" )
+        if ( minitor.equals("1") )
         {
             //TaskFactory factory = new TaskFactory();
             //factory.StartNew(() =>
