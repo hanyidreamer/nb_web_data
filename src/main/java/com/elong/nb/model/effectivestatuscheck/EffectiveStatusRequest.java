@@ -7,8 +7,8 @@ public class EffectiveStatusRequest {
 	private String mhotelId;
     private String roomTypeId;
     private int ratePlanId;
-    private Date checkinDate;
-    private Date checkoutDate;
+    private String checkinDate;
+    private String checkoutDate;
 	public String getMhotelId() {
 		return mhotelId;
 	}
@@ -27,16 +27,16 @@ public class EffectiveStatusRequest {
 	public void setRatePlanId(int ratePlanId) {
 		this.ratePlanId = ratePlanId;
 	}
-	public Date getCheckinDate() {
+	public String getCheckinDate() {
 		return checkinDate;
 	}
-	public void setCheckinDate(Date checkinDate) {
+	public void setCheckinDate(String checkinDate) {
 		this.checkinDate = checkinDate;
 	}
-	public Date getCheckoutDate() {
+	public String getCheckoutDate() {
 		return checkoutDate;
 	}
-	public void setCheckoutDate(Date checkoutDate) {
+	public void setCheckoutDate(String checkoutDate) {
 		this.checkoutDate = checkoutDate;
 	}
     

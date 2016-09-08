@@ -33,7 +33,7 @@ public class Test {
 		
 		//controller.GetRackRates(req);
 		
-		//testJson();
+		testJson();
 		
 		//testString();
 		
@@ -68,8 +68,8 @@ SoaRestRequest<EffectiveStatusRequest> req = new SoaRestRequest<EffectiveStatusR
         	eff.setMhotelId("123");
         	eff.setRoomTypeId("444");
         	eff.setRatePlanId(555);
-        	eff.setCheckinDate(new Date());
-        	eff.setCheckoutDate( new Date());
+        	//eff.setCheckinDate(new Date());
+        	//eff.setCheckoutDate( new Date());
         req.setRealRequest(eff);
         
        

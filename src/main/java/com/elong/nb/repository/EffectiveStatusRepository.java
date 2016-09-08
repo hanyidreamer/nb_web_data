@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.common.util.CommonsUtil;
+import com.elong.nb.common.util.DateUtils;
 import com.elong.nb.model.HotelListResponse;
 import com.elong.nb.model.effectivestatuscheck.EffectiveStatus;
 import com.elong.nb.model.effectivestatuscheck.EffectiveStatusRequest;
@@ -55,8 +56,8 @@ public class EffectiveStatusRepository {
         	eff.setMhotelId(mhotelId);
         	eff.setRoomTypeId(roomTypeId);
         	eff.setRatePlanId(ratePlanId);
-        	eff.setCheckinDate(ArrivalDate);
-        	eff.setCheckoutDate( DepartureDate);
+        	eff.setCheckinDate(DateUtils.convertDate(ArrivalDate, "yyyy-MM-dd"));
+        	eff.setCheckoutDate(DateUtils.convertDate(DepartureDate, "yyyy-MM-dd") );
         req.setRealRequest(eff);
         
         try

@@ -808,7 +808,7 @@ public class BookingDataService implements IBookingDataService {
         if(orderFromNameUrl==null ||orderFromNameUrl.isEmpty())
         	orderFromNameUrl ="http://api.vip.elong.com/admin.php/Api/getprojectname";
         
-        orderFromNameUrl +="?orderFromId={0}";
+        orderFromNameUrl +="?orderFromId=%s";
         
         String url = String.format(orderFromNameUrl, orderFromId);
         OrderFromResult orderFromResult = new OrderFromResult();
