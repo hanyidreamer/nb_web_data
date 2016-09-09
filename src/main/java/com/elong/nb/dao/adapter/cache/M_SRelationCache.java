@@ -14,7 +14,7 @@ import com.mysql.jdbc.StringUtils;
 @Repository
 public class M_SRelationCache {
 	private static final String KEY_SUPPLIER_MAP = "data.hotel.supplier";
-	private static final String KEY_ID_M_S = "data.ms.mid_sid";
+	private static final String  KEY_ID_M_S = "data.ms.mid_sid";
 	private RedisManager redis = RedisManager.getInstance("redis_data",
 			"redis_data");
 
@@ -72,7 +72,7 @@ public class M_SRelationCache {
 				if (!StringUtils.isNullOrEmpty(rst.get(i))) {
 					result.add(JSON.parseObject(rst.get(i), String[].class));
 				} else {
-					result.add(null);
+					result.add(new String[]{mHotelIds[i]});
 				}
 			}
 			return result;

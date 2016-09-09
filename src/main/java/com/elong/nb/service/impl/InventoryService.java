@@ -5,10 +5,11 @@
  */
 package com.elong.nb.service.impl;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 
@@ -24,7 +25,9 @@ import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.dao.adapter.cache.M_SRelationCache;
 import com.elong.nb.dao.adapter.repository.InventoryRepository;
 import com.elong.nb.dao.adapter.repository.InventoryRuleRepository;
-import com.elong.nb.model.RuleInventory;
+import com.elong.nb.model.InventoryRuleHitCheckRealResponse;
+import com.elong.nb.model.RuleInventoryRequest;
+import com.elong.nb.model.RuleInventoryResponse;
 import com.elong.nb.model.bean.Inventory;
 import com.elong.nb.model.inventory.InventoryCondition;
 import com.elong.nb.model.inventory.InventoryResult;
@@ -73,9 +76,6 @@ public class InventoryService implements IInventoryService{
 		InventoryResult result = new InventoryResult();
 		List<Inventory> list= getInentory(restRequest.getProxyInfo(),restRequest.getRequest().getHotelIds(),restRequest.getRequest().getHotelCodes(),restRequest.getRequest().getRoomTypeId(),restRequest.getRequest().getStartDate(),restRequest.getRequest().getEndDate(),
 				false,restRequest.getProxyInfo().getOrderFrom());
-		List<RuleInventory> ruleList=toRuleInventory(list);
-		inventoryRuleRepository.convertInventoryWithRule(ruleList,restRequest.getProxyInfo().getOrderFrom(), restRequest.getRequest().isIsNeedInstantConfirm());
-		convertToInventory(ruleList, list);
 		result.setInventories(list);
 		response.setResult(result);
 		return response;
@@ -83,50 +83,48 @@ public class InventoryService implements IInventoryService{
 	/**
 	 * 需要规则验证的库存数据转换
 	 * @param list
+	 * @param needBlackListRuleCodes 
 	 * @return
 	 */
-	private List<RuleInventory> toRuleInventory(List<Inventory> list){
-		List<RuleInventory> result=new ArrayList<RuleInventory>();
+	private List<RuleInventoryRequest> toRuleInventory(List<Inventory> list, List<String> needBlackListRuleCodes){
+		List<RuleInventoryRequest> result=new ArrayList<RuleInventoryRequest>();
 		for(int index=0;index<list.size();index++){
-			RuleInventory ruleInventory=new RuleInventory();
 			Inventory inventory=list.get(index);
-			ruleInventory.setAvailableAmount(inventory.getAvailableAmount());
-			ruleInventory.setAvailableDate(inventory.getAvailableDate());
-			ruleInventory.setEndDate(inventory.getEndDate());
-			ruleInventory.setEndTime(inventory.getEndTime());
-			ruleInventory.setHotelCode(inventory.getHotelCode());
-			ruleInventory.setHotelID(inventory.getHotelID());
-			ruleInventory.setIsInstantConfirm(inventory.isIsInstantConfirm());
-			ruleInventory.setOverBooking(inventory.getOverBooking());
-			ruleInventory.setRoomTypeID(inventory.getRoomTypeID());
-			ruleInventory.setRuleKey(String.valueOf(index));
-			ruleInventory.setStartDate(inventory.getStartDate());
-			ruleInventory.setStartTime(inventory.getStartTime());
-			ruleInventory.setStatus(inventory.isStatus());
-			result.add(ruleInventory);
+			//过滤不在黑名单列表里的库存
+			if(needBlackListRuleCodes.contains(inventory.getHotelCode())){
+				RuleInventoryRequest ruleInventory=new RuleInventoryRequest();
+				ruleInventory.setHotelCode(inventory.getHotelCode());
+				ruleInventory.setHotelID(inventory.getHotelID());
+				ruleInventory.setRoomTypeID(inventory.getRoomTypeID());
+				ruleInventory.setAvailableDate(inventory.getAvailableDate());
+				ruleInventory.setRuleKey(String.valueOf(index));
+				ruleInventory.setStartDate(inventory.getStartDate());
+				ruleInventory.setEndDate(inventory.getEndDate());
+				ruleInventory.setIsInstantConfirm(inventory.isIsInstantConfirm());
+				ruleInventory.setOverBooking(inventory.getOverBooking());
+				result.add(ruleInventory);
+			}
 		}
 		return result;
 	}
 	//合并黑名单数据
-	private void convertToInventory(List<RuleInventory> ruleList,List<Inventory> list){
+	private void convertToInventory(List<RuleInventoryResponse> ruleList,List<Inventory> list){
 		if(ruleList!=null){
-			for(RuleInventory ruleInventory:ruleList){
-				list.get(Integer.parseInt(ruleInventory.getRuleKey())).setAvailableAmount(ruleInventory.getAvailableAmount());
-				list.get(Integer.parseInt(ruleInventory.getRuleKey())).setAvailableDate(ruleInventory.getAvailableDate());
+			for(RuleInventoryResponse ruleInventory:ruleList){
 				list.get(Integer.parseInt(ruleInventory.getRuleKey())).setEndDate(ruleInventory.getEndDate());
-				list.get(Integer.parseInt(ruleInventory.getRuleKey())).setEndTime(ruleInventory.getEndTime());
-				list.get(Integer.parseInt(ruleInventory.getRuleKey())).setIsInstantConfirm(ruleInventory.isIsInstantConfirm());
 				list.get(Integer.parseInt(ruleInventory.getRuleKey())).setOverBooking(ruleInventory.getOverBooking());
 				list.get(Integer.parseInt(ruleInventory.getRuleKey())).setStartDate(ruleInventory.getStartDate());
-				list.get(Integer.parseInt(ruleInventory.getRuleKey())).setStartTime(ruleInventory.getStartTime());
 				list.get(Integer.parseInt(ruleInventory.getRuleKey())).setStatus(ruleInventory.isStatus());
+				if(!ruleInventory.isStatus()){
+					list.get(Integer.parseInt(ruleInventory.getRuleKey())).setAvailableAmount(0);
+				}
 			}
 		}
 		
 	}
 	//获取库存
-	private List<Inventory> getInentory(ProxyAccount proxyInfo,String hotelId,String hotelCodeString,String roomTypeId,Date startDate,Date endDate,boolean isNeedInstantConfirm,int orderFrom){
-		
+	private List<Inventory> getInentory(ProxyAccount proxyInfo,String hotelId,String hotelCodeString,String roomTypeId,Date startDate,Date endDate,boolean isNeedInstantConfirm,int orderFrom) throws Exception{
+		List<Inventory> result=new ArrayList<Inventory>();
 		// 仅提供昨天和近90天的房态数据
 		int days = proxyInfo.getMaxDays() != null ? proxyInfo.getMaxDays() : 90;
 		Date date= DateUtil.addDays(new Date(), -1);
@@ -173,11 +171,36 @@ public class InventoryService implements IInventoryService{
 		
 		forkJoinPool.shutdown();
 		try {
-			return inventoryTask.get();
+			result= inventoryTask.get();
 		} catch (InterruptedException | ExecutionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return null;
+		Map<String,List<String>> hotelMap=new HashMap<String, List<String>>();
+		for(int index=0;index<mHotelIdArray.length;index++){
+			hotelMap.put(mHotelIdArray[index], Arrays.asList(sHotelIdArrays.get(index)));
+		}
+		InventoryRuleHitCheckRealResponse hitRule=inventoryRuleRepository.getCheckInfo(hotelMap, orderFrom, isNeedInstantConfirm);
+		List<String> needBlackListRuleCodes=hitRule.getNeedBlackListRuleCodes();
+		List<RuleInventoryResponse> ruleListResult= null;
+		if(needBlackListRuleCodes!=null&&needBlackListRuleCodes.size()>0){
+			List<RuleInventoryRequest> ruleList=toRuleInventory(result,needBlackListRuleCodes);
+			ruleListResult= inventoryRuleRepository.convertInventoryWithRule(ruleList,proxyInfo.getOrderFrom(),isNeedInstantConfirm);
+			convertToInventory(ruleListResult, result);
+		}
+		List<String> hitInstantConfirmList=hitRule.getInstantConfirmCodes();
+		if(isNeedInstantConfirm&&hitInstantConfirmList!=null&&hitInstantConfirmList.size()>0){
+			if(result!=null&&result.size()>0){
+				for(Inventory inv:result){
+					if(inv.isIsInstantConfirm()){
+						if(hitInstantConfirmList.contains(inv.getHotelCode())){
+							inv.setIsInstantConfirm(false);
+						}
+					}
+				}
+			}
+			
+		}
+		return result;
 	}
 }
