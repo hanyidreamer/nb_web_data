@@ -43,7 +43,7 @@ public class Test {
 		
 		//controller.GetRackRates(req);
 		
-		testJson();
+		//testJson();
 		
 		Integer a = this.getMax();
 		a=0;
@@ -59,9 +59,9 @@ public class Test {
 		
 	try
 	{
-		//ratePlan();
+		ratePlan();
 		
-		bookingData();
+		//bookingData();
 		
 		//rackRates();
 	}

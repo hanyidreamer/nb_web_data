@@ -97,6 +97,13 @@ public class RatePlanRepository {
 
         String[] mHotelArrays = request.getRequest().getHotelIds().split(",");
         List<String[]> sHotelIdArrays = M_SRelationRepository.GetSHotelIds(mHotelArrays);
+        
+        //test
+        //String[] test = new String[1];
+        //test[0]="20101001";
+        //sHotelIdArrays.add(test);
+        //end test
+        
         HashSet<String> sHotelIdSet = new HashSet<String>();
         //int index = 0;
 
@@ -160,7 +167,8 @@ public class RatePlanRepository {
         
         if(str.length()>0)
         {
-        	str= str.substring(0, str.lastIndexOf(","));
+        	if(str.contains(","))
+        	    str= str.substring(0, str.lastIndexOf(","));
             al.add(str);
         }
         
@@ -794,7 +802,8 @@ public class RatePlanRepository {
         else
         {
             //productTypes = productTypes.TrimEnd(new char[] { ',' }); //123,
-            productTypes = productTypes.substring(0, productTypes.lastIndexOf(","));
+        	if(productTypes.contains(","))
+               productTypes = productTypes.substring(0, productTypes.lastIndexOf(","));
         }
         return productTypes;
     }
@@ -1174,12 +1183,23 @@ public class RatePlanRepository {
             if (sb1.length() != 0)
             {
             	//"包含" + sb1.ToString().TrimEnd(',') + ";"
-                sb3.append("包含" + sb1.toString().substring(0,sb1.toString().lastIndexOf(",")) + ";");
+            	String temp1 ="";
+            	if(sb1.toString().contains(","))
+            	  temp1 =sb1.toString().substring(0,sb1.toString().lastIndexOf(","));
+            	else
+            		temp1 = sb1.toString();
+                sb3.append("包含" + temp1+ ";");
             }
             if (sb2.length() != 0)
             {
             	//"单加" + sb2.ToString().TrimEnd(',')
-                sb3.append("单加" + sb2.toString().substring(0,sb2.toString().lastIndexOf(",")));
+            	String temp1 ="";
+            	if(sb2.toString().contains(","))
+            	  temp1 =sb2.toString().substring(0,sb2.toString().lastIndexOf(","));
+            	else
+            		temp1 = sb2.toString();
+            	
+                sb3.append("单加" + temp1);
             }
         }
         else
@@ -1187,12 +1207,24 @@ public class RatePlanRepository {
             if (sb1.length() != 0)
             {
             	//" Including " + sb1.ToString().TrimEnd(',') + ";"
-                sb3.append(" Including " + sb1.toString().substring(0,sb1.toString().lastIndexOf(","))+ ";");
+            	String temp1 ="";
+            	if(sb1.toString().contains(","))
+            	  temp1 =sb1.toString().substring(0,sb1.toString().lastIndexOf(","));
+            	else
+            		temp1 = sb1.toString();
+            	
+                sb3.append(" Including " + temp1+ ";");
             }
             if (sb2.length() != 0)
             {
             	//" every additional one costs " + sb2.ToString().TrimEnd(',')
-                sb3.append(" every additional one costs " + sb2.toString().substring(0,sb2.toString().lastIndexOf(",")));
+            	String temp1 ="";
+            	if(sb2.toString().contains(","))
+            	  temp1 =sb2.toString().substring(0,sb2.toString().lastIndexOf(","));
+            	else
+            		temp1 = sb2.toString();
+            	
+                sb3.append(" every additional one costs " + temp1);
             }
         }
 
