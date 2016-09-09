@@ -88,11 +88,9 @@ public class HotelRateController {
 		StringBuffer sb = new StringBuffer(
 				ValidateUtil.validateRestRequest(restRequest));
 		RateCondition req = restRequest.getRequest();
-		if(restRequest.getRequest().getHotelIds()!="10"){
+		if(StringUtils.isNoneBlank(restRequest.getRequest().getHotelIds())&&restRequest.getRequest().getHotelIds().split(",").length>10){
 			sb.append(ErrorCode.Common_IdsMustLestThanTen);
 			return sb.toString();
-			 //String pattern = String.format("^(\d+,){0,%s}\d+,?$",);
-	           // return Regex.IsMatch(input, pattern) ? ValidationResult.Success : new ValidationResult(ErrorMessage ?? "字符串格式错误且个数不能大于" + Number);
 		}
 		if(restRequest.getRequest().getStartDate()==null){
 			sb.append(ErrorCode.Common_StartDateRequired);
