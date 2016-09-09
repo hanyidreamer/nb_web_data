@@ -89,18 +89,21 @@ public class InventoryService implements IInventoryService{
 	private List<RuleInventoryRequest> toRuleInventory(List<Inventory> list, List<String> needBlackListRuleCodes){
 		List<RuleInventoryRequest> result=new ArrayList<RuleInventoryRequest>();
 		for(int index=0;index<list.size();index++){
-			RuleInventoryRequest ruleInventory=new RuleInventoryRequest();
 			Inventory inventory=list.get(index);
-			ruleInventory.setHotelCode(inventory.getHotelCode());
-			ruleInventory.setHotelID(inventory.getHotelID());
-			ruleInventory.setRoomTypeID(inventory.getRoomTypeID());
-			ruleInventory.setAvailableDate(inventory.getAvailableDate());
-			ruleInventory.setRuleKey(String.valueOf(index));
-			ruleInventory.setStartDate(inventory.getStartDate());
-			ruleInventory.setEndDate(inventory.getEndDate());
-			ruleInventory.setIsInstantConfirm(inventory.isIsInstantConfirm());
-			ruleInventory.setOverBooking(inventory.getOverBooking());
-			result.add(ruleInventory);
+			//过滤不在黑名单列表里的库存
+			if(needBlackListRuleCodes.contains(inventory.getHotelCode())){
+				RuleInventoryRequest ruleInventory=new RuleInventoryRequest();
+				ruleInventory.setHotelCode(inventory.getHotelCode());
+				ruleInventory.setHotelID(inventory.getHotelID());
+				ruleInventory.setRoomTypeID(inventory.getRoomTypeID());
+				ruleInventory.setAvailableDate(inventory.getAvailableDate());
+				ruleInventory.setRuleKey(String.valueOf(index));
+				ruleInventory.setStartDate(inventory.getStartDate());
+				ruleInventory.setEndDate(inventory.getEndDate());
+				ruleInventory.setIsInstantConfirm(inventory.isIsInstantConfirm());
+				ruleInventory.setOverBooking(inventory.getOverBooking());
+				result.add(ruleInventory);
+			}
 		}
 		return result;
 	}
