@@ -1,3 +1,4 @@
+/*
 package com.elong.nb.controller;
 
 import static org.junit.Assert.*;
@@ -172,3 +173,4 @@ SoaRestRequest<EffectiveStatusRequest> req = new SoaRestRequest<EffectiveStatusR
 	
 
 }
+*/
