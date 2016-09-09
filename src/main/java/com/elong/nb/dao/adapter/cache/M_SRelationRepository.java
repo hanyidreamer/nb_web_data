@@ -143,8 +143,9 @@ public class M_SRelationRepository {
              return ms;
          }
 		 
-		 Object obj = redis.getObj(mskey);
-		 if(obj==null)
+		 //取出来是序列化的JSon
+		 String obj = redis.get(mskey);
+		 if(obj==null || obj.isEmpty())
 		 {
 			 MSHotelRelation ms =new MSHotelRelation();
 			 ms.setMHotelId(sHotelId);
@@ -152,7 +153,10 @@ public class M_SRelationRepository {
              return ms; 
 		 }
 		 
-         return (MSHotelRelation)obj;
+		 MSHotelRelation temp = gson.fromJson(obj, 
+			     new TypeToken<MSHotelRelation>(){}.getType());
+				  
+         return temp;
 	}
 	
 	public int GetCooperationTypeBySupplierID(int supplierID) {
@@ -242,13 +246,15 @@ public class M_SRelationRepository {
 		CacheKEY_RoomType_H_MS cacheKey =new CacheKEY_RoomType_H_MS();
 		  cacheKey.setSuffixKey(sHotelId);
 		    
-		  Object res =  redis.getObj(cacheKey);
-		  if(res !=null && res instanceof List<?>)
+		  String res =  redis.get(cacheKey);
+		  if(res !=null && !res.isEmpty())
 		  {
 			  try
 			  {
+				  List<com.elong.nb.model.rateplan.MSRoomRelation> temp = gson.fromJson(res, 
+			     new TypeToken<List<com.elong.nb.model.rateplan.MSRoomRelation>>(){}.getType());
 				  
-			    return (List<com.elong.nb.model.rateplan.MSRoomRelation>)res;
+			    return temp;
 			
 			  }catch(Exception ex){
 				  
