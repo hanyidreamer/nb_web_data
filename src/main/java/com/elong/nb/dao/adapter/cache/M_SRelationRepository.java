@@ -242,11 +242,17 @@ public class M_SRelationRepository {
 		CacheKEY_RoomType_H_MS cacheKey =new CacheKEY_RoomType_H_MS();
 		  cacheKey.setSuffixKey(sHotelId);
 		    
-		  String res =  redis.get(cacheKey);
-		  if(res !=null && !res.isEmpty())
+		  Object res =  redis.getObj(cacheKey);
+		  if(res !=null && res instanceof List<?>)
 		  {
-			return gson.fromJson(res, new TypeToken<List<com.elong.nb.model.rateplan.MSRoomRelation>>() {
-			                                   }.getType());
+			  try
+			  {
+				  
+			    return (List<com.elong.nb.model.rateplan.MSRoomRelation>)res;
+			
+			  }catch(Exception ex){
+				  
+			  }
 		  }
 		  
 		  return null;
