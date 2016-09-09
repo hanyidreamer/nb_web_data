@@ -319,7 +319,8 @@ public class RatePlanRepository {
             //    Suppliers = GetSuppliers(hotel, language),
             //});
         	HotelRatePlan rp = new HotelRatePlan();
-        	rp.setHotelID(mHotelId == null ? mSRelationRepository.GetMHotelId(hotel.getHotelBaseInfo().getHotelId()) : mHotelId);
+        	if(hotel.getHotelBaseInfo() !=null)
+        	  rp.setHotelID(mHotelId == null ? mSRelationRepository.GetMHotelId(hotel.getHotelBaseInfo().getHotelId()) : mHotelId);
         	rp.setRatePlans(GetRatePlans(hotel, language, proxyInfo, requestVersion, options));
             rp.setSuppliers(GetSuppliers(hotel, language));
         	result.add(rp);
@@ -542,7 +543,8 @@ public class RatePlanRepository {
                 	drrPre =EnumDrrPreferential.Scale;
                 brule.setCashScale(drrPre);
                 
-                brule.setDeductNum(rule.getMoneyOrPercentValue().doubleValue());
+                if(rule.getMoneyOrPercentValue() !=null)
+                   brule.setDeductNum(rule.getMoneyOrPercentValue().doubleValue());
                 
                 //Tools.ParseEnum<EnumDateType>(rule.DateType.GetHashCode().ToString(), EnumDateType.CheckInDay)
                 EnumDateType dateType = EnumDateType.CheckInDay;
@@ -555,8 +557,10 @@ public class RatePlanRepository {
                 brule.setDateType(dateType);
                 
                 brule.setDescription(language == EnumLocal.zh_CN ? rule.getCNDescription() : rule.getENDescription());
-                brule.setStartDate(rule.getStartDate().toDate());
-                brule.setEndDate(rule.getEndDate().toDate());
+                if(rule.getStartDate()!=null)
+                   brule.setStartDate(rule.getStartDate().toDate());
+                if(rule.getEndDate() !=null)
+                   brule.setEndDate(rule.getEndDate().toDate());
                 
                 //Tools.ParseEnum<EnumDrrFeeType>(rule.FeeType.GetHashCode().ToString(), EnumDrrFeeType.WeekendFee)
                 EnumDrrFeeType drrFee = EnumDrrFeeType.WeekendFee;
@@ -600,7 +604,10 @@ public class RatePlanRepository {
             result += ",7";
         }
         //return result.Trim(',');
-        return result.substring(1);
+        if(result.contains(","))
+           return result.substring(1);
+        
+        return result;
     }
     
     private int GetRuleValue(List<DictionaryEntry> rules, String key)
@@ -767,7 +774,8 @@ public class RatePlanRepository {
     	
         //钟点、小时、半日房
         //\d点、8:0
-    	boolean isRegex = name.matches("(//d点)|(//d://d)");
+    	//boolean isRegex = name.matches("(//d点)|(//d://d)");
+    	boolean isRegex = name.matches("(\\d点)|(\\d:\\d)");
         if (name.contains("小时") || name.contains("钟点") || name.contains("半日房") 
         		|| isRegex) 
         	return true;
@@ -820,8 +828,10 @@ public class RatePlanRepository {
         {
         	com.elong.nb.model.bean.base.BaseGuaranteeRule temp = new com.elong.nb.model.bean.base.BaseGuaranteeRule();
              {
-                temp.setStartDate(rule.getStartDate().toDate());
-                 temp.setEndDate(rule.getEndDate().toDate());
+            	 if(rule.getStartDate() !=null)
+                    temp.setStartDate(rule.getStartDate().toDate());
+            	 if(rule.getEndDate()!=null)
+                    temp.setEndDate(rule.getEndDate().toDate());
                  temp.setStartTime(rule.getArriveStartTime());
                  temp.setEndTime(rule.getArriveEndTime());
                  temp.setAmount(rule.getRoomCount());
@@ -915,8 +925,10 @@ public class RatePlanRepository {
             	dateType=EnumDateType.StayDay; 
             basePrepay.setDateType(dateType);
             
-            basePrepay.setStartDate(rule.getStartDate().toDate());
-            basePrepay.setEndDate(rule.getEndDate().toDate());
+            if(rule.getStartDate() !=null)
+               basePrepay.setStartDate(rule.getStartDate().toDate());
+            if(rule.getEndDate() !=null)
+               basePrepay.setEndDate(rule.getEndDate().toDate());
             
             //Tools.ParseEnum<EnumPrepayCutPayment>(rule.CutTypeAfter.GetHashCode().ToString(), EnumPrepayCutPayment.FristNight)
             EnumPrepayCutPayment after = EnumPrepayCutPayment.FristNight;
@@ -936,10 +948,13 @@ public class RatePlanRepository {
             
             basePrepay.setDeductFeesAfter(rule.isCutAfterChangeTime() ? 1 : 0);
             basePrepay.setDeductFeesBefore(rule.isCutBeforChangeTime() ? 1 : 0);
-            basePrepay.setDeductNumAfter(rule.getCutNumAfter().doubleValue());
-            basePrepay.setDeductNumBefore(rule.getCutNumBefor().doubleValue());
+            if(rule.getCutNumAfter() !=null)
+               basePrepay.setDeductNumAfter(rule.getCutNumAfter().doubleValue());
+            if(rule.getCutNumBefor() !=null)
+               basePrepay.setDeductNumBefore(rule.getCutNumBefor().doubleValue());
             basePrepay.setDescription(language == EnumLocal.zh_CN ? rule.getCNDescription() : rule.getENDescription());
-            basePrepay.setWeekSet(GetWeekSet(rule.getIsWeekEffective().getInt()));
+            if(rule.getIsWeekEffective() !=null)
+               basePrepay.setWeekSet(GetWeekSet(rule.getIsWeekEffective().getInt()));
 
             if(rule.getRuleValues() !=null)
             {
@@ -1034,7 +1049,8 @@ public class RatePlanRepository {
                 	priceOpt=EnumValueAddPriceOption.Money;
                 baserule.setPriceOption(priceOpt);
                 
-                baserule.setPrice(rule.getPrice().doubleValue());
+                if(rule.getPrice() !=null)
+                   baserule.setPrice(rule.getPrice().doubleValue());
                 
                 //Tools.ParseEnum<EnumValueAddPriceOption>(rule.SinglePriceDefaultOption.ToString(), EnumValueAddPriceOption.Percent)
                 // 无None(0),金额Money(1),比例Percent(2)  
@@ -1045,7 +1061,8 @@ public class RatePlanRepository {
                 	addPrice= EnumValueAddPriceOption.None;
                 baserule.setExtOption(addPrice);
                 
-                baserule.setExtPrice(rule.getSinglePrice().doubleValue());
+                if(rule.getSinglePrice() !=null)
+                   baserule.setExtPrice(rule.getSinglePrice().doubleValue());
                 baserule.setIsExtAdd(rule.isIsAdd());
                 baserule.setAmount( rule.getShare());
 
@@ -1063,9 +1080,14 @@ public class RatePlanRepository {
         
         for (AddValuePolicyInfo rule : oldrp.getAddValuePolicyList().getAddValuePolicyInfo())
         {
-            String cnDescription = rule.getStartDate().toString("yyyy-MM-dd") + " - " + rule.getEndDate().toString("yyyy-MM-dd") + ((rule.getIsInclude() == 0) ? " 不含早餐" : " 包含 " + rule.getShare() + " 份早餐");
-            String enDescription = rule.getStartDate().toString("yyyy-MM-dd") + " - " + rule.getEndDate().toString("yyyy-MM-dd") + ((rule.getIsInclude() == 0) ? " no breakfast" : " includes " + rule.getShare() + " breakfast");
-            
+        	String cnDescription="";
+        	String enDescription="";
+        	if(rule.getStartDate()!=null && rule.getEndDate() !=null)
+        	{
+	            cnDescription = rule.getStartDate().toString("yyyy-MM-dd") + " - " + rule.getEndDate().toString("yyyy-MM-dd") + ((rule.getIsInclude() == 0) ? " 不含早餐" : " 包含 " + rule.getShare() + " 份早餐");
+	            enDescription = rule.getStartDate().toString("yyyy-MM-dd") + " - " + rule.getEndDate().toString("yyyy-MM-dd") + ((rule.getIsInclude() == 0) ? " no breakfast" : " includes " + rule.getShare() + " breakfast");
+        	}
+        	
             com.elong.nb.model.bean.base.BaseValueAddRule base =  new com.elong.nb.model.bean.base.BaseValueAddRule();
             {
             	base.setDescription(language == EnumLocal.zh_CN ? cnDescription : enDescription);
@@ -1094,12 +1116,15 @@ public class RatePlanRepository {
                 base.setExtPrice(rule.getSinglePrice());
                 base.setIsExtAdd(rule.getIsAdd() == 1);
                 base.setAmount(rule.getShare());
-                base.setStartDate(rule.getStartDate().toDate());
-                base.setEndDate(rule.getEndDate().toDate());
+                if(rule.getStartDate() !=null)
+                   base.setStartDate(rule.getStartDate().toDate());
+                if(rule.getEndDate() !=null)
+                   base.setEndDate(rule.getEndDate().toDate());
                 base.setCurrencyCode(rule.getCurrencyCode());
                 
                 //rule.IsWeekEffective.Select(c => Convert.ToInt32(c.ToString())).ToList()
-                base.setWeekSet(GetWeekSet(rule.getIsWeekEffective().getChar()));
+                if(rule.getIsWeekEffective() !=null)
+                   base.setWeekSet(GetWeekSet(rule.getIsWeekEffective().getChar()));
             }
             result.add(base);
         }
@@ -1340,8 +1365,10 @@ public class RatePlanRepository {
         	temp.setDateType(dateType);
         	
         	temp.setDescription(language == EnumLocal.zh_CN ? rule.getCNDescription() : rule.getENDescription());
-        	temp.setStartDate(rule.getStartDate().toDate());
-        	temp.setEndDate(rule.getEndDate().toDate());
+            if(rule.getStartDate()!=null)
+        	   temp.setStartDate(rule.getStartDate().toDate());
+        	if(rule.getEndDate() !=null)
+        	  temp.setEndDate(rule.getEndDate().toDate());
         	temp.setStartHour(rule.getStartHour());
         	temp.setEndHour(rule.getEndHour());
         	temp.setRoomTypeIds(rule.getRoomTypeID());
