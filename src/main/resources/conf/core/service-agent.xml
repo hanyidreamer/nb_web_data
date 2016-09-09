@@ -57,7 +57,7 @@
 	
 	<jaxws:client id="northBoundForAPIService"
 		serviceClass="com.elong.nb.agent.NorthBoundForAPIService.INorthBoundForAPIService"
-		address="${services.INorthBoundForAPIService.address}">
+		address="${services.northBoundForAPIService.address}">
 		<jaxws:properties>
 			<entry key="set-jaxb-validation-event-handler" value="false" />
 		</jaxws:properties>
