@@ -180,26 +180,30 @@ public class InventoryService implements IInventoryService{
 		for(int index=0;index<mHotelIdArray.length;index++){
 			hotelMap.put(mHotelIdArray[index], Arrays.asList(sHotelIdArrays.get(index)));
 		}
-		InventoryRuleHitCheckRealResponse hitRule=inventoryRuleRepository.getCheckInfo(hotelMap, orderFrom, isNeedInstantConfirm);
-		List<String> needBlackListRuleCodes=hitRule.getNeedBlackListRuleCodes();
-		List<RuleInventoryResponse> ruleListResult= null;
-		if(needBlackListRuleCodes!=null&&needBlackListRuleCodes.size()>0){
-			List<RuleInventoryRequest> ruleList=toRuleInventory(result,needBlackListRuleCodes);
-			ruleListResult= inventoryRuleRepository.convertInventoryWithRule(ruleList,proxyInfo.getOrderFrom(),isNeedInstantConfirm);
-			convertToInventory(ruleListResult, result);
-		}
-		List<String> hitInstantConfirmList=hitRule.getInstantConfirmCodes();
-		if(isNeedInstantConfirm&&hitInstantConfirmList!=null&&hitInstantConfirmList.size()>0){
-			if(result!=null&&result.size()>0){
-				for(Inventory inv:result){
-					if(inv.isIsInstantConfirm()){
-						if(hitInstantConfirmList.contains(inv.getHotelCode())){
-							inv.setIsInstantConfirm(false);
+		if(result!=null&&result.size()>0){
+			InventoryRuleHitCheckRealResponse hitRule=inventoryRuleRepository.getCheckInfo(hotelMap, orderFrom, isNeedInstantConfirm);
+			List<String> needBlackListRuleCodes=hitRule.getNeedBlackListRuleCodes();
+			List<RuleInventoryResponse> ruleListResult= null;
+			if(needBlackListRuleCodes!=null&&needBlackListRuleCodes.size()>0){
+				List<RuleInventoryRequest> ruleList=toRuleInventory(result,needBlackListRuleCodes);
+				if(ruleList!=null&&ruleList.size()>0){
+					ruleListResult= inventoryRuleRepository.convertInventoryWithRule(ruleList,proxyInfo.getOrderFrom(),isNeedInstantConfirm);
+					convertToInventory(ruleListResult, result);
+				}
+			}
+			List<String> hitInstantConfirmList=hitRule.getInstantConfirmCodes();
+			if(isNeedInstantConfirm&&hitInstantConfirmList!=null&&hitInstantConfirmList.size()>0){
+				if(result!=null&&result.size()>0){
+					for(Inventory inv:result){
+						if(inv.isIsInstantConfirm()){
+							if(hitInstantConfirmList.contains(inv.getHotelCode())){
+								inv.setIsInstantConfirm(false);
+							}
 						}
 					}
 				}
+				
 			}
-			
 		}
 		return result;
 	}

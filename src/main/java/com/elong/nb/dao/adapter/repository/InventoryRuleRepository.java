@@ -69,7 +69,10 @@ public class InventoryRuleRepository {
 		System.out.println("JSON序列化时间耗时：(ms)"+(end-start));
 		String url=getServerUrl("/api/Hotel/CheckInvRuleHit");
 		System.out.println("传输参数大小：(byte)"+content.getBytes().length);
+		start=System.currentTimeMillis();
 		String str=HttpUtil.httpPost(url, content);
+		end=System.currentTimeMillis();
+		System.out.println("规则命中检查接口耗时：(ms)"+(end-start));
 		InventoryRuleHitCheckSoaResponse response=gson.fromJson(str, InventoryRuleHitCheckSoaResponse.class);
 		if("0".equals(response.getResponseCode())){
 			return response.getRealResponse();
