@@ -118,14 +118,13 @@ public class M_SRelationRepository {
 			CacheKEY_ID_M_S msKey = new CacheKEY_ID_M_S();
 			msKey.setSuffixKey(str);
 			
-		   List<String> idList = new ArrayList<String>();
-		   if(redis.getObj(msKey) !=null)
-		   idList =(List<String>)(redis.getObj(msKey));
-		   if(idList !=null && idList.size()>0)
+			String res = redis.get(msKey);
+		   
+		   if( res!=null && !res.isEmpty())
 		   {
-			   String[] param = new String[idList.size()];
-			   String[] idArray =(String[])(idList.toArray(param));
-			   result.add(idArray);
+			   String[] t= gson.fromJson(res, 
+	    			     new TypeToken<String[]>(){}.getType());
+			   result.add(t);
 		   }
 		}
           return result;
