@@ -1,19 +1,11 @@
 package com.elong.nb.controller;
-
-import static org.junit.Assert.*;
-
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 
 import com.elong.nb.model.effectivestatuscheck.EffectiveStatusRequest;
-import com.elong.nb.model.effectivestatuscheck.EffectiveStatusResponse;
 import com.elong.nb.model.effectivestatuscheck.SoaRestRequest;
-import com.elong.nb.model.effectivestatuscheck.SoaRestResponse;
 import com.elong.nb.util.HttpUtil;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
