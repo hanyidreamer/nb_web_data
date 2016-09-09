@@ -86,8 +86,7 @@ public class BookingDataService implements IBookingDataService {
 	public RestResponse<BookingDataResult> GetBookingData(RestRequest<BookingDataCondition> request) 
 	{
 		RestResponse<BookingDataResult> result = new RestResponse<BookingDataResult>(request.getGuid());
-		if(result.getResult() ==null)
-            result.setResult(new BookingDataResult());
+        result.setResult(new BookingDataResult());
 		
 		try
         {
