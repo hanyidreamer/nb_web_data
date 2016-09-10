@@ -15,7 +15,6 @@ import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.dao.adapter.cache.M_SRelationCache;
-import com.elong.nb.dao.adapter.repository.InventoryRepository;
 import com.elong.nb.dao.adapter.repository.RateRepository;
 import com.elong.nb.model.bean.enums.EnumPaymentType;
 import com.elong.nb.model.rate.RateCondition;
@@ -23,9 +22,6 @@ import com.elong.nb.model.rate.RateResult;
 import com.elong.nb.model.rate.bean.Rate;
 import com.elong.nb.service.IRateService;
 import com.elong.nb.util.DateUtil;
-import com.sun.xml.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
-
-import edu.emory.mathcs.backport.java.util.Arrays;
 
 @Service
 public class RateService implements IRateService {
@@ -54,22 +50,15 @@ public class RateService implements IRateService {
 
 		List<Rate> rates = new ArrayList<Rate>();
 		if (request.getRequest().getPaymentType() == EnumPaymentType.All) {
-			rates.addAll(getRate(request.getProxyInfo(), request.getRequest()
-					.getHotelIds(), request.getRequest().getHotelCodes(),
-					request.getRequest().getStartDate(), request.getRequest()
-							.getEndDate(), EnumPaymentType.SelfPay, request
+			rates.addAll(getRate(request.getProxyInfo(), request.getRequest().getHotelIds(), request.getRequest().getHotelCodes(),
+					request.getRequest().getStartDate(), request.getRequest().getEndDate(), EnumPaymentType.SelfPay, request
 							.getProxyInfo().getLowestProfitPercent()));
-			rates.addAll(getRate(request.getProxyInfo(), request.getRequest()
-					.getHotelIds(), request.getRequest().getHotelCodes(),
-					request.getRequest().getStartDate(), request.getRequest()
-							.getEndDate(), EnumPaymentType.Prepay, request
+			rates.addAll(getRate(request.getProxyInfo(), request.getRequest().getHotelIds(), request.getRequest().getHotelCodes(),
+					request.getRequest().getStartDate(), request.getRequest().getEndDate(), EnumPaymentType.Prepay, request
 							.getProxyInfo().getLowestProfitPercent()));
 		} else {
-			rates.addAll(getRate(request.getProxyInfo(), request.getRequest()
-					.getHotelIds(), request.getRequest().getHotelCodes(),
-					request.getRequest().getStartDate(), request.getRequest()
-							.getEndDate(), request.getRequest()
-							.getPaymentType(), request.getProxyInfo()
+			rates.addAll(getRate(request.getProxyInfo(), request.getRequest().getHotelIds(), request.getRequest().getHotelCodes(),
+					request.getRequest().getStartDate(), request.getRequest().getEndDate(), request.getRequest().getPaymentType(), request.getProxyInfo()
 							.getLowestProfitPercent()));
 		}
 		result.setRates(rates);
@@ -82,18 +71,18 @@ public class RateService implements IRateService {
 			EnumPaymentType paymentType, double lowestProfitPercent)
 			throws Exception {
 		List<Rate> result = new ArrayList<Rate>();
-		// 仅提供昨天和近90天的房态数据
+		// 仅提供昨天和近180天的房态数据
 		int days = proxyInfo.getMaxDays() != null ? proxyInfo.getMaxDays() : 90;
 		Date date= DateUtil.addDays(new Date(), -1);
-		if (startDate.before(date)) {
+		if (startDate.getTime()<date.getTime()) {
 			startDate = DateUtil.addDays(new Date(), -1);
 		}
-		if (endDate.after(DateUtil.addDays(new Date(), days))) {
+		if (endDate.getTime()>DateUtil.addDays(new Date(), days).getTime()) {
 			endDate = DateUtil.addDays(new Date(), days);
 		}
 		String[] mHotelIdArray = null;
 		List<String[]> sHotelIdArrays = null;
-		if (!StringUtils.isNotBlank(sHotelId)) {
+		if (StringUtils.isBlank(sHotelId)) {
 			mHotelIdArray = mHotelId.split(",");
 			sHotelIdArrays = m_SRelationCache.getSHotelIds(mHotelIdArray);
 		} else {
@@ -122,19 +111,15 @@ public class RateService implements IRateService {
 						for (PriceInfoForNB item : response.getPriceInfoList()
 								.getPriceInfoForNB()) {
 							Date rateEndDate = item.getEndDate().toDate();
-							rateEndDate = item.getEndDate() != null ? item
-									.getEndDate().toDate() : DateUtil
-									.getMinValue();
-							if (rateEndDate.after(validDate))
+							rateEndDate = item.getEndDate() != null ? item.getEndDate().toDate() : DateUtil.getMinValue();
+							if (rateEndDate.getTime()>validDate.getTime()){
 								rateEndDate = validDate;
+							}
 							if (item.getMemberRate() == null) {
 								continue;
 							}
 							if (lowestProfitPercent > 0) {
-								double profitPercent = (item.getMemberRate()
-										.doubleValue() - item.getGenSaleCost()
-										.doubleValue())
-										/ item.getMemberRate().doubleValue();
+								double profitPercent = (item.getMemberRate().doubleValue() - item.getGenSaleCost().doubleValue())/ item.getMemberRate().doubleValue();
 								if (profitPercent * 100 < lowestProfitPercent) {
 									continue;
 								}
@@ -142,59 +127,34 @@ public class RateService implements IRateService {
 							Rate rate = new Rate();
 							rate.setHotelID(mHotelId);
 							rate.setHotelCode(item.getHotelID());
-							double member = item.getMemberRate() != null ? item
-									.getMemberRate().doubleValue() : -1d;
-							member = toIntegerPrice(member,
-									proxyInfo.getIntegerPriceType());
+							double member = item.getMemberRate() != null ? item.getMemberRate().doubleValue() : -1d;
+							member = toIntegerPrice(member,proxyInfo.getIntegerPriceType());
 							rate.setMember(member);
 							rate.setEndDate(rateEndDate);
-							Double membserCose = (paymentType == EnumPaymentType.Prepay || proxyInfo
-									.getEnableReturnAgentcyRateCost()) ? proxyInfo
-									.getSettlementPrice(
-											item.getGenSaleCost() != null ? item
-													.getGenSaleCost()
-													.doubleValue() : -1d,
-											item.getMemberRate() != null ? item
-													.getMemberRate()
-													.doubleValue() : -1d, false)
-									: -1d;
+							Double membserCose = (paymentType == EnumPaymentType.Prepay || proxyInfo.getEnableReturnAgentcyRateCost()) ? proxyInfo.getSettlementPrice(
+											item.getGenSaleCost() != null ? item.getGenSaleCost().doubleValue() : -1d,
+											item.getMemberRate() != null ? item.getMemberRate().doubleValue() : -1d, false): -1d;
 							rate.setMemberCost(membserCose);
 							rate.setRateplanId(item.getRatePlanID());
 							rate.setRoomTypeId(item.getRoomTypeID());
-							rate.setStartDate(item.getStartDate() != null ? item
-									.getStartDate().toDate() : DateUtil
-									.getMinValue());
-							rate.setStatus(item.getIsEffective() != null
-									&& item.getIsEffective() == 1);
-							double weekend = item.getWeekendMemberRate() != null ? item
-									.getWeekendMemberRate().doubleValue() : -1d;
-							weekend = toIntegerPrice(weekend,
-									proxyInfo.getIntegerPriceType());
+							rate.setStartDate(item.getStartDate() != null ? item.getStartDate().toDate() : DateUtil.getMinValue());
+							rate.setStatus(item.getIsEffective() != null&& item.getIsEffective() == 1);
+							double weekend = item.getWeekendMemberRate() != null ? item.getWeekendMemberRate().doubleValue() : -1d;
+							weekend = toIntegerPrice(weekend,proxyInfo.getIntegerPriceType());
 							rate.setWeekend(weekend);
-							double weekendCost = (paymentType == EnumPaymentType.Prepay || proxyInfo
-									.getEnableReturnAgentcyRateCost()) ? proxyInfo
-									.getSettlementPrice(
-											item.getWeekendSaleCost() != null ? item
-													.getWeekendSaleCost()
-													.doubleValue() : -1d,
-											item.getWeekendMemberRate() != null ? item
-													.getWeekendMemberRate()
-													.doubleValue() : -1d, false)
-									: -1d;
+							double weekendCost = (paymentType == EnumPaymentType.Prepay || proxyInfo.getEnableReturnAgentcyRateCost()) ? proxyInfo.getSettlementPrice(
+											item.getWeekendSaleCost() != null ? item.getWeekendSaleCost().doubleValue() : -1d,
+											item.getWeekendMemberRate() != null ? item.getWeekendMemberRate().doubleValue() : -1d, false): -1d;
 							rate.setWeekendCost(weekendCost);
-							rate.setAddBed(item.getAllowAddBed() == 1 ? item
-									.getAddBedRate().doubleValue() : -1d);
+							rate.setAddBed(item.getAllowAddBed() == 1 ? item.getAddBedRate().doubleValue() : -1d);
 							rate.setPriceID(item.getPriceID());
 							rate.setCurrencyCode(item.getCurrencyCode());
 							result.add(rate);
 						}
 					}
 				}
-			} else if (response.getResult() != null
-					&& StringUtils.isNotBlank(response.getResult()
-							.getErrorMessage())) {
-				throw new Exception(String.format("Inner Error: %s", response
-						.getResult().getErrorMessage()));
+			} else if (response.getResult() != null&& StringUtils.isNotBlank(response.getResult().getErrorMessage())) {
+				throw new Exception(String.format("Inner Error: %s", response.getResult().getErrorMessage()));
 			}
 		}
 		return result;

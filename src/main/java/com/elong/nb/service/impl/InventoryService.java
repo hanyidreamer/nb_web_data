@@ -70,7 +70,6 @@ public class InventoryService implements IInventoryService{
 	 */
 	@Override
 	public RestResponse<InventoryResult> getInventories(RestRequest<InventoryCondition> restRequest) throws Exception {
-
 		RestResponse<InventoryResult> response = new RestResponse<InventoryResult>(
 				restRequest.getGuid());
 		InventoryResult result = new InventoryResult();
@@ -100,7 +99,6 @@ public class InventoryService implements IInventoryService{
 				ruleInventory.setRuleKey(String.valueOf(index));
 				ruleInventory.setStartDate(inventory.getStartDate());
 				ruleInventory.setEndDate(inventory.getEndDate());
-				ruleInventory.setIsInstantConfirm(inventory.isIsInstantConfirm());
 				ruleInventory.setOverBooking(inventory.getOverBooking());
 				result.add(ruleInventory);
 			}
@@ -131,7 +129,7 @@ public class InventoryService implements IInventoryService{
 		if (startDate.getTime()<date.getTime()) {
 			startDate = DateUtil.addDays(new Date(), -1);
 		}
-		if (endDate.after(DateUtil.addDays(new Date(), days))) {
+		if (endDate.getTime()>DateUtil.addDays(new Date(), days).getTime()) {
 			endDate = DateUtil.addDays(new Date(), days);
 		}
 		String[] shotelIdsUnderSupplier=null;

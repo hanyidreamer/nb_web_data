@@ -1,7 +1,6 @@
 package com.elong.nb.dao.adapter.cache;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
@@ -20,12 +19,12 @@ public class M_SRelationCache {
 
 	public List<String> getSupplierHotels(String[] supplier) {
 		List<String> supplierHotels = new ArrayList<String>();
-
 		if (supplier != null && supplier.length > 0) {
-			List<String> supplierList = Arrays.asList(supplier);
-			for (String s : supplierList) {
-				String sHotel = redis.hashGet(new ICacheKey() {
-
+			for (int i=0;i<supplier.length;i++) {
+				supplier[i]="\"" + supplier[i] + "\"";
+			}
+		}
+		supplierHotels=redis.hMGet(String.class, new ICacheKey() {
 					@Override
 					public String getKey() {
 						return KEY_SUPPLIER_MAP;
@@ -35,10 +34,7 @@ public class M_SRelationCache {
 					public int getExpirationTime() {
 						return -1;
 					}
-				}, s);
-				supplierHotels.add(sHotel);
-			}
-		}
+				}, supplier);
 		return supplierHotels;
 	}
 
@@ -47,11 +43,9 @@ public class M_SRelationCache {
 	 * 
 	 * @param mHotelIds
 	 * @return
+	 * @throws Exception 
 	 */
-	public List<String[]> getSHotelIds(String[] mHotelIds) {
-
-		try {
-
+	public List<String[]> getSHotelIds(String[] mHotelIds) throws Exception {
 			String[] mHotelIdStrs = new String[mHotelIds.length];
 			for (int i = 0; i < mHotelIds.length; i++) {
 				mHotelIdStrs[i] = "\"" + mHotelIds[i] + "\"";
@@ -76,9 +70,5 @@ public class M_SRelationCache {
 				}
 			}
 			return result;
-		} catch (Exception ex) {
-			System.out.println(ex);
-			return null;
-		}
 	}
 }

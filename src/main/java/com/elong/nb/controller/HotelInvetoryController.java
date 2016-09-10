@@ -37,13 +37,6 @@ import com.google.gson.TypeAdapter;
 @Controller
 public class HotelInvetoryController {
 
-	private String hasNoPrepayAuth = CommonsUtil.CONFIG_PROVIDAR
-			.getProperty("HasNoPrepayAuth.restRequest.Request");
-	private String unKownException = CommonsUtil.CONFIG_PROVIDAR
-			.getProperty("UnKownException.restRequest.Request");
-	private String idsLessTen = CommonsUtil.CONFIG_PROVIDAR
-			.getProperty("NumberIdsFormatErrorAndLessThanTen.restRequest.Request");
-
 	@Resource
 	private IRateService RateService;
 	@Resource
@@ -73,8 +66,7 @@ public class HotelInvetoryController {
 					restRequest.getVersion() == null ? 0d : restRequest
 							.getVersion()).getBytes(), HttpStatus.OK);
 		}
-		RestResponse<InventoryResult> response = InventoryService
-				.getInventories(restRequest);
+		RestResponse<InventoryResult> response = InventoryService.getInventories(restRequest);
 		return new ResponseEntity(GsonUtil.toJson(response,
 				restRequest.getVersion()).getBytes(), HttpStatus.OK);
 
@@ -102,19 +94,13 @@ public class HotelInvetoryController {
 				restRequest.getVersion()).getBytes(), HttpStatus.OK);
 
 	}
-
-	private String validateRateRequest(RestRequest<RateCondition> restRequest) {
-		;
-		StringBuffer sb = new StringBuffer(
-				ValidateUtil.validateRestRequest(restRequest));
-		RateCondition req = restRequest.getRequest();
-		if (restRequest.getRequest().getHotelIds() != "10") {
-			sb.append(ErrorCode.Common_IdsMustLestThanTen);
-			return sb.toString();
-			// String pattern = String.format("^(\d+,){0,%s}\d+,?$",);
-			// return Regex.IsMatch(input, pattern) ? ValidationResult.Success :
-			// new ValidationResult(ErrorMessage ?? "字符串格式错误且个数不能大于" + Number);
-		}
+	/**
+	 * 校验库存入参合法性
+	 * @param restRequest
+	 * @return
+	 */
+	private String validateInventoryRequest(RestRequest<InventoryCondition> restRequest) {
+		StringBuffer sb = new StringBuffer(ValidateUtil.validateRestRequest(restRequest));
 		if (restRequest.getRequest().getStartDate() == null) {
 			sb.append(ErrorCode.Common_StartDateRequired);
 			return sb.toString();
@@ -123,57 +109,23 @@ public class HotelInvetoryController {
 			sb.append(ErrorCode.Common_EndDateRequired);
 			return sb.toString();
 		}
-		if (restRequest.getRequest().getStartDate()
-				.after(restRequest.getRequest().getEndDate())) {
+		if (restRequest.getRequest().getStartDate().getTime()>restRequest.getRequest().getEndDate().getTime()) {
 			sb.append(ErrorCode.Common_StartDateLessThanEndDate);
 			return sb.toString();
 		}
-		if (restRequest.getRequest().getPaymentType() == null) {
-			sb.append(ErrorCode.Common_PaymentTypeRequired);
-			return sb.toString();
-		}
-		/**
-		 * 如果没有预付权限还查询，则返回错误信息
-		 */
-		if (req.getPaymentType() == EnumPaymentType.Prepay
-				&& (!restRequest.getProxyInfo().getEnabledPrepayProducts())) {
-			if (req.getPaymentType() == EnumPaymentType.Prepay) {
-				sb.append(hasNoPrepayAuth);
-				return sb.toString();
-			}
-		}
-		return sb.toString();
-	}
-
-	private String validateInventoryRequest(
-			RestRequest<InventoryCondition> restRequest) {
-		StringBuffer sb = new StringBuffer(
-				ValidateUtil.validateRestRequest(restRequest));
-		if (restRequest.getRequest().getStartDate() == null) {
-			sb.append(ErrorCode.Common_StartDateRequired);
-			return sb.toString();
-		}
-		if (restRequest.getRequest().getEndDate() == null) {
-			sb.append(ErrorCode.Common_EndDateRequired);
-			return sb.toString();
-		}
-		if (restRequest.getRequest().getStartDate()
-				.after(restRequest.getRequest().getEndDate())) {
-			sb.append(ErrorCode.Common_StartDateLessThanEndDate);
-			return sb.toString();
-		}
-		if (StringUtils.isBlank(restRequest.getRequest().getHotelCodes())
-				&& StringUtils.isBlank(restRequest.getRequest().getHotelIds())) {
-			sb.append(idsLessTen);
+		if (StringUtils.isBlank(restRequest.getRequest().getHotelCodes())&& StringUtils.isBlank(restRequest.getRequest().getHotelIds())) {
+			sb.append(ErrorCode.Common_NumberIdsFormatErrorAndLessThanTen);
 			return sb.toString();
 		}
 		return sb.toString();
 	}
-
-	private String validateValidateInventoryRequest(
-			RestRequest<ValidateInventoryCondition> restRequest) {
-		StringBuffer sb = new StringBuffer(
-				ValidateUtil.validateRestRequest(restRequest));
+	/**
+	 * 校验库存验证入参合法性
+	 * @param restRequest
+	 * @return
+	 */
+	private String validateValidateInventoryRequest(RestRequest<ValidateInventoryCondition> restRequest) {
+		StringBuffer sb = new StringBuffer(ValidateUtil.validateRestRequest(restRequest));
 		if (StringUtils.isBlank(restRequest.getRequest().getHotelId())) {
 			sb.append(ErrorCode.Common_HotelIdRequired);
 			return sb.toString();
@@ -194,8 +146,7 @@ public class HotelInvetoryController {
 			sb.append(ErrorCode.Common_DepartureDateRequired);
 			return sb.toString();
 		}
-		if (restRequest.getRequest().getArrivalDate()
-				.after(restRequest.getRequest().getDepartureDate())) {
+		if (restRequest.getRequest().getArrivalDate().getTime()>restRequest.getRequest().getDepartureDate().getTime()) {
 			sb.append(ErrorCode.Common_StartDateLessThanEndDate);
 			return sb.toString();
 		}

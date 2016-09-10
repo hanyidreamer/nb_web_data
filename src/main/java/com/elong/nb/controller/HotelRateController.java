@@ -33,14 +33,6 @@ import com.google.gson.TypeAdapter;
 
 @Controller
 public class HotelRateController {
-
-	private String hasNoPrepayAuth = CommonsUtil.CONFIG_PROVIDAR
-			.getProperty("HasNoPrepayAuth.restRequest.Request");
-	private String unKownException = CommonsUtil.CONFIG_PROVIDAR
-			.getProperty("UnKownException.restRequest.Request");
-	private String idsLessTen = CommonsUtil.CONFIG_PROVIDAR
-			.getProperty("NumberIdsFormatErrorAndLessThanTen.restRequest.Request");
-
 	@Resource
 	private IRateService RateService;
 	@Resource
@@ -76,7 +68,7 @@ public class HotelRateController {
 			response = RateService.getRates(restRequest);
 		} catch (Exception e) {
 			response = new RestResponse<RateResult>(restRequest.getGuid());
-			response.setCode(unKownException + e.getMessage());
+			response.setCode(ErrorCode.Common_UnkownException + e.getMessage());
 		}
 		return new ResponseEntity(GsonUtil.toJson(response,
 				restRequest.getVersion()).getBytes(), HttpStatus.OK);
@@ -89,7 +81,7 @@ public class HotelRateController {
 				ValidateUtil.validateRestRequest(restRequest));
 		RateCondition req = restRequest.getRequest();
 		if(StringUtils.isNoneBlank(restRequest.getRequest().getHotelIds())&&restRequest.getRequest().getHotelIds().split(",").length>10){
-			sb.append(ErrorCode.Common_IdsMustLestThanTen);
+			sb.append(ErrorCode.Common_NumberIdsFormatErrorAndLessThanTen);
 			return sb.toString();
 		}
 		if(restRequest.getRequest().getStartDate()==null){
@@ -100,7 +92,7 @@ public class HotelRateController {
 			sb.append( ErrorCode.Common_EndDateRequired);
 			return sb.toString();
 		}
-		if(restRequest.getRequest().getStartDate().after(restRequest.getRequest().getEndDate())){
+		if(restRequest.getRequest().getStartDate().getTime()>restRequest.getRequest().getEndDate().getTime()){
 			sb.append(ErrorCode.Common_StartDateLessThanEndDate);
 			return sb.toString();
 		}
@@ -114,7 +106,7 @@ public class HotelRateController {
 		if (req.getPaymentType() == EnumPaymentType.Prepay
 				&& (!restRequest.getProxyInfo().getEnabledPrepayProducts())) {
 			if (req.getPaymentType() == EnumPaymentType.Prepay) {
-				sb.append(hasNoPrepayAuth);
+				sb.append(ErrorCode.Data_NoPrepayProducts);
 				return sb.toString();
 			}
 		}
