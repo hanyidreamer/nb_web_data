@@ -1,6 +1,5 @@
 package com.elong.nb.service.impl;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -22,7 +21,9 @@ import com.elong.nb.util.DateUtil;
 public class ValidateInventoryService implements IValidateInventoryService{
 	@Resource
 	private IInventoryService InventoryService;
-
+	/**
+	 * 验证库存
+	 */
 	 public RestResponse<ValidateInventoryResult> getValidateInventories(RestRequest<ValidateInventoryCondition> restRequest) throws Exception
      {
          RestResponse<ValidateInventoryResult> result =new RestResponse<ValidateInventoryResult>(restRequest.getGuid());
@@ -48,41 +49,34 @@ public class ValidateInventoryService implements IValidateInventoryService{
          request.setRoomTypeId(restRequest.getRequest().getRoomTypeId());
          req.setRequest(request);
         	 List<Inventory> inventories = this.InventoryService.getInventories(req).getResult().getInventories();
-         while (start.getTime()<=end.getTime())
-         {
+         while (start.getTime()<=end.getTime()){
         	 	List<Inventory> q = new ArrayList<Inventory>();
         	 	for(Inventory item:inventories){
-            	 	if(item.getHotelCode()==restRequest.getRequest().getHotelCode()&&item.getAvailableDate()==start){
-            	 		q.add(item);
+            	 	if(item.getHotelCode().equals(restRequest.getRequest().getHotelCode())){//&&item.getAvailableDate()==start
+            	 		if(item.getAvailableDate().compareTo(start)==0){
+            	 			q.add(item);
+            	 		}
             	 	}
-        	 		
         	 	}
-             if (q != null && q.size() > 0)
-             {
-                 for(Inventory inv:q)
-                 {
+             if (q != null && q.size() > 0){
+                 for(Inventory inv:q){
                      if (!inv.isStatus()  //库存状态
-                         || inv.getStartDate().after(now) || inv.getEndDate().before(now)  //库存可使用的日期
+                         || inv.getStartDate().getTime()>now.getTime()|| inv.getEndDate().getTime()<now.getTime()  //库存可使用的日期
                          || (restRequest.getRequest().getAmount() > 0 && inv.getOverBooking() == 1 && inv.getAvailableAmount() < restRequest.getRequest().getAmount())  //库存数量
-                         )
-                     {
+                         ){
                          result.getResult().setIsOK(false);
                          return result;
                      }
                      //库存可使用的日期
-                     try
-                     {
-                         if (inv.getStartTime().length() == 8 || inv.getEndTime().length() == 8)
-                         {
+                     try{
+                         if (inv.getStartTime().length() == 8 || inv.getEndTime().length() == 8){
                              int t = Integer.parseInt(inv.getStartTime().replace(":", ""));
-                             if (t > time)
-                             {
+                             if (t > time){
                                  result.getResult().setIsOK(false); 
                                  return result;
                              }
                              t = Integer.parseInt(inv.getEndTime().replace(":", ""));
-                             if (t < time)
-                             {
+                             if (t < time){
                             	 result.getResult().setIsOK(false); 
                                  return result;
                              }
@@ -96,7 +90,6 @@ public class ValidateInventoryService implements IValidateInventoryService{
              }
              start = DateUtil.addDays(start,1);
          }
-
          return result;
      }
 
