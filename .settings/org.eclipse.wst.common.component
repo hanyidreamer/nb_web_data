@@ -19,6 +19,9 @@
         <dependent-module archiveName="nb_model_data-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/nb_model_data/nb_model_data">
             <dependency-type>uses</dependency-type>
         </dependent-module>
+        <dependent-module archiveName="nb_common_agent-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/nb_common_agent/nb_common_agent">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <property name="context-root" value="nb_web_data"/>
         <property name="java-output-path" value="/nb_web_data/target/classes"/>
         <property name="component.exclusion.patterns" value="WEB-INF/classes/conf/custom/env/rabbit.properties"/>

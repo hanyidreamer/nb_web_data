@@ -66,7 +66,7 @@ public class M_SRelationCache {
 				if (!StringUtils.isNullOrEmpty(rst.get(i))) {
 					result.add(JSON.parseObject(rst.get(i), String[].class));
 				} else {
-					result.add(new String[]{mHotelIds[i]});
+					result.add(new String[]{});
 				}
 			}
 			return result;
