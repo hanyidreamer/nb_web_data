@@ -315,6 +315,9 @@ public class RatePlanRepository {
 
         List<HotelRatePlan> result = new ArrayList<HotelRatePlan>();
 
+        if(response==null || response.getHotelDetail()==null )
+        	return result;
+        
         for (HotelDetail hotel : response.getHotelDetail())
         {
             //result.Add(new HotelRatePlan
@@ -348,14 +351,19 @@ public class RatePlanRepository {
             }
             else 
             {
-                //获取合作类型，是艺龙直签还是其它供应商
-            	MSHotelRelation hotelRelation = M_SRelationRepository.GetHotelRelation(hotel.getHotelBaseInfo().getHotelId());
-                if (hotelRelation != null)
-                {
-                    int type = mSRelationRepository.GetCooperationTypeBySupplierID(hotelRelation.getSupplierId());
-                    //CooperationType=1为直签，2为非直签，0为未知
-                    CooperationType = type;
-                }
+            	if(hotel!=null && hotel.getHotelBaseInfo()!=null 
+            			&& hotel.getHotelBaseInfo().getHotelId()!=null 
+            			&& !hotel.getHotelBaseInfo().getHotelId().isEmpty())
+            	{
+	                //获取合作类型，是艺龙直签还是其它供应商
+	            	MSHotelRelation hotelRelation = M_SRelationRepository.GetHotelRelation(hotel.getHotelBaseInfo().getHotelId());
+	                if (hotelRelation != null)
+	                {
+	                    int type = mSRelationRepository.GetCooperationTypeBySupplierID(hotelRelation.getSupplierId());
+	                    //CooperationType=1为直签，2为非直签，0为未知
+	                    CooperationType = type;
+	                }
+            	}
             }
            
         }
@@ -409,8 +417,10 @@ public class RatePlanRepository {
                     rp.setIsLimitTimeSale(oldrp.getIsLimitTimeSale() == 1);
 
                     rp.setProductTypes(ParseProductType(oldrp.getProductType(), oldrp.getBookingChannel(), IsHourPayRoom(oldrp.getCNRatePlanName())));
-                    rp.setStartTime(oldrp.getStartTime().toString("HH:mm:ss"));
-                    rp.setEndTime(oldrp.getEndTime().toString("HH:mm:ss"));
+                    if(oldrp.getStartTime() !=null)
+                      rp.setStartTime(oldrp.getStartTime().toString("HH:mm:ss"));
+                    if(oldrp.getEndTime() !=null)
+                      rp.setEndTime(oldrp.getEndTime().toString("HH:mm:ss"));
                     rp.setMinAdvHours(oldrp.getMinAdvanceBookingDays());
                     rp.setMaxAdvHours(oldrp.getMaxAdvanceBookingDays());
                     rp.setMinDays(oldrp.getMinStayDays());
@@ -442,13 +452,17 @@ public class RatePlanRepository {
                         rp.setBookingChannels("1");
                         
                         GetRatePlanBaseInfoRequest req =  new GetRatePlanBaseInfoRequest();
-                            req.setHotelID(hotel.getHotelBaseInfo().getHotelId());
-                            req.setRatePlanID(oldrp.getRatePlanID());
+                        if(hotel.getHotelBaseInfo()!=null)
+                           req.setHotelID(hotel.getHotelBaseInfo().getHotelId());
+                        req.setRatePlanID(oldrp.getRatePlanID());
+                        GetRatePlanBaseInfoResponse2 r = productForNBServiceContract.getRatePlanBaseInfo(req);
                         
-                            GetRatePlanBaseInfoResponse2 r = productForNBServiceContract.getRatePlanBaseInfo(req);
                         if (r != null && r.getResult() != null && r.getResult().getResponseCode() == 0 && r.getRatePlanBaseInfo() != null)
                         {
-                            int c = r.getRatePlanBaseInfo().getRawBookingChannel();
+                            int c = 0;
+                            if(r.getRatePlanBaseInfo().getRawBookingChannel()!=null)
+                            	c=r.getRatePlanBaseInfo().getRawBookingChannel();
+                            
                             List<Integer> channels = new ArrayList<Integer>();
                             if ((c & 2) == 2) channels.add(1);
                             if ((c & 4) == 4) channels.add(2);
@@ -597,6 +611,9 @@ public class RatePlanRepository {
     private String GetWeekSet(List<Integer> week)
     {
         String result ="";
+        if(week==null || week.size()<=0)
+        	return result;
+        
         for (int i = 1; i < 7; i++)
         {
             if (week.get(i) == 1)
@@ -617,7 +634,7 @@ public class RatePlanRepository {
     
     private int GetRuleValue(List<DictionaryEntry> rules, String key)
     {
-    	if(rules ==null)
+    	if(rules ==null || rules.size()<=0)
     		return -1;
     	
         int result;
@@ -656,7 +673,7 @@ public class RatePlanRepository {
     
     private Date GetRuleValue_Date(List<DictionaryEntry> rules, String key)
     {
-    	if(rules ==null)
+    	if(rules ==null || rules.size()<=0)
     		return new Date();
     	
         Date result;
@@ -695,7 +712,7 @@ public class RatePlanRepository {
     
     private String GetRuleValue_String(List<DictionaryEntry> rules, String key)
     {
-    	if(rules ==null)
+    	if(rules ==null || rules.size()<=0)
     		return "";
     	
         String result;
@@ -734,7 +751,7 @@ public class RatePlanRepository {
     
     private boolean GetRuleValue_bool(List<DictionaryEntry> rules, String key)
     {
-    	if(rules ==null)
+    	if(rules ==null || rules.size()<=0)
     		return false;
     	
         boolean result;
@@ -774,7 +791,7 @@ public class RatePlanRepository {
     //private static Regex _hourPayRegex = new Regex("(\\d点)|(\\d:\\d)", RegexOptions.Compiled);
     public boolean IsHourPayRoom(String name)
     {
-    	if(name ==null)
+    	if(name ==null || name.isEmpty())
     		return false;
     	
         //钟点、小时、半日房
@@ -832,7 +849,7 @@ public class RatePlanRepository {
         for (VouchInfo rule : oldrp.getRatePlanVouchRuleList().getVouchInfo())
         {
         	com.elong.nb.model.bean.base.BaseGuaranteeRule temp = new com.elong.nb.model.bean.base.BaseGuaranteeRule();
-             {
+             
             	 if(rule.getStartDate() !=null)
                     temp.setStartDate(rule.getStartDate().toDate());
             	 if(rule.getEndDate()!=null)
@@ -881,7 +898,7 @@ public class RatePlanRepository {
                     temp.setTime(GetRuleValue_String(rule.getRuleValues().getDictionaryEntry(), "TimeNum"));
                     temp.setIsTomorrow(GetRuleValue_bool(rule.getRuleValues().getDictionaryEntry(), "IsTomorrow"));
                  }
-             }
+             
 
             //如果是无条件担保，需要将取消条款中的 最早到店时间前N小时修改成 到店日24点前N+10小时---这样就是将最早到店时间默认为14点
             if (!temp.getIsAmountGuarantee() && !temp.getIsTimeGuarantee() && temp.getChangeRule() == EnumGuaranteeChangeRule.NeedCheckinTime)
@@ -975,7 +992,7 @@ public class RatePlanRepository {
         if (result.size() == 0)
         {
         	com.elong.nb.model.bean.base.BasePrepayRule base = new com.elong.nb.model.bean.base.BasePrepayRule();
-            {
+            
                 base.setChangeRule(EnumPrepayChangeRule.PrepayNoChange);
                 base.setDateType(EnumDateType.CheckInDay);
                 
@@ -1020,7 +1037,7 @@ public class RatePlanRepository {
                 base.setHour(0);
                 base.setHour2(0);
                 base.setTime("18:00:00");
-            }
+            
         	
             result.add(base);
         }
@@ -1040,7 +1057,7 @@ public class RatePlanRepository {
         for (AddValueInfoSimple rule : oldrp.getRateplanRelationAddValue().getAddValueInfoSimple())
         {
         	com.elong.nb.model.bean.base.BaseValueAddRule baserule = new com.elong.nb.model.bean.base.BaseValueAddRule();
-            {
+            
                 baserule.setDescription( GetAdditionalServiceRDisciption(rule, language));
                 baserule.setTypeCode(rule.getBusinessCode());
                 baserule.setIsInclude( rule.getIsInclude() == 1);
@@ -1075,7 +1092,7 @@ public class RatePlanRepository {
                 //EndDate = DateTime.MinValue,// 
                 //CurrencyCode = "",// 
                 //WeekSet = "",//
-            }
+            
             result.add(baserule);
         }
 
@@ -1094,7 +1111,7 @@ public class RatePlanRepository {
         	}
         	
             com.elong.nb.model.bean.base.BaseValueAddRule base =  new com.elong.nb.model.bean.base.BaseValueAddRule();
-            {
+            
             	base.setDescription(language == EnumLocal.zh_CN ? cnDescription : enDescription);
             	base.setTypeCode("99");
             	base.setIsInclude(rule.getIsInclude() == 1);
@@ -1130,7 +1147,7 @@ public class RatePlanRepository {
                 //rule.IsWeekEffective.Select(c => Convert.ToInt32(c.ToString())).ToList()
                 if(rule.getIsWeekEffective() !=null)
                    base.setWeekSet(GetWeekSet(rule.getIsWeekEffective().getChar()));
-            }
+            
             result.add(base);
         }
         return result;
@@ -1138,6 +1155,9 @@ public class RatePlanRepository {
     
     private String GetAdditionalServiceRDisciption(AddValueInfoSimple addValue, EnumLocal language)
     {
+    	if(addValue ==null)
+    		return "";
+    	
         StringBuilder sb1 = new StringBuilder();
         StringBuilder sb2 = new StringBuilder();
         StringBuilder sb3 = new StringBuilder();
@@ -1269,6 +1289,9 @@ public class RatePlanRepository {
     private List<SupplierRatePlan> GetSuppliers(HotelDetail hotel, EnumLocal language)
     {
         List<SupplierRatePlan> result = new ArrayList<SupplierRatePlan>();
+        if(hotel==null ||hotel.getHotelBaseInfo() ==null)
+        	return result;
+        
         EnumInvoiceMode InvoiceMode = EnumInvoiceMode.Hotel;
         MSHotelRelation hotelRelation = M_SRelationRepository.GetHotelRelation(hotel.getHotelBaseInfo().getHotelId());
         if (hotelRelation != null)
@@ -1292,23 +1315,29 @@ public class RatePlanRepository {
         
         result.add(suprp);
         
-        if (result.get(0).getRooms() == null || result.get(0).getRooms().size() == 0)
+        if (result.size()>0 && (result.get(0).getRooms() == null || result.get(0).getRooms().size() == 0))
         {
             result.get(0).setRooms(new ArrayList<MSRoomRelation>());
             List<MSRoomRelation> rooms = new ArrayList<MSRoomRelation>();
             
             List<String> ids = new ArrayList<String>();
-            for (RoomTypeInfo room : hotel.getRoomBaseInfos().getRoomTypeInfo())
+            if(hotel.getRoomBaseInfos() !=null && hotel.getRoomBaseInfos().getRoomTypeInfo()!=null)
             {
-            	//ids.AddRange(room.RoomTypeId.Split(','));
-            	for(String str : room.getRoomTypeId().split(","))
-            	{
-            		ids.add(str);
-            		MSRoomRelation ro = new MSRoomRelation();
-            		ro.setRoomId(str);
-            		ro.setRoomTypeId(str);
-            		rooms.add(ro);
-            	}
+	            for (RoomTypeInfo room : hotel.getRoomBaseInfos().getRoomTypeInfo())
+	            {
+	            	//ids.AddRange(room.RoomTypeId.Split(','));
+	            	if(room.getRoomTypeId() !=null && !room.getRoomTypeId().isEmpty())
+	            	{
+		            	for(String str : room.getRoomTypeId().split(","))
+		            	{
+		            		ids.add(str);
+		            		MSRoomRelation ro = new MSRoomRelation();
+		            		ro.setRoomId(str);
+		            		ro.setRoomTypeId(str);
+		            		rooms.add(ro);
+		            	}
+	            	}
+	            }
             }
 
             //result[0].Rooms = ids.Distinct().Select(rid => new MSRoomRelation { RoomId = rid, RoomTypeId = rid }).ToList();
