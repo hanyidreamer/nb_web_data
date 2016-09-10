@@ -14,8 +14,8 @@ import com.mysql.jdbc.StringUtils;
 public class M_SRelationCache {
 	private static final String KEY_SUPPLIER_MAP = "data.hotel.supplier";
 	private static final String  KEY_ID_M_S = "data.ms.mid_sid";
-	private RedisManager redis = RedisManager.getInstance("redis_data",
-			"redis_data");
+	private RedisManager redis = RedisManager.getInstance("redis_msrelation",
+			"redis_msrelation");
 
 	public List<String> getSupplierHotels(String[] supplier) {
 		List<String> supplierHotels = new ArrayList<String>();
