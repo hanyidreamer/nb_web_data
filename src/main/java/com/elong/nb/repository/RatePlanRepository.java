@@ -231,15 +231,20 @@ public class RatePlanRepository {
             else
             {
             	mhotel = hashHotel.get(shotel.getHotelID());
-            	HashMap<String,SupplierRatePlan> hashSupp = new  HashMap<String,SupplierRatePlan>();
             	
                 if (shotel.getSuppliers() != null && shotel.getSuppliers().size() > 0)
                 {
                     for (SupplierRatePlan supplier : shotel.getSuppliers())
                     {
-                    	SupplierRatePlan s =null; //mhotel.Suppliers.FirstOrDefault(x => x.HotelCode == supplier.HotelCode);
-                        //if (s == null)
-                    	if(!hashSupp.containsKey(supplier.getHotelCode()))
+                    	SupplierRatePlan s =null; 
+                    	//mhotel.Suppliers.FirstOrDefault(x => x.HotelCode == supplier.HotelCode);                
+                    	for(SupplierRatePlan mhotelSupp : mhotel.getSuppliers())
+                    	{
+                    		if(mhotelSupp.getHotelCode() !=null && mhotelSupp.getHotelCode().equals(supplier.getHotelCode()))
+                    			s= mhotelSupp;
+                    	}
+                    	
+                    	if (s == null)
                         {
                     		if(mhotel.getSuppliers()==null)
                     		{
@@ -247,11 +252,11 @@ public class RatePlanRepository {
                     			mhotel.setSuppliers(suppList);
                     		}
                             mhotel.getSuppliers().add(supplier);
-                            hashSupp.put(supplier.getHotelCode(), supplier);
+                            
                         }
                         else
                         {
-                        	s =hashSupp.get(supplier.getHotelCode());
+                        	
                             //merge bookingRules
                             for (com.elong.nb.model.bean.base.BaseBookingRule br : supplier.getBookingRules())
                             {        	
@@ -259,10 +264,10 @@ public class RatePlanRepository {
                             	for(com.elong.nb.model.bean.base.BaseBookingRule ru: s.getBookingRules())
                             	{
                             		if(ru.getDateType() == br.getDateType() &&
-                                            ru.getEndDate() == br.getEndDate() &&
-                                            ru.getRoomTypeIds() == br.getRoomTypeIds() &&
-                                            ru.getStartDate() == br.getStartDate() &&
-                                            ru.getTypeCode() == br.getTypeCode() )
+	                                    ru.getEndDate() == br.getEndDate() &&
+	                                    ru.getRoomTypeIds() == br.getRoomTypeIds() &&
+	                                    ru.getStartDate() == br.getStartDate() &&
+	                                    ru.getTypeCode() == br.getTypeCode() )
                             		{
                             			br2 =ru;
                             		}
