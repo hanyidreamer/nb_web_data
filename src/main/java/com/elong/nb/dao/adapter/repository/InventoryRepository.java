@@ -112,5 +112,11 @@ public class InventoryRepository {
 			inv.setAvailableAmount(3);
 			inv.setOverBooking(0);
 		}
+		if(inv.getEndDate().getTime()<new Date(1970,1,1).getTime()){
+			inv.setEndDate(new Date(1970,1,1));
+		}
+		if(inv.getStartDate().getTime()<new Date(1970,1,1).getTime()){
+			inv.setStartDate(new Date(1970,1,1));
+		}
 	}
 }
