@@ -1,15 +1,14 @@
 package com.elong.nb.service.impl;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
@@ -37,7 +36,7 @@ import com.elong.nb.model.bean.DrrRule;
 import com.elong.nb.model.bean.GuaranteeRule;
 import com.elong.nb.model.bean.Hotel;
 import com.elong.nb.model.bean.ListRatePlan;
-import com.elong.nb.model.bean.Position;
+
 import com.elong.nb.model.bean.PrepayRule;
 import com.elong.nb.model.bean.ValueAdd;
 import com.elong.nb.model.bean.base.BaseBookingRule;
@@ -135,7 +134,7 @@ public class BookingDataService implements IBookingDataService {
 
             //List<Task<object>> tasks = new ArrayList<Task<object>>();
             //TaskFactory taskFactory = new TaskFactory();
-            List<Future<Object>> tasks = new ArrayList<Future<Object>>();
+            List<Future<Object>> tasks = new LinkedList<Future<Object>>();
             ExecutorService taskFactory =Executors.newFixedThreadPool(10);
             
             Hotel hotelInfoFromSearch = null;
@@ -178,9 +177,6 @@ public class BookingDataService implements IBookingDataService {
             	
             	//String url ="http://nbapi-searchhd.vip.elong.com/OpenApiWeb/api/Hotel/InnerDetail";
             	String url = CommonsUtil.CONFIG_PROVIDAR.getProperty("InnerDetail.url");
-            	if(url==null || url.isEmpty())
-            		url ="http://nbapi-searchhd.vip.elong.com/OpenApiWeb/api/Hotel/InnerDetail";
-            	
             	
             	//String data = gson.toJson(detailreq, new TypeToken<RestRequest<HotelDetailRequest>>(){}.getType());
             	String data = GsonUtil.toJson(detailreq, 1.26);
@@ -319,9 +315,9 @@ public class BookingDataService implements IBookingDataService {
             //#region 产品、库存和价格的结果处理
 
             
-            List<Exception> exceptions = new ArrayList<Exception>();
+            List<Exception> exceptions = new LinkedList<Exception>();
             taskFactory.shutdown();
-            //taskFactory.awaitTermination(1, TimeUnit.MINUTES);
+            //taskFactory.awaitTermination(1, TimeUni);
            
           
             for(Future<Object> task : tasks)
@@ -377,7 +373,7 @@ public class BookingDataService implements IBookingDataService {
                                      }
                                      catch ( Exception ex )
                                      {
-
+                                           logger.error(ex.getMessage());
                                      }
 
                                  
@@ -396,10 +392,10 @@ public class BookingDataService implements IBookingDataService {
                 	rp.setBookingChannels(rpOfSearch.getBookingChannels());
                     rp.setCoupon(null);
                     rp.setCustomerType(rpOfSearch.getCustomerType());
-                    rp.setDrrRules(new ArrayList<com.elong.nb.model.bean.base.BaseDrrRule>());
+                    rp.setDrrRules(new LinkedList<com.elong.nb.model.bean.base.BaseDrrRule>());
                     rp.setEndTime(rpOfSearch.getEndTime());
-                    rp.setGifts(new ArrayList<GiftForRP>());
-                    rp.setGuaranteeRules(new ArrayList<com.elong.nb.model.bean.base.BaseGuaranteeRule>());
+                    rp.setGifts(new LinkedList<GiftForRP>());
+                    rp.setGuaranteeRules(new LinkedList<com.elong.nb.model.bean.base.BaseGuaranteeRule>());
                     rp.setHotelCode(rpOfSearch.getHotelCode());
                     rp.setIsLimitTimeSale(rpOfSearch.isIsLastMinuteSale());
                     
@@ -417,13 +413,13 @@ public class BookingDataService implements IBookingDataService {
                     rp.setMinAmount(rpOfSearch.getMinAmount());
                     rp.setMinDays(rpOfSearch.getMinDays());
                     rp.setPaymentType(rpOfSearch.getPaymentType());
-                    rp.setPrepayRules(new ArrayList<com.elong.nb.model.bean.base.BasePrepayRule>());
+                    rp.setPrepayRules(new LinkedList<com.elong.nb.model.bean.base.BasePrepayRule>());
                     rp.setProductTypes(rpOfSearch.getProductTypes());
                     rp.setRatePlanId(rpOfSearch.getRatePlanId());
                     rp.setRatePlanName(rpOfSearch.getRatePlanName());
                     rp.setRoomTypeIds(rpOfSearch.getRoomTypeId());
                     rp.setStartTime(rpOfSearch.getStartTime());
-                    rp.setValueAdds(new ArrayList<com.elong.nb.model.bean.base.BaseValueAddRule>());
+                    rp.setValueAdds(new LinkedList<com.elong.nb.model.bean.base.BaseValueAddRule>());
 
                 };
 
@@ -483,7 +479,7 @@ public class BookingDataService implements IBookingDataService {
                 }
 
                 //BookingRules
-                List<BaseBookingRule> bookingRules = new ArrayList<BaseBookingRule>();
+                List<BaseBookingRule> bookingRules = new LinkedList<BaseBookingRule>();
                 if (rpOfSearch.getBookingRuleIds()!=null && !rpOfSearch.getBookingRuleIds().isEmpty() )
                 {
                     String[] ids = rpOfSearch.getBookingRuleIds().split(",");//new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
@@ -610,7 +606,7 @@ public class BookingDataService implements IBookingDataService {
                         		inventoryAvailable=true;
                         }
 
-                        List<Rate> rateList = new ArrayList<Rate>();
+                        List<Rate> rateList = new LinkedList<Rate>();
                         for (NightlyRate nr : rpOfSearch.getNightlyRates())
                         {
                             Rate r = new Rate();
@@ -776,7 +772,10 @@ public class BookingDataService implements IBookingDataService {
                     //输出到大日志，大日志再输入到kafka
                     logger.info(checkJson);
                 }
-                catch (Exception e) { }
+                catch (Exception e) { 
+                    logger.error(e.getMessage());
+
+                }
 
             } //);
         }
