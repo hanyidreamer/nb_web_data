@@ -1,14 +1,16 @@
 package com.elong.nb.repository;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
 import com.elong.nb.agent.NorthBoundForAPIService.AddValueInfoSimple;
@@ -68,6 +70,9 @@ import com.elong.nb.util.DateUtil;
 @Repository
 public class RatePlanRepository {
 	
+	private static Logger LocalMsg = LogManager
+			.getLogger(RatePlanRepository.class);
+	
 	@Resource
 	M_SRelationRepository mSRelationRepository;
 	@Resource(name="northBoundForAPIService")
@@ -81,7 +86,7 @@ public class RatePlanRepository {
 	
 	public List<HotelRatePlan> GetRatePlans(RestRequest<RatePlanCondition> request)
     {
-        List<HotelRatePlan> result = new ArrayList<HotelRatePlan>();
+        List<HotelRatePlan> result = new LinkedList<HotelRatePlan>();
         if (!request.getProxyInfo().getEnabledPrepayProducts())
         {
             if (request.getRequest().getPaymentType() == EnumPaymentType.Prepay)
@@ -145,7 +150,7 @@ public class RatePlanRepository {
 
         //string cv = CommonRepository.GetAppServerConfig("hotel.data.rp.parallel", "0");
         
-        ArrayList<String> al = new ArrayList<String>();
+        LinkedList<String> al = new LinkedList<String>();
         int count=0;
         String str= new String();
         for(String s : sHotelIdSet)
@@ -203,7 +208,7 @@ public class RatePlanRepository {
             //获取礼品相关信息                
                 for (HotelRatePlan hotel : result)
                 {
-                    hotel.setGifts(new ArrayList<HotelGift>());
+                    hotel.setGifts(new LinkedList<HotelGift>());
                     for (SupplierRatePlan s : hotel.getSuppliers())
                     {
                     	List<HotelGift> list = hotelGiftRepository.GetHotelGiftBySHotelId(s.getHotelCode());
@@ -248,7 +253,7 @@ public class RatePlanRepository {
                         {
                     		if(mhotel.getSuppliers()==null)
                     		{
-                    			List<SupplierRatePlan> suppList = new ArrayList<SupplierRatePlan>();
+                    			List<SupplierRatePlan> suppList = new LinkedList<SupplierRatePlan>();
                     			mhotel.setSuppliers(suppList);
                     		}
                             mhotel.getSuppliers().add(supplier);
@@ -277,7 +282,7 @@ public class RatePlanRepository {
                                 {
                                 	if(s.getBookingRules()==null)
                                 	{
-                                		s.setBookingRules(new ArrayList<com.elong.nb.model.bean.base.BaseBookingRule>());
+                                		s.setBookingRules(new LinkedList<com.elong.nb.model.bean.base.BaseBookingRule>());
                                 	}
                                     s.getBookingRules().add(br);
                                 }
@@ -289,7 +294,7 @@ public class RatePlanRepository {
                 {
                 	if(mhotel.getRatePlans() ==null)
                 	{
-                		mhotel.setRatePlans(new ArrayList<RatePlan>());
+                		mhotel.setRatePlans(new LinkedList<RatePlan>());
                 	}
                     mhotel.getRatePlans().addAll(shotel.getRatePlans());
                 }
@@ -313,7 +318,7 @@ public class RatePlanRepository {
     	//.SearchHotelRatePlanList(condition);
     	ArrayOfHotelDetail response = northBoundForAPIService.searchHotelRatePlanList(condition);
 
-        List<HotelRatePlan> result = new ArrayList<HotelRatePlan>();
+        List<HotelRatePlan> result = new LinkedList<HotelRatePlan>();
 
         if(response==null || response.getHotelDetail()==null )
         	return result;
@@ -339,9 +344,9 @@ public class RatePlanRepository {
     
     private List<RatePlan> GetRatePlans(HotelDetail hotel, EnumLocal language, ProxyAccount proxyInfo, double requestVersion, String options)
     {
-        List<RatePlan> result = new ArrayList<RatePlan>();
+        List<RatePlan> result = new LinkedList<RatePlan>();
         
-        List<Integer> levels = new ArrayList<Integer>();
+        List<Integer> levels = new LinkedList<Integer>();
         int CooperationType = 0;
         if (requestVersion >= 1.27) 
         {
@@ -441,7 +446,7 @@ public class RatePlanRepository {
                 {
                     //var arr = options.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 	String[] arr =options.split(",");
-                	ArrayList<String> alOptions =new ArrayList<String>();
+                	LinkedList<String> alOptions =new LinkedList<String>();
                 	for(String s : arr)
                 	{
                 		alOptions.add(s);
@@ -463,7 +468,7 @@ public class RatePlanRepository {
                             if(r.getRatePlanBaseInfo().getRawBookingChannel()!=null)
                             	c=r.getRatePlanBaseInfo().getRawBookingChannel();
                             
-                            List<Integer> channels = new ArrayList<Integer>();
+                            List<Integer> channels = new LinkedList<Integer>();
                             if ((c & 2) == 2) channels.add(1);
                             if ((c & 4) == 4) channels.add(2);
                             if ((c & 16) == 16) channels.add(3);
@@ -483,7 +488,7 @@ public class RatePlanRepository {
                 }
 
                 //rp 会员等级
-                levels = new ArrayList<Integer>();
+                levels = new LinkedList<Integer>();
                 if ((oldrp.getCustomerLevel() & 1024) == 1024)
                 {
                     levels.add(0);
@@ -525,7 +530,7 @@ public class RatePlanRepository {
     
     private List<com.elong.nb.model.bean.base.BaseDrrRule> GetDrrRules(RatePlanBaseInfo oldrp, EnumLocal language)
     {
-        List<com.elong.nb.model.bean.base.BaseDrrRule> result = new ArrayList<com.elong.nb.model.bean.base.BaseDrrRule>();
+        List<com.elong.nb.model.bean.base.BaseDrrRule> result = new LinkedList<com.elong.nb.model.bean.base.BaseDrrRule>();
         
         if(oldrp ==null || oldrp.getRatePlanDRRList()==null || oldrp.getRatePlanDRRList().getDRRInfo()==null)
         	return result;
@@ -660,6 +665,7 @@ public class RatePlanRepository {
                 }
                 catch(Exception e)//若转换失败，则使用默认值返回 -1
                 {
+                	LocalMsg.error(e.getMessage());
                     result = -1;
                 }     
         }
@@ -699,6 +705,7 @@ public class RatePlanRepository {
                 }
                 catch(Exception e)//若转换失败，则使用默认值返回 -1
                 {
+                	LocalMsg.error(e.getMessage());
                     result = new Date();
                 }     
         }
@@ -738,6 +745,7 @@ public class RatePlanRepository {
                 }
                 catch(Exception e)//若转换失败，则使用默认值返回 -1
                 {
+                	LocalMsg.error(e.getMessage());
                     result = "";
                 }     
         }
@@ -777,6 +785,7 @@ public class RatePlanRepository {
                 }
                 catch(Exception e)//若转换失败，则使用默认值返回 -1
                 {
+                	LocalMsg.error(e.getMessage());
                     result = false;
                 }     
         }
@@ -840,7 +849,7 @@ public class RatePlanRepository {
     
     private List<com.elong.nb.model.bean.base.BaseGuaranteeRule> GetGuaranteeRules(RatePlanBaseInfo oldrp, EnumLocal language)
     {
-        List<com.elong.nb.model.bean.base.BaseGuaranteeRule> result = new ArrayList<com.elong.nb.model.bean.base.BaseGuaranteeRule>();
+        List<com.elong.nb.model.bean.base.BaseGuaranteeRule> result = new LinkedList<com.elong.nb.model.bean.base.BaseGuaranteeRule>();
         
         if(oldrp==null || oldrp.getRatePlanVouchRuleList()==null 
         		|| oldrp.getRatePlanVouchRuleList().getVouchInfo()==null)
@@ -915,7 +924,7 @@ public class RatePlanRepository {
     
     private List<com.elong.nb.model.bean.base.BasePrepayRule> GetPrepayRules(RatePlanBaseInfo oldrp, EnumLocal language)
     {
-        List<com.elong.nb.model.bean.base.BasePrepayRule> result = new ArrayList<com.elong.nb.model.bean.base.BasePrepayRule>();
+        List<com.elong.nb.model.bean.base.BasePrepayRule> result = new LinkedList<com.elong.nb.model.bean.base.BasePrepayRule>();
         if(oldrp ==null || oldrp.getRatePlanPrePayRuleList()==null 
         		|| oldrp.getRatePlanPrePayRuleList().getPrePayInfo()==null)
         	return result;
@@ -1015,7 +1024,7 @@ public class RatePlanRepository {
                 base.setDeductFeesBefore(100);
                
                 //new List<int>{ 1, 1, 1, 1, 1, 1, 1 }
-                List<Integer> intList = new ArrayList<Integer>();
+                List<Integer> intList = new LinkedList<Integer>();
                 intList.add(1);
                 intList.add(1);
                 intList.add(1);
@@ -1048,7 +1057,7 @@ public class RatePlanRepository {
     
     private List<com.elong.nb.model.bean.base.BaseValueAddRule> GetValueAddRules(RatePlanBaseInfo oldrp, EnumLocal language)
     {
-        List<com.elong.nb.model.bean.base.BaseValueAddRule> result = new ArrayList<com.elong.nb.model.bean.base.BaseValueAddRule>();
+        List<com.elong.nb.model.bean.base.BaseValueAddRule> result = new LinkedList<com.elong.nb.model.bean.base.BaseValueAddRule>();
         
         if(oldrp==null || oldrp.getRateplanRelationAddValue() ==null 
         		|| oldrp.getRateplanRelationAddValue().getAddValueInfoSimple()==null)
@@ -1288,7 +1297,7 @@ public class RatePlanRepository {
     
     private List<SupplierRatePlan> GetSuppliers(HotelDetail hotel, EnumLocal language)
     {
-        List<SupplierRatePlan> result = new ArrayList<SupplierRatePlan>();
+        List<SupplierRatePlan> result = new LinkedList<SupplierRatePlan>();
         if(hotel==null ||hotel.getHotelBaseInfo() ==null)
         	return result;
         
@@ -1317,10 +1326,10 @@ public class RatePlanRepository {
         
         if (result.size()>0 && (result.get(0).getRooms() == null || result.get(0).getRooms().size() == 0))
         {
-            result.get(0).setRooms(new ArrayList<MSRoomRelation>());
-            List<MSRoomRelation> rooms = new ArrayList<MSRoomRelation>();
+            result.get(0).setRooms(new LinkedList<MSRoomRelation>());
+            List<MSRoomRelation> rooms = new LinkedList<MSRoomRelation>();
             
-            List<String> ids = new ArrayList<String>();
+            List<String> ids = new LinkedList<String>();
             if(hotel.getRoomBaseInfos() !=null && hotel.getRoomBaseInfos().getRoomTypeInfo()!=null)
             {
 	            for (RoomTypeInfo room : hotel.getRoomBaseInfos().getRoomTypeInfo())
@@ -1382,7 +1391,7 @@ public class RatePlanRepository {
             }
         }
 
-        List<com.elong.nb.model.bean.base.BaseBookingRule> result = new ArrayList<com.elong.nb.model.bean.base.BaseBookingRule>();
+        List<com.elong.nb.model.bean.base.BaseBookingRule> result = new LinkedList<com.elong.nb.model.bean.base.BaseBookingRule>();
         for (HotelBookingRule rule : dict.values())
         {
         	
@@ -1456,6 +1465,7 @@ public class RatePlanRepository {
         }
         catch(Exception e)
         {
+        	LocalMsg.error(e.getMessage());
             return EnumInvoiceMode.Elong;
         }
     }
