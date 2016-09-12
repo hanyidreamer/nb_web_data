@@ -7,10 +7,13 @@ package com.elong.nb.dao.adapter.cache;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
 import com.elong.nb.agent.SupplierService.GetSupplierInfoBySupplierIDRequest;
@@ -43,16 +46,17 @@ public class M_SRelationRepository {
 	private static final String KEY_SUPPLIER_MAP="data.hotel.supplier";
 	private static final String KEY_ID_M_S="data.ms.mid_sid";
 	private static String KEY_ID_S_M = "data.ms.sid_mid";
-	private static String KEY_Hotel_S_M = "data.hotel.sid_mid";
 	private static final RedisManager redis=RedisManager.getInstance("redis_data", "redis_data");
 	private static  Gson gson=new Gson();
+	private static Logger LocalMsg = LogManager
+			.getLogger(M_SRelationRepository.class);
 	
 	@Resource(name="supplierService")
     private ISupplierServiceContract supplierServiceContract;
 	
 	
 	public static List<String> getSupplierHotels(String[] supplier){
-		List<String> supplierHotels=new ArrayList<String>();
+		List<String> supplierHotels=new LinkedList<String>();
 		
 		if(supplier!=null&&supplier.length>0)
 		{
@@ -112,7 +116,7 @@ public class M_SRelationRepository {
     
 	public static List<String[]> GetSHotelIds(String... mHotelIds) {
 
-		List<String[]> result = new ArrayList<String[]>();
+		List<String[]> result = new LinkedList<String[]>();
 		
 		CacheKEY_ID_M_S msKey = new CacheKEY_ID_M_S();
 		msKey.setSuffixKey("");
@@ -202,6 +206,7 @@ public class M_SRelationRepository {
         }
         catch(Exception e)
         {
+        	LocalMsg.error(e.getMessage());
         }
 
         return type;
@@ -256,6 +261,7 @@ public class M_SRelationRepository {
 			
 			  }catch(Exception ex){
 				  
+				  LocalMsg.error(ex.getMessage());
 			  }
 		  }
 		  
