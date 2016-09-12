@@ -8,7 +8,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,26 +20,21 @@ import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.common.util.CommonsUtil;
 import com.elong.nb.common.util.ValidateUtil;
-import com.elong.nb.model.bean.enums.EnumPaymentType;
 import com.elong.nb.model.bookingdata.BookingDataCondition;
 import com.elong.nb.model.bookingdata.BookingDataResult;
 import com.elong.nb.model.rackrate.RackRateRequest;
 import com.elong.nb.model.rackrate.RackRateResponse;
-import com.elong.nb.model.rate.RateCondition;
-import com.elong.nb.model.rate.RateResult;
 import com.elong.nb.model.rateplan.RatePlanCondition;
 import com.elong.nb.model.rateplan.RatePlanResult;
 import com.elong.nb.service.IBookingDataService;
 import com.elong.nb.service.IRackRateService;
 import com.elong.nb.service.IRatePlansService;
-import com.elong.nb.service.IRateService;
 import com.google.gson.TypeAdapter;
 
 @Controller
 public class HotelDataController {
 	
-	private String hasNoPrepayAuth = CommonsUtil.CONFIG_PROVIDAR
-			.getProperty("HasNoPrepayAuth.restRequest.Request");
+	
 	private String unKownException=CommonsUtil.CONFIG_PROVIDAR
 			.getProperty("UnKownException.restRequest.Request");
 	@Resource
