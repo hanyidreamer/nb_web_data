@@ -29,7 +29,7 @@ public class RateRepository {
 		req.setSellChannel(MathUtil.Log(proxyInfo.getSellChannel().getValue(),
 				2).intValue());
 		//支付类型转换
-		EnumPayMentType settlementType=paymentType==EnumPaymentType.Prepay?EnumPayMentType.PAY_TO_HOTEL_BY_CUSTOMER_SELF:EnumPayMentType.PAY_TO_HOTEL_BY_CUSTOMER_SELF;
+		EnumPayMentType settlementType=paymentType==EnumPaymentType.Prepay?EnumPayMentType.PRE_PAY:EnumPayMentType.PAY_TO_HOTEL_BY_CUSTOMER_SELF;
 		req.setSettlementType(settlementType);
 		req.setHotelID(sHotelId);
 		req.setStartDate(DateUtil.toDateTime(startDate));
