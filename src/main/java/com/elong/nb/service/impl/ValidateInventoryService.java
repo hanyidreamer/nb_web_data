@@ -17,6 +17,7 @@ import com.elong.nb.model.inventory.ValidateInventoryResult;
 import com.elong.nb.service.IInventoryService;
 import com.elong.nb.service.IValidateInventoryService;
 import com.elong.nb.util.DateUtil;
+import com.elong.nb.util.MathUtil;
 @Service
 public class ValidateInventoryService implements IValidateInventoryService{
 	@Resource
@@ -68,24 +69,24 @@ public class ValidateInventoryService implements IValidateInventoryService{
                          return result;
                      }
                      //库存可使用的日期
-                     try{
-                         if (inv.getStartTime().length() == 8 || inv.getEndTime().length() == 8){
-                             int t = Integer.parseInt(inv.getStartTime().replace(":", ""));
-                             if (t > time){
-                                 result.getResult().setIsOK(false); 
-                                 return result;
-                             }
-                             t = Integer.parseInt(inv.getEndTime().replace(":", ""));
-                             if (t < time){
-                            	 result.getResult().setIsOK(false); 
-                                 return result;
-                             }
-                         }
+                     if (inv.getStartTime().length() == 8 || inv.getEndTime().length() == 8){
+                      String startTimeStr=inv.getStartTime().replace(":", "");
+                      if(MathUtil.isNumeric(startTimeStr)){
+	                    	 int t = Integer.parseInt(startTimeStr);
+	                         if (t > time){
+	                             result.getResult().setIsOK(false); 
+	                             return result;
+	                         }
+	                         String endTimeStr=inv.getEndTime().replace(":", "");
+	                         if(MathUtil.isNumeric(endTimeStr)){
+		                         t = Integer.parseInt(endTimeStr);
+		                         if (t < time){
+		                        	 result.getResult().setIsOK(false); 
+		                             return result;
+		                         }
+	                         }
+	                     } 
                      }
-                     catch(Exception ex)
-                     {
-                     }
-
                  }
              }
              start = DateUtil.addDays(start,1);

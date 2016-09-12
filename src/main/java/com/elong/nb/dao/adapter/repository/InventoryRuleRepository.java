@@ -25,7 +25,7 @@ public class InventoryRuleRepository {
 	private String getServerUrl(String query){
 		  String url = CommonsUtil.CONFIG_PROVIDAR.getProperty("rule.url");
 	        if (StringUtils.isBlank(url)){
-	            url = "http://nbapi-rule.vip.elong.com/nb_web_rule";
+	        		throw new RuntimeException("Inner Error:分销规则URL为空，请检查配置");
 	        }
 	        return url + query;
 	}
@@ -39,12 +39,8 @@ public class InventoryRuleRepository {
 		request.setFrom("NB_Data");
 		request.setRealRequest(realRequest);
 		request.setLogId("");
-		long start=System.currentTimeMillis();
 		String content=JSON.toJSONString(request);
-		long end=System.currentTimeMillis();
-		System.out.println("JSON序列化时间耗时：(ms)"+(end-start));
 		String url=getServerUrl("/api/Hotel/GetChangedInventory");
-		System.out.println("传输参数大小：(byte)"+content.getBytes().length);
 		String str=HttpUtil.httpPost(url, content);
 		InventoryRuleSoaResponse response=JSON.parseObject(str, InventoryRuleSoaResponse.class);
 		if("0".equals(response.getResponseCode())){
@@ -63,16 +59,9 @@ public class InventoryRuleRepository {
 		request.setRealRequest(realRequest);
 		request.setLogId("");
 		Gson gson=new Gson();
-		long start=System.currentTimeMillis();
 		String content=JSON.toJSONString(request);
-		long end=System.currentTimeMillis();
-		System.out.println("JSON序列化时间耗时：(ms)"+(end-start));
 		String url=getServerUrl("/api/Hotel/CheckInvRuleHit");
-		System.out.println("传输参数大小：(byte)"+content.getBytes().length);
-		start=System.currentTimeMillis();
 		String str=HttpUtil.httpPost(url, content);
-		end=System.currentTimeMillis();
-		System.out.println("规则命中检查接口耗时：(ms)"+(end-start));
 		InventoryRuleHitCheckSoaResponse response=gson.fromJson(str, InventoryRuleHitCheckSoaResponse.class);
 		if("0".equals(response.getResponseCode())){
 			return response.getRealResponse();
