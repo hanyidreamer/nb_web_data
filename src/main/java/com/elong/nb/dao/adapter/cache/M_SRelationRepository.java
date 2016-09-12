@@ -113,17 +113,16 @@ public class M_SRelationRepository {
 	public static List<String[]> GetSHotelIds(String... mHotelIds) {
 
 		List<String[]> result = new ArrayList<String[]>();
-		for(String str : mHotelIds)
+		
+		CacheKEY_ID_M_S msKey = new CacheKEY_ID_M_S();
+		msKey.setSuffixKey("");
+		
+	    List<String> valueList = redis.hashMGet(msKey, mHotelIds);
+		for(String str : valueList)
 		{
-			CacheKEY_ID_M_S msKey = new CacheKEY_ID_M_S();
-			msKey.setSuffixKey(str);
-			
-			String res = redis.get(msKey);
-		   
-		   if( res!=null && !res.isEmpty())
+		   if( str!=null && !str.isEmpty())
 		   {
-			   String[] t= gson.fromJson(res, 
-	    			     new TypeToken<String[]>(){}.getType());
+			   String[] t=gson.fromJson(str, new TypeToken<String[]>(){}.getType());
 			   result.add(t);
 		   }
 		}
