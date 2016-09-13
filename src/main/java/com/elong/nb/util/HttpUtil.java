@@ -173,7 +173,7 @@ public class HttpUtil {
 				int code =conn.getResponseCode();
 				if(HttpURLConnection.HTTP_OK != code){
 					logger.info("http访问错误:"+reqUrl);
-					throw new Exception("http访问错误,返回码："+code);
+					throw new RuntimeException("http访问错误,返回码："+code);
 				}
 				BufferedReader in=new BufferedReader(new InputStreamReader(conn.getInputStream()));
 			      StringBuffer buffer=new StringBuffer();

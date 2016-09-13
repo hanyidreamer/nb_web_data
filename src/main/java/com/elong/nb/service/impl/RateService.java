@@ -154,7 +154,7 @@ public class RateService implements IRateService {
 					}
 				}
 			} else if (response.getResult() != null&& StringUtils.isNotBlank(response.getResult().getErrorMessage())) {
-				throw new Exception(String.format("Inner Error: %s", response.getResult().getErrorMessage()));
+				throw new RuntimeException(String.format("Inner Error: %s", response.getResult().getErrorMessage()));
 			}
 		}
 		return result;

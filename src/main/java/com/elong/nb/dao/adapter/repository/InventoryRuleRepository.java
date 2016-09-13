@@ -47,7 +47,7 @@ public class InventoryRuleRepository {
 		if("0".equals(response.getResponseCode())){
 			return response.getRealResponse().getInventorys();
 		}else{
-			throw new Exception("Inner Exception" + response.getExceptionMsg());
+			throw new RuntimeException("Inner Exception" + response.getExceptionMsg());
 		}
 	}
 	public InventoryRuleHitCheckRealResponse getCheckInfo(Map<String,List<String>> hotelMap, int orderFrom,boolean isNeedInstantConfirm) throws Exception{
@@ -67,7 +67,7 @@ public class InventoryRuleRepository {
 		if("0".equals(response.getResponseCode())){
 			return response.getRealResponse();
 		}else{
-			throw new Exception("Inner Exception" + response.getExceptionMsg());
+			throw new RuntimeException("Inner Exception" + response.getExceptionMsg());
 		}
 	}
 }
