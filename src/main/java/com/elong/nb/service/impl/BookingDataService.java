@@ -340,7 +340,7 @@ public class BookingDataService implements IBookingDataService {
 			// #region 产品、库存和价格的结果处理
 			List<Exception> exceptions = new LinkedList<Exception>();
 			taskFactory.shutdown();
-			taskFactory.awaitTermination(5, TimeUnit.SECONDS);
+			//taskFactory.awaitTermination(5, TimeUnit.SECONDS);
 
 			if (rateTask != null) {
 				Object obj = rateTask.get();
