@@ -137,7 +137,7 @@ public class BookingDataService implements IBookingDataService {
 
 			// List<Task<object>> tasks = new ArrayList<Task<object>>();
 			// TaskFactory taskFactory = new TaskFactory();
-			List<Future<Object>> tasks = new LinkedList<Future<Object>>();
+			//List<Future<Object>> tasks = new LinkedList<Future<Object>>();
 			ExecutorService taskFactory = Executors.newFixedThreadPool(10);
 
 			Hotel hotelInfoFromSearch = null;
@@ -306,7 +306,7 @@ public class BookingDataService implements IBookingDataService {
 			// Inventory
 			Future<Object> invTask = taskFactory.submit(new InventoryThread(
 					request, inventoryService, isInstantConfirmInSearch));
-			tasks.add(invTask);
+			
 			// end Inventory
 
 			// Inventory Realtime Check
