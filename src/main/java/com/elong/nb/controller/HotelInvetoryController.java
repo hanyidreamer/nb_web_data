@@ -36,19 +36,10 @@ import com.google.gson.TypeAdapter;
 
 @Controller
 public class HotelInvetoryController {
-
 	@Resource
-	private IRateService RateService;
+	private IInventoryService inventoryService;
 	@Resource
-	private IRatePlansService ratePlansService;
-	@Resource
-	private IBookingDataService bookingDataService;
-	@Resource
-	private IRackRateService rackRateService;
-	@Resource
-	private IInventoryService InventoryService;
-	@Resource
-	private IValidateInventoryService ValidateInventoryService;
+	private IValidateInventoryService validateInventoryService;
 
 	@RequestMapping(value = "/api/Hotel/GetInventories", method = RequestMethod.POST)
 	public ResponseEntity<byte[]> getInventories(HttpServletRequest request)
@@ -66,7 +57,7 @@ public class HotelInvetoryController {
 					restRequest.getVersion() == null ? 0d : restRequest
 							.getVersion()).getBytes(), HttpStatus.OK);
 		}
-		RestResponse<InventoryResult> response = InventoryService.getInventories(restRequest);
+		RestResponse<InventoryResult> response = this.inventoryService.getInventories(restRequest);
 		return new ResponseEntity(GsonUtil.toJson(response,
 				restRequest.getVersion()).getBytes(), HttpStatus.OK);
 
@@ -88,7 +79,7 @@ public class HotelInvetoryController {
 					restRequest.getVersion() == null ? 0d : restRequest
 							.getVersion()).getBytes(), HttpStatus.OK);
 		}
-		RestResponse<ValidateInventoryResult> response = this.ValidateInventoryService
+		RestResponse<ValidateInventoryResult> response = this.validateInventoryService
 				.getValidateInventories(restRequest);
 		return new ResponseEntity(GsonUtil.toJson(response,
 				restRequest.getVersion()).getBytes(), HttpStatus.OK);

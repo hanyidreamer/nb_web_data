@@ -21,17 +21,17 @@ public class InventoryHotelCodeTask extends RecursiveTask<List<Inventory>> {
 	private Date endDate;
 	private boolean isNeedInstantConfirm;
 	private String roomTypeId;
-	private InventoryRepository inventoryDao;
+	private InventoryRepository inventoryRepository;
 
 	public InventoryHotelCodeTask(String hotelId, List<String> hotelCodes,
 			String roomTypeId, Date startDate, Date endDate,
-			boolean isNeedInstantConfirm, InventoryRepository inventoryDao) {
+			boolean isNeedInstantConfirm, InventoryRepository inventoryRepository) {
 		this.hotelId = hotelId;
 		this.hotelCodes = hotelCodes;
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.isNeedInstantConfirm = isNeedInstantConfirm;
-		this.inventoryDao = inventoryDao;
+		this.inventoryRepository = inventoryRepository;
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class InventoryHotelCodeTask extends RecursiveTask<List<Inventory>> {
 		if (hotelCodes.size() < 2) {
 			for (String hotelCode : hotelCodes) {
 				try {
-					List<Inventory> list = this.inventoryDao.getInventorys(
+					List<Inventory> list = this.inventoryRepository.getInventorys(
 							hotelId, hotelCode, roomTypeId, startDate, endDate,
 							isNeedInstantConfirm);
 					long end =System.currentTimeMillis();
@@ -54,11 +54,11 @@ public class InventoryHotelCodeTask extends RecursiveTask<List<Inventory>> {
 			int size = hotelCodes.size() / 2;
 			InventoryHotelCodeTask task1 = new InventoryHotelCodeTask(hotelId,
 					hotelCodes.subList(0, size), roomTypeId, startDate,
-					endDate, isNeedInstantConfirm, inventoryDao);
+					endDate, isNeedInstantConfirm, inventoryRepository);
 			InventoryHotelCodeTask task2 = new InventoryHotelCodeTask(hotelId,
 					hotelCodes.subList(size, hotelCodes.size()),
 					roomTypeId, startDate, endDate, isNeedInstantConfirm,
-					inventoryDao);
+					inventoryRepository);
 			invokeAll(task1, task2);
 			try {
 				List<Inventory> list1;

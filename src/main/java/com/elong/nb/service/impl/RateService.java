@@ -26,7 +26,7 @@ import com.elong.nb.util.DateUtil;
 @Service
 public class RateService implements IRateService {
 	@Resource
-	private RateRepository rateDao;
+	private RateRepository rateRepository;
 	@Resource
 	private M_SRelationCache m_SRelationCache;
 
@@ -100,7 +100,7 @@ public class RateService implements IRateService {
 				continue;
 			}
 			sHotelId = StringUtils.join(sHotelIdArray, ',');
-			GetHotelRoomPriceResponse2 response = this.rateDao.getRate(
+			GetHotelRoomPriceResponse2 response = this.rateRepository.getRate(
 					proxyInfo, mHotelIdArray[i], sHotelId, startDate, endDate,
 					paymentType);
 			if (response != null && response.getResult() != null

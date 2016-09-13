@@ -12,6 +12,18 @@
 		</filter>
 	</appender>
 	
+	<!-- 大日志 -->
+	<appender name="monitor" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="file" value="${catalina.home}/logs/biglog.log" />
+		<param name="DatePattern" value="'.'yyyy-MM-dd-HH'.log'" />
+		<param name="Append" value="true" />
+		<param name="encoding" value="utf-8" />
+		<param name="threshold" value="info" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%m%n" />
+		</layout>
+	</appender>
+	
 	<!-- 系统启动日志输出文件 -->
     <appender name="fileAppender" class="com.elong.common.util.log.ElongDailyRollingFileAppender">
 		<param name="File" value="${catalina.home}/logs/system.log"/>
@@ -153,7 +165,10 @@
 		<appender-ref ref="soaClientInfoAppender" />
 		<appender-ref ref="soaClientErrorAppender" />
 	</logger>
-
+	<logger name="biglog" additivity="false">
+		<level value="info" />
+		<appender-ref ref="monitor" />
+	</logger>
 	<!-- ehcache日志器, 重定向日志流 -->
 	<logger name="net.sf.ehcache" additivity="false">
 		<level value="INFO" />

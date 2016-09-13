@@ -2,6 +2,7 @@ package com.elong.nb.dao.adapter.repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
@@ -38,7 +39,7 @@ public class InventoryRuleRepository {
 		realRequest.setOrderFrom(orderFrom);
 		request.setFrom("NB_Data");
 		request.setRealRequest(realRequest);
-		request.setLogId("");
+		request.setLogId(UUID.randomUUID().toString());
 		String content=JSON.toJSONString(request);
 		String url=getServerUrl("/api/Hotel/GetChangedInventory");
 		String str=HttpUtil.httpPost(url, content);
@@ -57,7 +58,7 @@ public class InventoryRuleRepository {
 		realRequest.setOrderFrom(orderFrom);
 		request.setFrom("NB_Data");
 		request.setRealRequest(realRequest);
-		request.setLogId("");
+		request.setLogId(UUID.randomUUID().toString());
 		Gson gson=new Gson();
 		String content=JSON.toJSONString(request);
 		String url=getServerUrl("/api/Hotel/CheckInvRuleHit");

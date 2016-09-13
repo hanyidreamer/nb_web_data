@@ -34,18 +34,7 @@ import com.google.gson.TypeAdapter;
 @Controller
 public class HotelRateController {
 	@Resource
-	private IRateService RateService;
-	@Resource
-	private IRatePlansService ratePlansService;
-	@Resource
-	private IBookingDataService bookingDataService;
-	@Resource
-	private IRackRateService rackRateService;
-	@Resource
-	private IInventoryService InventoryService;
-	@Resource
-	private IValidateInventoryService ValidateInventoryService;
-
+	private IRateService rateService;
 	@SuppressWarnings("rawtypes")
 	@RequestMapping(value = "/api/Hotel/GetRates", method = RequestMethod.POST)
 	public ResponseEntity<byte[]> getRates(HttpServletRequest request)
@@ -65,7 +54,7 @@ public class HotelRateController {
 		}
 		RestResponse<RateResult> response = null;
 		try {
-			response = RateService.getRates(restRequest);
+			response = rateService.getRates(restRequest);
 		} catch (Exception e) {
 			response = new RestResponse<RateResult>(restRequest.getGuid());
 			response.setCode(ErrorCode.Common_UnkownException + e.getMessage());

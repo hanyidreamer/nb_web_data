@@ -21,7 +21,7 @@ import com.elong.nb.util.MathUtil;
 @Service
 public class ValidateInventoryService implements IValidateInventoryService{
 	@Resource
-	private IInventoryService InventoryService;
+	private IInventoryService inventoryService;
 	/**
 	 * 验证库存
 	 */
@@ -49,7 +49,7 @@ public class ValidateInventoryService implements IValidateInventoryService{
          request.setEndDate(end);
          request.setRoomTypeId(restRequest.getRequest().getRoomTypeId());
          req.setRequest(request);
-        	 List<Inventory> inventories = this.InventoryService.getInventories(req).getResult().getInventories();
+        	 List<Inventory> inventories = this.inventoryService.getInventories(req).getResult().getInventories();
          while (start.getTime()<=end.getTime()){
         	 	List<Inventory> q = new ArrayList<Inventory>();
         	 	for(Inventory item:inventories){
