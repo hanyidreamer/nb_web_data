@@ -36,10 +36,14 @@ public class RateThread implements Callable<Object> {
             		request.getRequest().getPaymentType(), request.getProxyInfo().getLowestProfitPercent());
             //List<Rate> rates = list.Where(x => x.RoomTypeId == request.Request.RoomTypeId && x.RateplanId == request.Request.RatePlanId).ToList();
             List<Rate> rates = new ArrayList<Rate>();
+            if(list !=null)
+            {
             for(Rate x: list)
             {
             	if(x.getRoomTypeId()==request.getRequest().getRoomTypeId() && x.getRateplanId()==request.getRequest().getRatePlanId())
             		rates.add(x);
+            }
+            
             }
             
             obj = rates;
