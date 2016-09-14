@@ -8,14 +8,10 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.lang3.ClassUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.alibaba.fastjson.JSON;
 import com.elong.common.util.StringUtils;
@@ -27,7 +23,6 @@ import com.elong.nb.agent.ProductForPartnerServiceContract.IProductForPartnerSer
 import com.elong.nb.agent.ProductForPartnerServiceContract.ResourceInvAndInstantConfirmState;
 import com.elong.nb.agent.ProductForPartnerServiceContract.ResourceInventoryState;
 import com.elong.nb.common.biglog.BigLog;
-import com.elong.nb.common.biglog.Constants;
 import com.elong.nb.model.bean.Inventory;
 import com.elong.nb.util.DateUtil;
 
@@ -47,13 +42,11 @@ public class InventoryRepository {
 	 * @param isNeedInstantConfirm
 	 * @return
 	 */
-	public List<Inventory> getInventorys(String mHotelId,String sHotelId,String roomTypeId,Date startDate,Date endDate,boolean isNeedInstantConfirm){
+	public List<Inventory> getInventorys(String mHotelId,String sHotelId,String roomTypeId,Date startDate,Date endDate,boolean isNeedInstantConfirm,String guid){
 		List<Inventory> inventorys=new LinkedList<Inventory>();
-		RequestAttributes httpRequest = RequestContextHolder.getRequestAttributes();
-		Object guid = httpRequest.getAttribute(Constants.ELONG_REQUEST_REQUESTGUID, ServletRequestAttributes.SCOPE_REQUEST);
+		
 		BigLog log = new BigLog();
-		if(guid!=null)
-			log.setUserLogType(guid.toString());
+		log.setUserLogType(guid);
 		log.setAppName("wcf");
 		log.setTraceId(UUID.randomUUID().toString());
 		log.setSpan("1.1");

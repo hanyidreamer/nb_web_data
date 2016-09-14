@@ -17,8 +17,12 @@ import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.elong.nb.common.ComparableUtil;
+import com.elong.nb.common.biglog.Constants;
 import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
@@ -90,7 +94,7 @@ public class InventoryService implements IInventoryService{
 		for(int index=0;index<list.size();index++){
 			Inventory inventory=list.get(index);
 			//过滤不在黑名单列表里的库存
-			if(needBlackListRuleCodes.contains(inventory.getHotelCode())){
+			if(needBlackListRuleCodes.contains(inventory.getHotelCode())&&inventory.isStatus()){
 				RuleInventoryRequest ruleInventory=new RuleInventoryRequest();
 				ruleInventory.setHotelCode(inventory.getHotelCode());
 				ruleInventory.setHotelID(inventory.getHotelID());
@@ -160,7 +164,10 @@ public class InventoryService implements IInventoryService{
 				sHotelIdArrays.set(i, intersectHotelCode);
 			}
 		}
-		InventoryHotelIdTask inventoryTask=new InventoryHotelIdTask(mHotelIdArray,sHotelIdArrays,roomTypeId,startDate,endDate,isNeedInstantConfirm,inventoryDao);
+		RequestAttributes httpRequest = RequestContextHolder.getRequestAttributes();
+		Object requestGUID=httpRequest.getAttribute(Constants.ELONG_REQUEST_REQUESTGUID, ServletRequestAttributes.SCOPE_REQUEST);
+		String guid = requestGUID!=null?requestGUID.toString():"";
+		InventoryHotelIdTask inventoryTask=new InventoryHotelIdTask(mHotelIdArray,sHotelIdArrays,roomTypeId,startDate,endDate,isNeedInstantConfirm,inventoryDao,guid);
 		ForkJoinPool forkJoinPool = new ForkJoinPool();
 		forkJoinPool.execute(inventoryTask);
 		do {
