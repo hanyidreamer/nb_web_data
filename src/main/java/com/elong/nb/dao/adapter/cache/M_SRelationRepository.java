@@ -348,7 +348,7 @@ public List<com.elong.nb.model.rateplan.MSRoomRelation> GetMSRoomRelation_net(St
 		CacheKEY_RoomType_H_MS cacheKey =new CacheKEY_RoomType_H_MS();
 		  cacheKey.setSuffixKey("");
 		    
-		  String res =  redis.hashGet(cacheKey, sHotelId);
+		  String res =  redis.hashGet(cacheKey, "\""+sHotelId+"\"");
 		  if(res !=null && !res.isEmpty())
 		  {
 			  try
