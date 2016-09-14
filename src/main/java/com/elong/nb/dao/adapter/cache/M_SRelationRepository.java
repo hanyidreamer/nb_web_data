@@ -16,6 +16,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
+import com.alibaba.fastjson.JSON;
 import com.elong.nb.agent.SupplierService.GetSupplierInfoBySupplierIDRequest;
 import com.elong.nb.agent.SupplierService.GetSupplierInfoBySupplierIDResponse;
 import com.elong.nb.agent.SupplierService.ISupplierServiceContract;
@@ -24,6 +25,7 @@ import com.elong.nb.cache.RedisManager;
 import com.elong.nb.model.rateplan.MSHotelRelation;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import com.mysql.jdbc.StringUtils;
 
 
 /**
@@ -133,6 +135,33 @@ public class M_SRelationRepository {
           return result;
 	}
 	
+	public static List<String[]> GetSHotelIds_net(String[] mHotelIds) {
+		String[] mHotelIdStrs = new String[mHotelIds.length];
+		for (int i = 0; i < mHotelIds.length; i++) {
+			mHotelIdStrs[i] = "\"" + mHotelIds[i] + "\"";
+		}
+		List<String[]> result = new ArrayList<String[]>();
+		List<String> rst = new ArrayList<String>();
+		rst = redis.hashMGet(new ICacheKey() {
+			@Override
+			public String getKey() {
+				return KEY_ID_M_S;
+			}
+			@Override
+			public int getExpirationTime() {
+				return 0;
+			}
+		}, mHotelIdStrs);
+		for (int i = 0; i < mHotelIds.length; i++) {
+			if (!StringUtils.isNullOrEmpty(rst.get(i))) {
+				result.add(JSON.parseObject(rst.get(i), String[].class));
+			} else {
+				result.add(new String[]{});
+			}
+		}
+		return result;
+}
+	
      
 	public static MSHotelRelation GetHotelRelation(String sHotelId) {
 		CacheKEY_Hotel_S_M mskey = new CacheKEY_Hotel_S_M();
@@ -147,6 +176,33 @@ public class M_SRelationRepository {
 		 
 		 //取出来是序列化的JSon
 		 String obj = redis.get(mskey);
+		 if(obj==null || obj.isEmpty())
+		 {
+			 MSHotelRelation ms =new MSHotelRelation();
+			 ms.setMHotelId(sHotelId);
+			 ms.setSHotelId(sHotelId);
+             return ms; 
+		 }
+		 
+		 MSHotelRelation temp = gson.fromJson(obj, 
+			     new TypeToken<MSHotelRelation>(){}.getType());
+				  
+         return temp;
+	}
+	
+	public static MSHotelRelation GetHotelRelation_net(String sHotelId) {
+		CacheKEY_Hotel_S_M mskey = new CacheKEY_Hotel_S_M();
+		mskey.setSuffixKey("");
+		 if (!redis.exists(mskey))
+         {
+			 MSHotelRelation ms =new MSHotelRelation();
+			 ms.setMHotelId(sHotelId);
+			 ms.setSHotelId(sHotelId);
+             return ms;
+         }
+		 
+		 //取出来是序列化的JSon
+		 String obj = redis.hashGet(mskey, "\""+sHotelId+"\"");
 		 if(obj==null || obj.isEmpty())
 		 {
 			 MSHotelRelation ms =new MSHotelRelation();
@@ -241,6 +297,23 @@ public class M_SRelationRepository {
 	
 	    return res;	
 	}
+	
+	public String GetMHotelId_net(String sHotelID) {
+		//KEY_ID_S_M
+		String res = redis.hashGet(CacheKEY_ID_S_M, "\""+sHotelID+"\"");
+	
+	    if (res==null || res.isEmpty())
+	    {
+	        if (!redis.exists(CacheKEY_ID_S_M))
+	        {
+	            return sHotelID;
+	        }
+	        
+	        res = sHotelID;
+	    }
+	
+	    return res;	
+	}
 
 	public List<com.elong.nb.model.rateplan.MSRoomRelation> GetMSRoomRelation(String sHotelId) {
 		
@@ -250,6 +323,32 @@ public class M_SRelationRepository {
 		  cacheKey.setSuffixKey(sHotelId);
 		    
 		  String res =  redis.get(cacheKey);
+		  if(res !=null && !res.isEmpty())
+		  {
+			  try
+			  {
+				  List<com.elong.nb.model.rateplan.MSRoomRelation> temp = gson.fromJson(res, 
+			     new TypeToken<List<com.elong.nb.model.rateplan.MSRoomRelation>>(){}.getType());
+				  
+			    return temp;
+			
+			  }catch(Exception ex){
+				  
+				  LocalMsg.error(ex.getMessage());
+			  }
+		  }
+		  
+		  return null;
+	}
+	
+public List<com.elong.nb.model.rateplan.MSRoomRelation> GetMSRoomRelation_net(String sHotelId) {
+		
+		//return redis.HGet<List<MSRoomRelation>>(KEY_RoomType_H_MS, sHotelId);
+		
+		CacheKEY_RoomType_H_MS cacheKey =new CacheKEY_RoomType_H_MS();
+		  cacheKey.setSuffixKey("");
+		    
+		  String res =  redis.hashGet(cacheKey, sHotelId);
 		  if(res !=null && !res.isEmpty())
 		  {
 			  try

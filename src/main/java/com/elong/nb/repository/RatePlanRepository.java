@@ -101,7 +101,8 @@ public class RatePlanRepository {
 
 
         String[] mHotelArrays = request.getRequest().getHotelIds().split(",");
-        List<String[]> sHotelIdArrays = M_SRelationRepository.GetSHotelIds(mHotelArrays);
+        //List<String[]> sHotelIdArrays = M_SRelationRepository.GetSHotelIds(mHotelArrays);
+        List<String[]> sHotelIdArrays = M_SRelationRepository.GetSHotelIds_net(mHotelArrays);
         
         //test
         //String[] test = new String[1];
@@ -127,7 +128,7 @@ public class RatePlanRepository {
                 if (request.getProxyInfo().isIsOnlyStraight())
                 {
                     //只保留艺龙直签，其他供应商的rp都过滤
-                    MSHotelRelation hotelRelation = M_SRelationRepository.GetHotelRelation(shotelId);
+                    MSHotelRelation hotelRelation = M_SRelationRepository.GetHotelRelation_net(shotelId);
                     if (hotelRelation != null)
                     {
                         int type = mSRelationRepository.GetCooperationTypeBySupplierID(hotelRelation.getSupplierId());
@@ -333,8 +334,11 @@ public class RatePlanRepository {
             //});
         	HotelRatePlan rp = new HotelRatePlan();
         	if(hotel.getHotelBaseInfo() !=null)
-        	  rp.setHotelID(mHotelId == null ? mSRelationRepository.GetMHotelId(hotel.getHotelBaseInfo().getHotelId()) : mHotelId);
-        	rp.setRatePlans(GetRatePlans(hotel, language, proxyInfo, requestVersion, options));
+        	{
+        	  //rp.setHotelID(mHotelId == null ? mSRelationRepository.GetMHotelId(hotel.getHotelBaseInfo().getHotelId()) : mHotelId);
+        		rp.setHotelID(mHotelId == null ? mSRelationRepository.GetMHotelId_net(hotel.getHotelBaseInfo().getHotelId()) : mHotelId);
+        	}
+        	  rp.setRatePlans(GetRatePlans(hotel, language, proxyInfo, requestVersion, options));
             rp.setSuppliers(GetSuppliers(hotel, language));
         	result.add(rp);
         }
@@ -361,7 +365,7 @@ public class RatePlanRepository {
             			&& !hotel.getHotelBaseInfo().getHotelId().isEmpty())
             	{
 	                //获取合作类型，是艺龙直签还是其它供应商
-	            	MSHotelRelation hotelRelation = M_SRelationRepository.GetHotelRelation(hotel.getHotelBaseInfo().getHotelId());
+	            	MSHotelRelation hotelRelation = M_SRelationRepository.GetHotelRelation_net(hotel.getHotelBaseInfo().getHotelId());
 	                if (hotelRelation != null)
 	                {
 	                    int type = mSRelationRepository.GetCooperationTypeBySupplierID(hotelRelation.getSupplierId());
@@ -1302,7 +1306,7 @@ public class RatePlanRepository {
         	return result;
         
         EnumInvoiceMode InvoiceMode = EnumInvoiceMode.Hotel;
-        MSHotelRelation hotelRelation = M_SRelationRepository.GetHotelRelation(hotel.getHotelBaseInfo().getHotelId());
+        MSHotelRelation hotelRelation = M_SRelationRepository.GetHotelRelation_net(hotel.getHotelBaseInfo().getHotelId());
         if (hotelRelation != null)
         {
             InvoiceMode = GetInvoiceMode(hotelRelation.getSupplierId());
@@ -1317,7 +1321,7 @@ public class RatePlanRepository {
 	            suprp.setHotelCode( hotel.getHotelBaseInfo().getHotelId());
 	            suprp.setWeekendStart(hotel.getHotelBaseInfo().getWeekEndStart());
 	            suprp.setWeekendEnd(hotel.getHotelBaseInfo().getWeekEndEnd());
-	            List<MSRoomRelation> msList = mSRelationRepository.GetMSRoomRelation(hotel.getHotelBaseInfo().getHotelId());
+	            List<MSRoomRelation> msList = mSRelationRepository.GetMSRoomRelation_net(hotel.getHotelBaseInfo().getHotelId());
 	            suprp.setRooms(msList);
             }
             suprp.setInvoiceMode(InvoiceMode);
