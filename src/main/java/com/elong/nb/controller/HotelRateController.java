@@ -47,6 +47,7 @@ public class HotelRateController {
 			RestResponse<RateResult> response = new RestResponse<RateResult>(
 					restRequest.getGuid());
 			response.setCode(rst);
+			response.setResult(null);
 			return new ResponseEntity(GsonUtil.toJson(
 					response,
 					restRequest.getVersion() == null ? 0d : restRequest

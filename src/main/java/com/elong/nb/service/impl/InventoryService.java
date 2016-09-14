@@ -78,7 +78,7 @@ public class InventoryService implements IInventoryService{
 				restRequest.getGuid());
 		InventoryResult result = new InventoryResult();
 		List<Inventory> list= getInentory(restRequest.getProxyInfo(),restRequest.getRequest().getHotelIds(),restRequest.getRequest().getHotelCodes(),restRequest.getRequest().getRoomTypeId(),restRequest.getRequest().getStartDate(),restRequest.getRequest().getEndDate(),
-				false,restRequest.getProxyInfo().getOrderFrom());
+				restRequest.getRequest().isIsNeedInstantConfirm(),restRequest.getProxyInfo().getOrderFrom());
 		result.setInventories(list);
 		response.setResult(result);
 		return response;
