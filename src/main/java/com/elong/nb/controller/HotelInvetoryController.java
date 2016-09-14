@@ -1,6 +1,5 @@
 package com.elong.nb.controller;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,6 +51,7 @@ public class HotelInvetoryController {
 			RestResponse<InventoryResult> response = new RestResponse<InventoryResult>(
 					restRequest.getGuid());
 			response.setCode(rst);
+			response.setResult(null);
 			return new ResponseEntity(GsonUtil.toJson(
 					response,
 					restRequest.getVersion() == null ? 0d : restRequest
@@ -74,6 +74,7 @@ public class HotelInvetoryController {
 			RestResponse<InventoryResult> response = new RestResponse<InventoryResult>(
 					restRequest.getGuid());
 			response.setCode(rst);
+			response.setResult(null);
 			return new ResponseEntity(GsonUtil.toJson(
 					response,
 					restRequest.getVersion() == null ? 0d : restRequest
