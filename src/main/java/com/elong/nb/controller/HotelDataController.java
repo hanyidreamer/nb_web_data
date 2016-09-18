@@ -147,7 +147,7 @@ public class HotelDataController {
 		
 		 //获取GetBookingData
 		@SuppressWarnings("rawtypes")
-		@RequestMapping(value = "/api/Hotel/GetRackRates", method = RequestMethod.POST)
+		//@RequestMapping(value = "/api/Hotel/GetRackRates", method = RequestMethod.POST)
 		public ResponseEntity<byte[]> GetRackRates(HttpServletRequest request) throws IOException
 		{
 			//基本校验
