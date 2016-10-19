@@ -335,8 +335,7 @@ public class RatePlanRepository {
         	HotelRatePlan rp = new HotelRatePlan();
         	if(hotel.getHotelBaseInfo() !=null)
         	{
-        	  //rp.setHotelID(mHotelId == null ? mSRelationRepository.GetMHotelId(hotel.getHotelBaseInfo().getHotelId()) : mHotelId);
-        		rp.setHotelID(mHotelId == null ? mSRelationRepository.GetMHotelId_net(hotel.getHotelBaseInfo().getHotelId()) : mHotelId);
+        	  rp.setHotelID(mHotelId == null ? mSRelationRepository.GetMHotelId(hotel.getHotelBaseInfo().getHotelId()) : mHotelId);
         	}
         	  rp.setRatePlans(GetRatePlans(hotel, language, proxyInfo, requestVersion, options));
             rp.setSuppliers(GetSuppliers(hotel, language));
@@ -1321,7 +1320,7 @@ public class RatePlanRepository {
 	            suprp.setHotelCode( hotel.getHotelBaseInfo().getHotelId());
 	            suprp.setWeekendStart(hotel.getHotelBaseInfo().getWeekEndStart());
 	            suprp.setWeekendEnd(hotel.getHotelBaseInfo().getWeekEndEnd());
-	            List<MSRoomRelation> msList = mSRelationRepository.GetMSRoomRelation_net(hotel.getHotelBaseInfo().getHotelId());
+	            List<MSRoomRelation> msList = mSRelationRepository.GetMSRoomRelation(hotel.getHotelBaseInfo().getHotelId());
 	            suprp.setRooms(msList);
             }
             suprp.setInvoiceMode(InvoiceMode);
