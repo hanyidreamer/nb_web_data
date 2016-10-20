@@ -102,7 +102,7 @@ public class RatePlanRepository {
 
         String[] mHotelArrays = request.getRequest().getHotelIds().split(",");
         //List<String[]> sHotelIdArrays = M_SRelationRepository.GetSHotelIds(mHotelArrays);
-        List<String[]> sHotelIdArrays = M_SRelationRepository.GetSHotelIds_net(mHotelArrays);
+        List<String[]> sHotelIdArrays = M_SRelationRepository.GetSHotelIds(mHotelArrays);
         
         //test
         //String[] test = new String[1];
@@ -128,7 +128,7 @@ public class RatePlanRepository {
                 if (request.getProxyInfo().isIsOnlyStraight())
                 {
                     //只保留艺龙直签，其他供应商的rp都过滤
-                    MSHotelRelation hotelRelation = M_SRelationRepository.GetHotelRelation_net(shotelId);
+                    MSHotelRelation hotelRelation = M_SRelationRepository.GetHotelRelation(shotelId);
                     if (hotelRelation != null)
                     {
                         int type = mSRelationRepository.GetCooperationTypeBySupplierID(hotelRelation.getSupplierId());
@@ -364,7 +364,7 @@ public class RatePlanRepository {
             			&& !hotel.getHotelBaseInfo().getHotelId().isEmpty())
             	{
 	                //获取合作类型，是艺龙直签还是其它供应商
-	            	MSHotelRelation hotelRelation = M_SRelationRepository.GetHotelRelation_net(hotel.getHotelBaseInfo().getHotelId());
+	            	MSHotelRelation hotelRelation = M_SRelationRepository.GetHotelRelation(hotel.getHotelBaseInfo().getHotelId());
 	                if (hotelRelation != null)
 	                {
 	                    int type = mSRelationRepository.GetCooperationTypeBySupplierID(hotelRelation.getSupplierId());
@@ -1305,7 +1305,7 @@ public class RatePlanRepository {
         	return result;
         
         EnumInvoiceMode InvoiceMode = EnumInvoiceMode.Hotel;
-        MSHotelRelation hotelRelation = M_SRelationRepository.GetHotelRelation_net(hotel.getHotelBaseInfo().getHotelId());
+        MSHotelRelation hotelRelation = M_SRelationRepository.GetHotelRelation(hotel.getHotelBaseInfo().getHotelId());
         if (hotelRelation != null)
         {
             InvoiceMode = GetInvoiceMode(hotelRelation.getSupplierId());

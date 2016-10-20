@@ -16,14 +16,7 @@ public class M_SRelationCache {
 	private RedisManager redis = RedisManager.getInstance("redis_msrelation", "redis_msrelation");
 
 	public List<String> getSupplierHotels(String[] supplier) {
-		List<String> supplierHotels = new ArrayList<String>();
-		if (supplier != null && supplier.length > 0) {
-			for (int i = 0; i < supplier.length; i++) {
-				supplier[i] = "\"" + supplier[i] + "\"";
-			}
-		}
-		supplierHotels = redis.hMGet(String.class, RedisKeyConst.CacheKey_KEY_SupplierMap, supplier);
-		return supplierHotels;
+		return redis.hashMGet(RedisKeyConst.CacheKey_KEY_SupplierMap, supplier);
 	}
 
 	/**
@@ -34,13 +27,8 @@ public class M_SRelationCache {
 	 * @throws Exception 
 	 */
 	public List<String[]> getSHotelIds(String[] mHotelIds) throws Exception {
-		String[] mHotelIdStrs = new String[mHotelIds.length];
-		for (int i = 0; i < mHotelIds.length; i++) {
-			mHotelIdStrs[i] = "\"" + mHotelIds[i] + "\"";
-		}
 		List<String[]> result = new ArrayList<String[]>();
-		List<String> rst = new ArrayList<String>();
-		rst = redis.hashMGet(RedisKeyConst.CacheKey_KEY_ID_M_S, mHotelIdStrs);
+		List<String> rst = redis.hashMGet(RedisKeyConst.CacheKey_KEY_ID_M_S, mHotelIds);
 		for (int i = 0; i < mHotelIds.length; i++) {
 			if (!StringUtils.isNullOrEmpty(rst.get(i))) {
 				result.add(JSON.parseObject(rst.get(i), String[].class));
