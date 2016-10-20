@@ -22,6 +22,7 @@ import com.elong.nb.agent.SupplierService.GetSupplierInfoBySupplierIDResponse;
 import com.elong.nb.agent.SupplierService.ISupplierServiceContract;
 import com.elong.nb.cache.ICacheKey;
 import com.elong.nb.cache.RedisManager;
+import com.elong.nb.common.model.RedisKeyConst;
 import com.elong.nb.model.rateplan.MSHotelRelation;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
@@ -44,11 +45,11 @@ import com.mysql.jdbc.StringUtils;
 
 @Repository
 public class M_SRelationRepository {
-	private static final String KEY_SUPPLIER_MAP = "data.hotel.supplier";
-	private static final String KEY_ID_M_S = "data.ms.mid_sid";
-	private static String KEY_ID_S_M = "data.ms.sid_mid";
+
 	private static final RedisManager redis = RedisManager.getInstance("redis_data", "redis_data");
+
 	private static Gson gson = new Gson();
+
 	private static Logger LocalMsg = LogManager.getLogger(M_SRelationRepository.class);
 
 	@Resource(name = "supplierService")
@@ -62,18 +63,7 @@ public class M_SRelationRepository {
 
 			for (String s : supplierList) {
 
-				String sHotel = redis.hashGet(new ICacheKey() {
-
-					@Override
-					public String getKey() {
-						return KEY_SUPPLIER_MAP;
-					}
-
-					@Override
-					public int getExpirationTime() {
-						return -1;
-					}
-				}, s);
+				String sHotel = redis.hashGet(RedisKeyConst.CacheKey_KEY_SupplierMap, s);
 
 				supplierHotels.add(sHotel);
 			}
@@ -86,18 +76,7 @@ public class M_SRelationRepository {
 	 */
 	public static List<String> getSHotelIds(String... mHotelIds) {
 		List<String> sHotelIds = new ArrayList<String>();
-		ICacheKey cacheKey = new ICacheKey() {
-
-			@Override
-			public String getKey() {
-				return KEY_ID_M_S;
-			}
-
-			@Override
-			public int getExpirationTime() {
-				return -1;
-			}
-		};
+		ICacheKey cacheKey = RedisKeyConst.CacheKey_KEY_ID_M_S;
 		boolean keyExist = redis.exists(cacheKey);
 		if (!keyExist) {
 			for (String mHotelId : mHotelIds) {
@@ -136,17 +115,7 @@ public class M_SRelationRepository {
 		}
 		List<String[]> result = new ArrayList<String[]>();
 		List<String> rst = new ArrayList<String>();
-		rst = redis.hashMGet(new ICacheKey() {
-			@Override
-			public String getKey() {
-				return KEY_ID_M_S;
-			}
-
-			@Override
-			public int getExpirationTime() {
-				return 0;
-			}
-		}, mHotelIdStrs);
+		rst = redis.hashMGet(RedisKeyConst.CacheKey_KEY_ID_M_S, mHotelIdStrs);
 		for (int i = 0; i < mHotelIds.length; i++) {
 			if (!StringUtils.isNullOrEmpty(rst.get(i))) {
 				result.add(JSON.parseObject(rst.get(i), String[].class));
@@ -252,25 +221,12 @@ public class M_SRelationRepository {
 		return type;
 	}
 
-	private static final ICacheKey CacheKEY_ID_S_M = new ICacheKey() {
-
-		@Override
-		public String getKey() {
-			return KEY_ID_S_M;
-		}
-
-		@Override
-		public int getExpirationTime() {
-			return -1;
-		}
-	};
-
 	public String GetMHotelId(String sHotelID) {
 		// KEY_ID_S_M
-		String res = redis.hashGet(CacheKEY_ID_S_M, sHotelID);
+		String res = redis.hashGet(RedisKeyConst.CacheKey_KEY_ID_S_M, sHotelID);
 
 		if (res == null || res.isEmpty()) {
-			if (!redis.exists(CacheKEY_ID_S_M)) {
+			if (!redis.exists(RedisKeyConst.CacheKey_KEY_ID_S_M)) {
 				return sHotelID;
 			}
 
