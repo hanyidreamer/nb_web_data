@@ -47,7 +47,7 @@ import com.google.gson.Gson;
 @Repository
 public class M_SRelationRepository {
 
-	private static final RedisManager redis = RedisManager.getInstance("redis_data", "redis_data");
+	private static final RedisManager redis = RedisManager.getInstance("redis_job", "redis_job");
 
 	private static Gson gson = new Gson();
 

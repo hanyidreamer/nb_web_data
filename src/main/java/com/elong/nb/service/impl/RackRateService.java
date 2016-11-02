@@ -26,7 +26,7 @@ import com.elong.nb.service.IRackRateService;
 @Service
 public class RackRateService implements IRackRateService {
 
-	private static final RedisManager redis = RedisManager.getInstance("redis_data", "redis_data");
+	private static final RedisManager redis = RedisManager.getInstance("redis_job", "redis_job");
 
 	@Resource
 	private RackRatesRepository rackRatesRepository;

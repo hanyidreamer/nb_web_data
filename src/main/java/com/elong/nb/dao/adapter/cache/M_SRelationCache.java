@@ -13,7 +13,7 @@ import com.mysql.jdbc.StringUtils;
 @Repository
 public class M_SRelationCache {
 
-	private RedisManager redis = RedisManager.getInstance("redis_data", "redis_data");
+	private RedisManager redis = RedisManager.getInstance("redis_job", "redis_job");
 
 	public List<String> getSupplierHotels(String[] supplier) {
 		return redis.hashMGet(RedisKeyConst.CacheKey_KEY_SupplierMap, supplier);

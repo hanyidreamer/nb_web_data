@@ -68,7 +68,7 @@ public class BookingDataService implements IBookingDataService {
 
 	private static Logger logger = LogManager.getLogger("biglog");
 	private Gson gson = new Gson();
-	private static final RedisManager redis = RedisManager.getInstance("redis_data", "redis_data");
+	private static final RedisManager redis = RedisManager.getInstance("redis_job", "redis_job");
 
 	@Resource
 	private EffectiveStatusRepository effectiveStatusRepository;
