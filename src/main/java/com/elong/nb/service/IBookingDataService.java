@@ -7,5 +7,5 @@ import com.elong.nb.model.bookingdata.BookingDataResult;
 
 public interface IBookingDataService {
 	
-	RestResponse<BookingDataResult> GetBookingData(RestRequest<BookingDataCondition> request);
+	RestResponse<BookingDataResult> getBookingData(RestRequest<BookingDataCondition> request);
 }

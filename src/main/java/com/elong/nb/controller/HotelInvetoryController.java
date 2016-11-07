@@ -1,8 +1,5 @@
 package com.elong.nb.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
@@ -17,21 +14,13 @@ import com.elong.nb.common.gson.GsonUtil;
 import com.elong.nb.common.model.ErrorCode;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
-import com.elong.nb.common.util.CommonsUtil;
 import com.elong.nb.common.util.ValidateUtil;
-import com.elong.nb.model.bean.enums.EnumPaymentType;
 import com.elong.nb.model.inventory.InventoryCondition;
 import com.elong.nb.model.inventory.InventoryResult;
 import com.elong.nb.model.inventory.ValidateInventoryCondition;
 import com.elong.nb.model.inventory.ValidateInventoryResult;
-import com.elong.nb.model.rate.RateCondition;
-import com.elong.nb.service.IBookingDataService;
-import com.elong.nb.service.IRackRateService;
-import com.elong.nb.service.IRatePlansService;
-import com.elong.nb.service.IRateService;
 import com.elong.nb.service.IInventoryService;
 import com.elong.nb.service.IValidateInventoryService;
-import com.google.gson.TypeAdapter;
 
 @Controller
 public class HotelInvetoryController {
@@ -43,22 +32,21 @@ public class HotelInvetoryController {
 	@RequestMapping(value = "/api/Hotel/GetInventories", method = RequestMethod.POST)
 	public ResponseEntity<byte[]> getInventories(HttpServletRequest request)
 			throws Exception {
-		Map<Class, TypeAdapter> m = new HashMap<Class, TypeAdapter>();
 		RestRequest<InventoryCondition> restRequest = GsonUtil.toReq(request,
-				InventoryCondition.class, m);
+				InventoryCondition.class, null);
 		String rst = validateInventoryRequest(restRequest);
 		if (StringUtils.isNotBlank(rst)) {
 			RestResponse<InventoryResult> response = new RestResponse<InventoryResult>(
 					restRequest.getGuid());
 			response.setCode(rst);
 			response.setResult(null);
-			return new ResponseEntity(GsonUtil.toJson(
+			return new ResponseEntity<byte[]>(GsonUtil.toJson(
 					response,
 					restRequest.getVersion() == null ? 0d : restRequest
 							.getVersion()).getBytes(), HttpStatus.OK);
 		}
 		RestResponse<InventoryResult> response = this.inventoryService.getInventories(restRequest);
-		return new ResponseEntity(GsonUtil.toJson(response,
+		return new ResponseEntity<byte[]>(GsonUtil.toJson(response,
 				restRequest.getVersion()).getBytes(), HttpStatus.OK);
 
 	}
@@ -66,23 +54,22 @@ public class HotelInvetoryController {
 	@RequestMapping(value = "/api/Hotel/ValidateInventory", method = RequestMethod.POST)
 	public ResponseEntity<byte[]> validateInventory(HttpServletRequest request)
 			throws Exception {
-		Map<Class, TypeAdapter> m = new HashMap<Class, TypeAdapter>();
 		RestRequest<ValidateInventoryCondition> restRequest = GsonUtil.toReq(
-				request, ValidateInventoryCondition.class, m);
+				request, ValidateInventoryCondition.class, null);
 		String rst = validateValidateInventoryRequest(restRequest);// validateInventoryRequest(restRequest);
 		if (StringUtils.isNotBlank(rst)) {
 			RestResponse<InventoryResult> response = new RestResponse<InventoryResult>(
 					restRequest.getGuid());
 			response.setCode(rst);
 			response.setResult(null);
-			return new ResponseEntity(GsonUtil.toJson(
+			return new ResponseEntity<byte[]>(GsonUtil.toJson(
 					response,
 					restRequest.getVersion() == null ? 0d : restRequest
 							.getVersion()).getBytes(), HttpStatus.OK);
 		}
 		RestResponse<ValidateInventoryResult> response = this.validateInventoryService
 				.getValidateInventories(restRequest);
-		return new ResponseEntity(GsonUtil.toJson(response,
+		return new ResponseEntity<byte[]>(GsonUtil.toJson(response,
 				restRequest.getVersion()).getBytes(), HttpStatus.OK);
 
 	}

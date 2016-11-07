@@ -69,7 +69,7 @@ public class M_SRelationRepository {
 	}
 
 	@SuppressWarnings("serial")
-	public static List<String[]> GetSHotelIds(String... mHotelIds) {
+	public static List<String[]> getSHotelIds(String... mHotelIds) {
 		List<String[]> result = new LinkedList<String[]>();
 		List<String> valueList = redis.hashMGet(RedisKeyConst.CacheKey_KEY_ID_M_S, mHotelIds);
 		for (String str : valueList) {
@@ -82,7 +82,7 @@ public class M_SRelationRepository {
 		return result;
 	}
 
-	public static MSHotelRelation GetHotelRelation(String sHotelId) {
+	public static MSHotelRelation getHotelRelation(String sHotelId) {
 		ICacheKey cacheKey = RedisKeyConst.CacheKey_KEY_Hotel_S_M;
 		if (!redis.exists(cacheKey)) {
 			MSHotelRelation ms = new MSHotelRelation();
@@ -108,7 +108,7 @@ public class M_SRelationRepository {
 		return temp;
 	}
 
-	public int GetCooperationTypeBySupplierID(int supplierID) {
+	public int getCooperationTypeBySupplierID(int supplierID) {
 		String hotelKey = String.format(RedisKeyConst.KEY_SupplierCooType, supplierID);
 		ICacheKey cacheKey = RedisManager.getCacheKey(hotelKey, 24 * 3600);// 24小时=86400秒
 		// 1为直签，2为非直签，0为未知
@@ -144,7 +144,7 @@ public class M_SRelationRepository {
 		return res;
 	}
 
-	public List<MSRoomRelation> GetMSRoomRelation(String sHotelId) {
+	public List<MSRoomRelation> getMSRoomRelation(String sHotelId) {
 		String res = redis.hashGet(RedisKeyConst.CacheKey_KEY_RoomType_H_MS, sHotelId);
 		if (StringUtils.isNotEmpty(res)) {
 			try {

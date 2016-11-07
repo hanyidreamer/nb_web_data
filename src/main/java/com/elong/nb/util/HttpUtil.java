@@ -36,7 +36,7 @@ public class HttpUtil {
 
 	protected static Logger logger = LogManager.getLogger(HttpUtil.class);
 	private static Gson gson=new Gson();
-	public static String httpPost(String reqUrl,String reqData)throws Exception{
+	public static String httpPost(String reqUrl,String reqData){
 		HttpURLConnection conn = null;
 		try{
 			URL url = new URL(reqUrl);
@@ -63,7 +63,7 @@ public class HttpUtil {
 			return sb.toString();
 		}catch(Exception ex){
 			logger.error("http Error,reqUrl:"+reqUrl+",Exception:"+ex.getMessage());
-			throw ex;
+			throw new RuntimeException(ex);
 			
 		}finally{
 			if(null != conn)try{

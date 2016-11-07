@@ -1,4 +1,4 @@
-package com.elong.nb.repository;
+package com.elong.nb.dao.adapter.repository;
 
 import java.util.ArrayList;
 import java.util.Date;

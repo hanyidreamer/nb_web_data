@@ -165,7 +165,7 @@ public class InventoryService implements IInventoryService{
 			}
 		}
 		RequestAttributes httpRequest = RequestContextHolder.getRequestAttributes();
-		Object requestGUID=httpRequest.getAttribute(Constants.ELONG_REQUEST_REQUESTGUID, ServletRequestAttributes.SCOPE_REQUEST);
+		Object requestGUID=httpRequest!=null?httpRequest.getAttribute(Constants.ELONG_REQUEST_REQUESTGUID, ServletRequestAttributes.SCOPE_REQUEST):null;
 		String guid = requestGUID!=null?requestGUID.toString():"";
 		InventoryHotelIdTask inventoryTask=new InventoryHotelIdTask(mHotelIdArray,sHotelIdArrays,roomTypeId,startDate,endDate,isNeedInstantConfirm,inventoryDao,guid);
 		ForkJoinPool forkJoinPool = new ForkJoinPool();

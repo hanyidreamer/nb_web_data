@@ -33,6 +33,7 @@ public class InventoryHotelCodeTask extends RecursiveTask<List<Inventory>> {
 		this.endDate = endDate;
 		this.isNeedInstantConfirm = isNeedInstantConfirm;
 		this.guid=guid;
+		this.roomTypeId=roomTypeId;
 		this.inventoryRepository = inventoryRepository;
 	}
 

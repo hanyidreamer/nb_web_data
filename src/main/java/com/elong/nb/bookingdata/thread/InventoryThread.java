@@ -44,6 +44,7 @@ public class InventoryThread implements Callable<Object> {
 			con.setStartDate(request.getRequest().getArrivalDate());
 			con.setEndDate(DepartureDate.getTime());
 			con.setHotelIds(request.getRequest().getHotelId());
+			con.setHotelCodes(request.getRequest().getHotelCode());
 			con.setIsNeedInstantConfirm(false);
 			con.setRoomTypeId(request.getRequest().getRoomTypeId());
 			restRequest.setRequest(con);

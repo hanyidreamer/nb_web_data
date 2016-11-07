@@ -4,8 +4,8 @@ import java.util.concurrent.Callable;
 
 import com.elong.nb.agent.ProductForSearchServiceForRealTimeCheck.InventoryAndPriceCheckResult;
 import com.elong.nb.common.model.RestRequest;
+import com.elong.nb.dao.adapter.repository.ProductForMisServiceRepository;
 import com.elong.nb.model.bookingdata.BookingDataCondition;
-import com.elong.nb.repository.ProductForMisServiceRepository;
 
 public class RealTimeInvCheckThread implements Callable<Object> {
 

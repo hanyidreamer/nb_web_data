@@ -1,5 +1,6 @@
 package com.elong.nb.service.impl;
 
+import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,6 +31,9 @@ import com.elong.nb.common.model.RedisKeyConst;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.common.util.CommonsUtil;
+import com.elong.nb.dao.adapter.repository.EffectiveStatusRepository;
+import com.elong.nb.dao.adapter.repository.ProductForMisServiceRepository;
+import com.elong.nb.dao.adapter.repository.RatePlanRepository;
 import com.elong.nb.model.HotelDetailRequest;
 import com.elong.nb.model.HotelListResponse;
 import com.elong.nb.model.bean.BookingRule;
@@ -53,11 +57,9 @@ import com.elong.nb.model.rate.bean.Rate;
 import com.elong.nb.model.rateplan.GiftForRP;
 import com.elong.nb.model.rateplan.HotelRatePlan;
 import com.elong.nb.model.rateplan.RatePlan;
-import com.elong.nb.repository.EffectiveStatusRepository;
-import com.elong.nb.repository.ProductForMisServiceRepository;
-import com.elong.nb.repository.RatePlanRepository;
 import com.elong.nb.service.IBookingDataService;
 import com.elong.nb.service.IInventoryService;
+import com.elong.nb.util.DateUtil;
 import com.elong.nb.util.HttpUtil;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
@@ -82,7 +84,7 @@ public class BookingDataService implements IBookingDataService {
 	private IInventoryService inventoryService;
 
 	@Override
-	public RestResponse<BookingDataResult> GetBookingData(RestRequest<BookingDataCondition> request) {
+	public RestResponse<BookingDataResult> getBookingData(RestRequest<BookingDataCondition> request) {
 		RestResponse<BookingDataResult> result = new RestResponse<BookingDataResult>(request.getGuid());
 		result.setResult(new BookingDataResult());
 
@@ -95,19 +97,17 @@ public class BookingDataService implements IBookingDataService {
 			// #region 参数校验
 			StringBuilder errorCode = new StringBuilder();
 
-			Calendar cdArrival = Calendar.getInstance();
-			cdArrival.add(Calendar.DATE, -1);
-
+			Date now=DateUtil.getDate(new Date());
 			Calendar cdDeparture = Calendar.getInstance();
 			cdDeparture.add(Calendar.DATE, 1);
 
 			if (request.getVersion() < 1.13) {
-				errorCode.append(String.format(ErrorCode.Common_VersionToLow, 1.13));
+				errorCode.append(MessageFormat.format(ErrorCode.Common_VersionToLow, 1.13));
 			} else if (request.getRequest().getPaymentType() == EnumPaymentType.All) {
 				errorCode.append(ErrorCode.Common_PaymentTypeRequired);
-			} else if (request.getRequest().getArrivalDate().compareTo(cdArrival.getTime()) < 0) {
+			} else if (request.getRequest().getArrivalDate().getTime()<DateUtil.addDays(now, -1).getTime()) {
 				errorCode.append(ErrorCode.Search_ArrivalDateRangeInvalid);
-			} else if (request.getRequest().getDepartureDate().compareTo(cdDeparture.getTime()) < 0) {
+			} else if (request.getRequest().getDepartureDate().getTime()<DateUtil.addDays(request.getRequest().getArrivalDate(),1).getTime()) {
 				errorCode.append(ErrorCode.Search_DepartureDateRangeInvalid);
 			}
 
@@ -555,7 +555,7 @@ public class BookingDataService implements IBookingDataService {
 				long days = (timeNow - timeOld) / (1000 * 60 * 60 * 24);// 化为天
 				roomNightsCount = (int) days * 1;
 			}
-			BookingOrderCheckMinitor(request, result, roomNightsCount);
+			bookingOrderCheckMinitor(request, result, roomNightsCount);
 		}
 		return result;
 	}
@@ -586,7 +586,7 @@ public class BookingDataService implements IBookingDataService {
 		}
 	}
 
-	public void BookingOrderCheckMinitor(RestRequest<BookingDataCondition> request, RestResponse<BookingDataResult> result, int count) {
+	public void bookingOrderCheckMinitor(RestRequest<BookingDataCondition> request, RestResponse<BookingDataResult> result, int count) {
 		OrderCheckMinitor(request, result, count);
 	}
 

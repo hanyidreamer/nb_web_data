@@ -1,8 +1,6 @@
 package com.elong.nb.controller;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -18,37 +16,28 @@ import com.elong.nb.common.gson.GsonUtil;
 import com.elong.nb.common.model.ErrorCode;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
-import com.elong.nb.common.util.CommonsUtil;
 import com.elong.nb.common.util.ValidateUtil;
 import com.elong.nb.model.bean.enums.EnumPaymentType;
 import com.elong.nb.model.rate.RateCondition;
 import com.elong.nb.model.rate.RateResult;
-import com.elong.nb.service.IBookingDataService;
-import com.elong.nb.service.IRackRateService;
-import com.elong.nb.service.IRatePlansService;
 import com.elong.nb.service.IRateService;
-import com.elong.nb.service.IInventoryService;
-import com.elong.nb.service.IValidateInventoryService;
-import com.google.gson.TypeAdapter;
 
 @Controller
 public class HotelRateController {
 	@Resource
 	private IRateService rateService;
-	@SuppressWarnings("rawtypes")
 	@RequestMapping(value = "/api/Hotel/GetRates", method = RequestMethod.POST)
 	public ResponseEntity<byte[]> getRates(HttpServletRequest request)
 			throws IOException {
-		Map<Class, TypeAdapter> m = new HashMap<Class, TypeAdapter>();
 		RestRequest<RateCondition> restRequest = GsonUtil.toReq(request,
-				RateCondition.class, m);
+				RateCondition.class, null);
 		String rst = validateRateRequest(restRequest);
 		if (StringUtils.isNotBlank(rst)) {
 			RestResponse<RateResult> response = new RestResponse<RateResult>(
 					restRequest.getGuid());
 			response.setCode(rst);
 			response.setResult(null);
-			return new ResponseEntity(GsonUtil.toJson(
+			return new ResponseEntity<byte[]>(GsonUtil.toJson(
 					response,
 					restRequest.getVersion() == null ? 0d : restRequest
 							.getVersion()).getBytes(), HttpStatus.OK);
@@ -61,7 +50,7 @@ public class HotelRateController {
 			response.setResult(null);
 			response.setCode(ErrorCode.Common_UnkownException + e.getMessage());
 		}
-		return new ResponseEntity(GsonUtil.toJson(response,
+		return new ResponseEntity<byte[]>(GsonUtil.toJson(response,
 				restRequest.getVersion()).getBytes(), HttpStatus.OK);
 
 	}
