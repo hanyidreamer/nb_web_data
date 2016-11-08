@@ -2,7 +2,7 @@ package com.elong.nb.model.rateplan.fornb;
 
 public class SearchHotelRatePlanListReq {
 	private String shotelId;
-	private int paymentType;
+	private Integer paymentType;
 	private String GuestType = "1";
 	private String PriceModel = "1";
 	private String PriceType = "1";
@@ -13,10 +13,10 @@ public class SearchHotelRatePlanListReq {
 	public void setShotelId(String shotelId) {
 		this.shotelId = shotelId;
 	}
-	public int getPaymentType() {
+	public Integer getPaymentType() {
 		return paymentType;
 	}
-	public void setPaymentType(int paymentType) {
+	public void setPaymentType(Integer paymentType) {
 		this.paymentType = paymentType;
 	}
 	public String getGuestType() {

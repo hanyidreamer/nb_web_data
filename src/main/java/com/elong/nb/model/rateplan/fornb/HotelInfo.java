@@ -4,31 +4,31 @@ import java.util.List;
 
 public class HotelInfo {
 	private String shotelId;//改了
-    private List<HotelBookingRule> HotelBookingRuleList;
-    private int WeekEndStart;
-    private int WeekEndEnd;
+    private List<HotelBookingRule> hotelBookingRuleList;
+    private int weekEndStart;
+    private int weekEndEnd;
 	public String getShotelId() {
 		return shotelId;
 	}
 	public void setShotelId(String shotelId) {
 		this.shotelId = shotelId;
 	}
-	public int getWeekEndStart() {
-		return WeekEndStart;
-	}
-	public void setWeekEndStart(int weekEndStart) {
-		WeekEndStart = weekEndStart;
-	}
-	public int getWeekEndEnd() {
-		return WeekEndEnd;
-	}
-	public void setWeekEndEnd(int weekEndEnd) {
-		WeekEndEnd = weekEndEnd;
-	}
 	public List<HotelBookingRule> getHotelBookingRuleList() {
-		return HotelBookingRuleList;
+		return hotelBookingRuleList;
 	}
 	public void setHotelBookingRuleList(List<HotelBookingRule> hotelBookingRuleList) {
-		HotelBookingRuleList = hotelBookingRuleList;
+		this.hotelBookingRuleList = hotelBookingRuleList;
+	}
+	public int getWeekEndStart() {
+		return weekEndStart;
+	}
+	public void setWeekEndStart(int weekEndStart) {
+		this.weekEndStart = weekEndStart;
+	}
+	public int getWeekEndEnd() {
+		return weekEndEnd;
+	}
+	public void setWeekEndEnd(int weekEndEnd) {
+		this.weekEndEnd = weekEndEnd;
 	}
 }

@@ -3,11 +3,17 @@
  */
 package com.elong.nb.dao.adapter.repository;
 
+import java.util.UUID;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.elong.nb.common.util.CommonsUtil;
+import com.elong.nb.model.rateplan.fornb.HotelBookingRule;
+import com.elong.nb.model.rateplan.fornb.RequestBase;
+import com.elong.nb.model.rateplan.fornb.ResponseBase;
 import com.elong.nb.model.rateplan.fornb.SearchHotelRatePlanListReq;
 import com.elong.nb.model.rateplan.fornb.SearchHotelRatePlanListResp;
 import com.elong.nb.util.HttpUtil;
@@ -26,17 +32,22 @@ public class RatePlanRepository {
 	        return url + query;
 	}
 	public SearchHotelRatePlanListResp getRatePlan(SearchHotelRatePlanListReq req){
-		String requestUrl = getServerUrl("/rest/com/elong/hotel/product/entity/req/autofreesale/hotelorder/GetInvLimitBlackList4NBReq");
+		String str="{\"cNDescription\":\"预定此产品需要将手机号码提供给酒店\"}";
+		HotelBookingRule rule=JSON.parseObject(str, HotelBookingRule.class);
+		System.out.println(rule);
+		String requestUrl = getServerUrl("/rest/com/elong/hotel/product/entity/req/forpartner/nbapi/SearchHotelRatePlanListReq");
 		//SearchHotelRatePlanListReq realRequest=new SearchHotelRatePlanListReq();
-		
-		String json=JSON.toJSONString(req);
+		RequestBase<SearchHotelRatePlanListReq> request=new RequestBase<SearchHotelRatePlanListReq>();
+		request.setRealRequest(req);
+		request.setLogId(UUID.randomUUID().toString());
+		String json=JSON.toJSONString(request);
 		String result = HttpUtil.httpPost(requestUrl, "requestJson="+json);
-		SearchHotelRatePlanListResp response = JSON.parseObject(result, SearchHotelRatePlanListResp.class);
+		ResponseBase<SearchHotelRatePlanListResp> response = JSON.parseObject(result, new TypeReference<ResponseBase<SearchHotelRatePlanListResp>>(){});
 //		if(response!=null&&response.getRealResponse()!=null){
 //			return response.getRealResponse().getInventoryLimitBlackList();
 //		}else{
 //			throw new RuntimeException("Inner Exception: "+response.getExceptionMsg());
 //		}
-		return response;
+		return response.getRealResponse();
 	}
 }

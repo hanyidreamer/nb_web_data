@@ -5,102 +5,102 @@ import java.util.List;
 import java.util.Map;
 
 public class VouchInfo {
-	private Date StartDate;
-	private Date EndDate;
-	private String ArriveStartTime;
-	private String ArriveEndTime;
-	private int RoomCount;
-	private int VouchChangeRule;
-	private int DateType;
-	private String CNDescription;
-	private String ENDescription;
-	private boolean IsRoomCountVouch;
-	private boolean IsArriveTimeVouch;
-	private int VouchMoneyType;
-	private List<Integer> IsWeekEffective;
-	private Map<String, String> RuleValues;//担保规则扩展
+	private Date startDate;
+	private Date endDate;
+	private String arriveStartTime;
+	private String arriveEndTime;
+	private int roomCount;
+	private int vouchChangeRule;
+	private int dateType;
+	private String cNDescription;
+	private String eNDescription;
+	private boolean isRoomCountVouch;
+	private boolean isArriveTimeVouch;
+	private int vouchMoneyType;
+	private List<Integer> isWeekEffective;
+	private Map<String, String> ruleValues;//担保规则扩展
 	public Date getStartDate() {
-		return StartDate;
+		return startDate;
 	}
 	public void setStartDate(Date startDate) {
-		StartDate = startDate;
+		this.startDate = startDate;
 	}
 	public Date getEndDate() {
-		return EndDate;
+		return endDate;
 	}
 	public void setEndDate(Date endDate) {
-		EndDate = endDate;
+		this.endDate = endDate;
 	}
 	public String getArriveStartTime() {
-		return ArriveStartTime;
+		return arriveStartTime;
 	}
 	public void setArriveStartTime(String arriveStartTime) {
-		ArriveStartTime = arriveStartTime;
+		this.arriveStartTime = arriveStartTime;
 	}
 	public String getArriveEndTime() {
-		return ArriveEndTime;
+		return arriveEndTime;
 	}
 	public void setArriveEndTime(String arriveEndTime) {
-		ArriveEndTime = arriveEndTime;
+		this.arriveEndTime = arriveEndTime;
 	}
 	public int getRoomCount() {
-		return RoomCount;
+		return roomCount;
 	}
 	public void setRoomCount(int roomCount) {
-		RoomCount = roomCount;
+		this.roomCount = roomCount;
 	}
 	public int getVouchChangeRule() {
-		return VouchChangeRule;
+		return vouchChangeRule;
 	}
 	public void setVouchChangeRule(int vouchChangeRule) {
-		VouchChangeRule = vouchChangeRule;
+		this.vouchChangeRule = vouchChangeRule;
 	}
 	public int getDateType() {
-		return DateType;
+		return dateType;
 	}
 	public void setDateType(int dateType) {
-		DateType = dateType;
+		this.dateType = dateType;
 	}
 	public String getCNDescription() {
-		return CNDescription;
+		return cNDescription;
 	}
 	public void setCNDescription(String cNDescription) {
-		CNDescription = cNDescription;
+		this.cNDescription = cNDescription;
 	}
 	public String getENDescription() {
-		return ENDescription;
+		return eNDescription;
 	}
 	public void setENDescription(String eNDescription) {
-		ENDescription = eNDescription;
+		this.eNDescription = eNDescription;
 	}
-	public boolean isIsRoomCountVouch() {
-		return IsRoomCountVouch;
+	public boolean isRoomCountVouch() {
+		return isRoomCountVouch;
 	}
-	public void setIsRoomCountVouch(boolean isRoomCountVouch) {
-		IsRoomCountVouch = isRoomCountVouch;
+	public void setRoomCountVouch(boolean isRoomCountVouch) {
+		this.isRoomCountVouch = isRoomCountVouch;
 	}
-	public boolean isIsArriveTimeVouch() {
-		return IsArriveTimeVouch;
+	public boolean isArriveTimeVouch() {
+		return isArriveTimeVouch;
 	}
-	public void setIsArriveTimeVouch(boolean isArriveTimeVouch) {
-		IsArriveTimeVouch = isArriveTimeVouch;
+	public void setArriveTimeVouch(boolean isArriveTimeVouch) {
+		this.isArriveTimeVouch = isArriveTimeVouch;
 	}
 	public int getVouchMoneyType() {
-		return VouchMoneyType;
+		return vouchMoneyType;
 	}
 	public void setVouchMoneyType(int vouchMoneyType) {
-		VouchMoneyType = vouchMoneyType;
+		this.vouchMoneyType = vouchMoneyType;
 	}
 	public List<Integer> getIsWeekEffective() {
-		return IsWeekEffective;
+		return isWeekEffective;
 	}
 	public void setIsWeekEffective(List<Integer> isWeekEffective) {
-		IsWeekEffective = isWeekEffective;
+		this.isWeekEffective = isWeekEffective;
 	}
 	public Map<String, String> getRuleValues() {
-		return RuleValues;
+		return ruleValues;
 	}
 	public void setRuleValues(Map<String, String> ruleValues) {
-		RuleValues = ruleValues;
+		this.ruleValues = ruleValues;
 	}
 }

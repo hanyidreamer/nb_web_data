@@ -17,10 +17,10 @@ public class DRRInfo {
 	private List<Integer> isWeekEffective;
 	private Map<String, String> ruleValues;
 	private String roomTypeIds;
-	public int getdRRRule() {
+	public int getDRRRule() {
 		return dRRRule;
 	}
-	public void setdRRRule(int dRRRule) {
+	public void setDRRRule(int dRRRule) {
 		this.dRRRule = dRRRule;
 	}
 	public int getMoneyOrPercent() {
@@ -41,16 +41,16 @@ public class DRRInfo {
 	public void setDateType(int dateType) {
 		this.dateType = dateType;
 	}
-	public String getcNDescription() {
+	public String getCNDescription() {
 		return cNDescription;
 	}
-	public void setcNDescription(String cNDescription) {
+	public void setCNDescription(String cNDescription) {
 		this.cNDescription = cNDescription;
 	}
-	public String geteNDescription() {
+	public String getENDescription() {
 		return eNDescription;
 	}
-	public void seteNDescription(String eNDescription) {
+	public void setENDescription(String eNDescription) {
 		this.eNDescription = eNDescription;
 	}
 	public Date getStartDate() {

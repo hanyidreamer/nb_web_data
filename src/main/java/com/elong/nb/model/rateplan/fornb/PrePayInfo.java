@@ -5,109 +5,109 @@ import java.util.List;
 import java.util.Map;
 
 public class PrePayInfo {
-	private int Target;
-    private int PrepayChangeRule;
-    private int DateType;
-    private Date StartDate;
-    private Date EndDate;
-    private int CutTypeAfter;
-    private int CutTypeBefor;
-    private boolean CutAfterChangeTime;
-    private boolean CutBeforChangeTime;
-    private double CutNumAfter;
-    private double CutNumBefor;
-    private String CNDescription;
-    private String ENDescription;
-    private List<Integer> IsWeekEffective;
-    Map<String, String> RuleValues;
+	private int target;
+    private int prepayChangeRule;
+    private int dateType;
+    private Date startDate;
+    private Date endDate;
+    private int cutTypeAfter;
+    private int cutTypeBefor;
+    private boolean cutAfterChangeTime;
+    private boolean cutBeforChangeTime;
+    private double cutNumAfter;
+    private double cutNumBefor;
+    private String cNDescription;
+    private String eNDescription;
+    private List<Integer> isWeekEffective;
+    Map<String, String> ruleValues;
 	public int getTarget() {
-		return Target;
+		return target;
 	}
 	public void setTarget(int target) {
-		Target = target;
+		this.target = target;
 	}
 	public int getPrepayChangeRule() {
-		return PrepayChangeRule;
+		return prepayChangeRule;
 	}
 	public void setPrepayChangeRule(int prepayChangeRule) {
-		PrepayChangeRule = prepayChangeRule;
+		this.prepayChangeRule = prepayChangeRule;
 	}
 	public int getDateType() {
-		return DateType;
+		return dateType;
 	}
 	public void setDateType(int dateType) {
-		DateType = dateType;
+		this.dateType = dateType;
 	}
 	public Date getStartDate() {
-		return StartDate;
+		return startDate;
 	}
 	public void setStartDate(Date startDate) {
-		StartDate = startDate;
+		this.startDate = startDate;
 	}
 	public Date getEndDate() {
-		return EndDate;
+		return endDate;
 	}
 	public void setEndDate(Date endDate) {
-		EndDate = endDate;
+		this.endDate = endDate;
 	}
 	public int getCutTypeAfter() {
-		return CutTypeAfter;
+		return cutTypeAfter;
 	}
 	public void setCutTypeAfter(int cutTypeAfter) {
-		CutTypeAfter = cutTypeAfter;
+		this.cutTypeAfter = cutTypeAfter;
 	}
 	public int getCutTypeBefor() {
-		return CutTypeBefor;
+		return cutTypeBefor;
 	}
 	public void setCutTypeBefor(int cutTypeBefor) {
-		CutTypeBefor = cutTypeBefor;
+		this.cutTypeBefor = cutTypeBefor;
 	}
 	public boolean isCutAfterChangeTime() {
-		return CutAfterChangeTime;
+		return cutAfterChangeTime;
 	}
 	public void setCutAfterChangeTime(boolean cutAfterChangeTime) {
-		CutAfterChangeTime = cutAfterChangeTime;
+		this.cutAfterChangeTime = cutAfterChangeTime;
 	}
 	public boolean isCutBeforChangeTime() {
-		return CutBeforChangeTime;
+		return cutBeforChangeTime;
 	}
 	public void setCutBeforChangeTime(boolean cutBeforChangeTime) {
-		CutBeforChangeTime = cutBeforChangeTime;
+		this.cutBeforChangeTime = cutBeforChangeTime;
 	}
 	public double getCutNumAfter() {
-		return CutNumAfter;
+		return cutNumAfter;
 	}
 	public void setCutNumAfter(double cutNumAfter) {
-		CutNumAfter = cutNumAfter;
+		this.cutNumAfter = cutNumAfter;
 	}
 	public double getCutNumBefor() {
-		return CutNumBefor;
+		return cutNumBefor;
 	}
 	public void setCutNumBefor(double cutNumBefor) {
-		CutNumBefor = cutNumBefor;
+		this.cutNumBefor = cutNumBefor;
 	}
 	public String getCNDescription() {
-		return CNDescription;
+		return cNDescription;
 	}
 	public void setCNDescription(String cNDescription) {
-		CNDescription = cNDescription;
+		this.cNDescription = cNDescription;
 	}
 	public String getENDescription() {
-		return ENDescription;
+		return eNDescription;
 	}
 	public void setENDescription(String eNDescription) {
-		ENDescription = eNDescription;
+		this.eNDescription = eNDescription;
 	}
 	public List<Integer> getIsWeekEffective() {
-		return IsWeekEffective;
+		return isWeekEffective;
 	}
 	public void setIsWeekEffective(List<Integer> isWeekEffective) {
-		IsWeekEffective = isWeekEffective;
+		this.isWeekEffective = isWeekEffective;
 	}
 	public Map<String, String> getRuleValues() {
-		return RuleValues;
+		return ruleValues;
 	}
 	public void setRuleValues(Map<String, String> ruleValues) {
-		RuleValues = ruleValues;
+		this.ruleValues = ruleValues;
 	}
 }

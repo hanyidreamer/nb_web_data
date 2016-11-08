@@ -13,10 +13,10 @@ public class HotelBookingRule {
     private String endHour;
     private String roomTypeID;
     private int hotelBooKingRule;
-	public long getiD() {
+	public long getID() {
 		return iD;
 	}
-	public void setiD(long iD) {
+	public void setID(long iD) {
 		this.iD = iD;
 	}
 	public int getDateType() {
@@ -25,16 +25,16 @@ public class HotelBookingRule {
 	public void setDateType(int dateType) {
 		this.dateType = dateType;
 	}
-	public String getcNDescription() {
+	public String getCNDescription() {
 		return cNDescription;
 	}
-	public void setcNDescription(String cNDescription) {
+	public void setCNDescription(String cNDescription) {
 		this.cNDescription = cNDescription;
 	}
-	public String geteNDescription() {
+	public String getENDescription() {
 		return eNDescription;
 	}
-	public void seteNDescription(String eNDescription) {
+	public void setENDescription(String eNDescription) {
 		this.eNDescription = eNDescription;
 	}
 	public Date getStartDate() {

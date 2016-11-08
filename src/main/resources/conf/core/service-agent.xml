@@ -55,7 +55,7 @@
 			AllowChunking="false" ConnectionTimeout="10000" ReceiveTimeout="10000" />
 	</http-conf:conduit>
 	
-	<jaxws:client id="sHotelGiftService"
+	<jaxws:client id="hotelGiftServiceContract"
 		serviceClass="com.elong.nb.agent.HotelGiftService.IHotelGiftServiceContract"
 		address="${services.HotelGiftService.address}">
 		<jaxws:properties>

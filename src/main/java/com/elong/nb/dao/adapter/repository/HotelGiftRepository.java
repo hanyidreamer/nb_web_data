@@ -23,8 +23,8 @@ import com.elong.nb.model.rateplan.HotelGiftProductRelation;
 @Repository
 public class HotelGiftRepository {
 
-	@Resource(name="sHotelGiftService")
-	IHotelGiftServiceContract SHotelGiftService;
+	@Resource(name="hotelGiftServiceContract")
+	IHotelGiftServiceContract hotelGiftServiceContract;
 	
 	/// <summary>
     /// 使用hotel3接口实现
@@ -35,7 +35,7 @@ public class HotelGiftRepository {
     {
         List<HotelGift> list = new ArrayList<HotelGift>();
 
-        GetHotelGiftListResponse res = SHotelGiftService.getHotelGiftListByHotelID(sHotelId);
+        GetHotelGiftListResponse res = hotelGiftServiceContract.getHotelGiftListByHotelID(sHotelId);
 
         if (res !=null && res.getResult() != null && res.getResult().getResponseCode() == 0 
         		&& res.getHotelGiftList() != null 

@@ -4,159 +4,160 @@ import java.util.Date;
 import java.util.List;
 
 public class RatePlanBaseInfo {
-    private List<AddValuePolicyInfo> AddValuePolicyList;//差异化早餐 富杰
-    private List<DRRInfo> RatePlanDRRList;//促销规则 刘康
-    private List<PrePayInfo> RatePlanPrePayRuleList;//预付规则
-    private List<VouchInfo> RatePlanVouchRuleList;//担保规则 浩瀚
-    private List<AddValueInfoSimple> RateplanRelationAddValue;//增值服务 包含普通早餐
+    private List<AddValuePolicyInfo> addValuePolicyList;//差异化早餐 富杰
+    private List<DRRInfo> ratePlanDRRList;//促销规则 刘康
+    private List<PrePayInfo> ratePlanPrePayRuleList;//预付规则
+    private List<VouchInfo> ratePlanVouchRuleList;//担保规则 浩瀚
+    private List<AddValueInfoSimple> rateplanRelationAddValue;//增值服务 包含普通早餐
     
-    private String SettlementType;
-    private int RatePlanID;
-    private String CNRatePlanName;
-    private String ENRatePlanName;
-    private String RatePlanRoomTypeId;
-    private String PriceType;
-    private int IsLimitTimeSale;
-    private String ProductType;
-    private int BookingChannel;
-    private Date StartTime;
-    private Date EndTime;
-    private int MinAdvanceBookingDays;
-    private int MaxAdvanceBookingDays;
-    private int MinStayDays;
-    private int MaxStayDays;
-    private int MinCheckinRooms;
-    private int CustomerLevel;
+    private String settlementType;
+    private int ratePlanID;
+    private String cNRatePlanName;
+    private String eNRatePlanName;
+    private String ratePlanRoomTypeId;
+    private String priceType;
+    private int isLimitTimeSale;
+    private String productType;
+    private int bookingChannel;
+    private Date startTime;
+    private Date endTime;
+    private int minAdvanceBookingDays;
+    private int maxAdvanceBookingDays;
+    private int minStayDays;
+    private int maxStayDays;
+    private int minCheckinRooms;
+    private int customerLevel;
 	public List<AddValuePolicyInfo> getAddValuePolicyList() {
-		return AddValuePolicyList;
+		return addValuePolicyList;
 	}
 	public void setAddValuePolicyList(List<AddValuePolicyInfo> addValuePolicyList) {
-		AddValuePolicyList = addValuePolicyList;
+		this.addValuePolicyList = addValuePolicyList;
 	}
 	public List<DRRInfo> getRatePlanDRRList() {
-		return RatePlanDRRList;
+		return ratePlanDRRList;
 	}
 	public void setRatePlanDRRList(List<DRRInfo> ratePlanDRRList) {
-		RatePlanDRRList = ratePlanDRRList;
+		this.ratePlanDRRList = ratePlanDRRList;
 	}
 	public List<PrePayInfo> getRatePlanPrePayRuleList() {
-		return RatePlanPrePayRuleList;
+		return ratePlanPrePayRuleList;
 	}
 	public void setRatePlanPrePayRuleList(List<PrePayInfo> ratePlanPrePayRuleList) {
-		RatePlanPrePayRuleList = ratePlanPrePayRuleList;
+		this.ratePlanPrePayRuleList = ratePlanPrePayRuleList;
 	}
 	public List<VouchInfo> getRatePlanVouchRuleList() {
-		return RatePlanVouchRuleList;
+		return ratePlanVouchRuleList;
 	}
 	public void setRatePlanVouchRuleList(List<VouchInfo> ratePlanVouchRuleList) {
-		RatePlanVouchRuleList = ratePlanVouchRuleList;
+		this.ratePlanVouchRuleList = ratePlanVouchRuleList;
 	}
 	public List<AddValueInfoSimple> getRateplanRelationAddValue() {
-		return RateplanRelationAddValue;
+		return rateplanRelationAddValue;
 	}
-	public void setRateplanRelationAddValue(List<AddValueInfoSimple> rateplanRelationAddValue) {
-		RateplanRelationAddValue = rateplanRelationAddValue;
+	public void setRateplanRelationAddValue(
+			List<AddValueInfoSimple> rateplanRelationAddValue) {
+		this.rateplanRelationAddValue = rateplanRelationAddValue;
 	}
 	public String getSettlementType() {
-		return SettlementType;
+		return settlementType;
 	}
 	public void setSettlementType(String settlementType) {
-		SettlementType = settlementType;
+		this.settlementType = settlementType;
 	}
 	public int getRatePlanID() {
-		return RatePlanID;
+		return ratePlanID;
 	}
 	public void setRatePlanID(int ratePlanID) {
-		RatePlanID = ratePlanID;
+		this.ratePlanID = ratePlanID;
 	}
 	public String getCNRatePlanName() {
-		return CNRatePlanName;
+		return cNRatePlanName;
 	}
 	public void setCNRatePlanName(String cNRatePlanName) {
-		CNRatePlanName = cNRatePlanName;
+		this.cNRatePlanName = cNRatePlanName;
 	}
 	public String getENRatePlanName() {
-		return ENRatePlanName;
+		return eNRatePlanName;
 	}
 	public void setENRatePlanName(String eNRatePlanName) {
-		ENRatePlanName = eNRatePlanName;
+		this.eNRatePlanName = eNRatePlanName;
 	}
 	public String getRatePlanRoomTypeId() {
-		return RatePlanRoomTypeId;
+		return ratePlanRoomTypeId;
 	}
 	public void setRatePlanRoomTypeId(String ratePlanRoomTypeId) {
-		RatePlanRoomTypeId = ratePlanRoomTypeId;
+		this.ratePlanRoomTypeId = ratePlanRoomTypeId;
 	}
 	public String getPriceType() {
-		return PriceType;
+		return priceType;
 	}
 	public void setPriceType(String priceType) {
-		PriceType = priceType;
+		this.priceType = priceType;
 	}
 	public int getIsLimitTimeSale() {
-		return IsLimitTimeSale;
+		return isLimitTimeSale;
 	}
 	public void setIsLimitTimeSale(int isLimitTimeSale) {
-		IsLimitTimeSale = isLimitTimeSale;
+		this.isLimitTimeSale = isLimitTimeSale;
 	}
 	public String getProductType() {
-		return ProductType;
+		return productType;
 	}
 	public void setProductType(String productType) {
-		ProductType = productType;
+		this.productType = productType;
 	}
 	public int getBookingChannel() {
-		return BookingChannel;
+		return bookingChannel;
 	}
 	public void setBookingChannel(int bookingChannel) {
-		BookingChannel = bookingChannel;
+		this.bookingChannel = bookingChannel;
 	}
 	public Date getStartTime() {
-		return StartTime;
+		return startTime;
 	}
 	public void setStartTime(Date startTime) {
-		StartTime = startTime;
+		this.startTime = startTime;
 	}
 	public Date getEndTime() {
-		return EndTime;
+		return endTime;
 	}
 	public void setEndTime(Date endTime) {
-		EndTime = endTime;
+		this.endTime = endTime;
 	}
 	public int getMinAdvanceBookingDays() {
-		return MinAdvanceBookingDays;
+		return minAdvanceBookingDays;
 	}
 	public void setMinAdvanceBookingDays(int minAdvanceBookingDays) {
-		MinAdvanceBookingDays = minAdvanceBookingDays;
+		this.minAdvanceBookingDays = minAdvanceBookingDays;
 	}
 	public int getMaxAdvanceBookingDays() {
-		return MaxAdvanceBookingDays;
+		return maxAdvanceBookingDays;
 	}
 	public void setMaxAdvanceBookingDays(int maxAdvanceBookingDays) {
-		MaxAdvanceBookingDays = maxAdvanceBookingDays;
+		this.maxAdvanceBookingDays = maxAdvanceBookingDays;
 	}
 	public int getMinStayDays() {
-		return MinStayDays;
+		return minStayDays;
 	}
 	public void setMinStayDays(int minStayDays) {
-		MinStayDays = minStayDays;
+		this.minStayDays = minStayDays;
 	}
 	public int getMaxStayDays() {
-		return MaxStayDays;
+		return maxStayDays;
 	}
 	public void setMaxStayDays(int maxStayDays) {
-		MaxStayDays = maxStayDays;
+		this.maxStayDays = maxStayDays;
 	}
 	public int getMinCheckinRooms() {
-		return MinCheckinRooms;
+		return minCheckinRooms;
 	}
 	public void setMinCheckinRooms(int minCheckinRooms) {
-		MinCheckinRooms = minCheckinRooms;
+		this.minCheckinRooms = minCheckinRooms;
 	}
 	public int getCustomerLevel() {
-		return CustomerLevel;
+		return customerLevel;
 	}
 	public void setCustomerLevel(int customerLevel) {
-		CustomerLevel = customerLevel;
+		this.customerLevel = customerLevel;
 	}
 }
