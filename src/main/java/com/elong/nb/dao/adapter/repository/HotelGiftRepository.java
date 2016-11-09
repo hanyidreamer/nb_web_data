@@ -31,7 +31,7 @@ public class HotelGiftRepository {
     /// </summary>
     /// <param name="sHotelId"></param>
     /// <returns></returns>
-    public List<HotelGift> GetHotelGiftBySHotelId(String sHotelId)
+    public List<HotelGift> getHotelGiftBySHotelId(String sHotelId)
     {
         List<HotelGift> list = new ArrayList<HotelGift>();
 

@@ -122,7 +122,6 @@ public class HotelDataController {
 		}
 		
 		private String validateBookingDataRequest(RestRequest<BookingDataCondition> restRequest){
-			;
 			StringBuffer sb = new StringBuffer(
 					ValidateUtil.validateRestRequest(restRequest));
 			restRequest.getRequest();

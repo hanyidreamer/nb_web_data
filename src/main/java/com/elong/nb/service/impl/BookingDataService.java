@@ -59,6 +59,7 @@ import com.elong.nb.model.rateplan.HotelRatePlan;
 import com.elong.nb.model.rateplan.RatePlan;
 import com.elong.nb.service.IBookingDataService;
 import com.elong.nb.service.IInventoryService;
+import com.elong.nb.service.IRatePlansService;
 import com.elong.nb.util.DateUtil;
 import com.elong.nb.util.HttpUtil;
 import com.google.common.reflect.TypeToken;
@@ -75,7 +76,7 @@ public class BookingDataService implements IBookingDataService {
 	@Resource
 	private EffectiveStatusRepository effectiveStatusRepository;
 	@Resource
-	private RatePlanRepository ratePlanRepository;
+	private IRatePlansService ratePlanService;
 	@Resource
 	private ProductForMisServiceRepository productForMisServiceRepository;
 	@Resource
@@ -238,13 +239,11 @@ public class BookingDataService implements IBookingDataService {
 			// #endregion
 
 			// RatePlan
-			// 使用搜索的返回结果
+			// 使用搜索的返回结果,如果搜索返回结果是空则查询rp接口
 			Future<Object> rateplanTask = null;
 			if (!isUseRPInSearch || !isHaveSearchResult) {
-				rateplanTask = taskFactory.submit(new RatePlanThread(request, ratePlanRepository));
+				rateplanTask = taskFactory.submit(new RatePlanThread(request, ratePlanService));
 			}
-
-			// end RatePlan
 
 			// Inventory
 			Future<Object> invTask = taskFactory.submit(new InventoryThread(request, inventoryService, isInstantConfirmInSearch));
@@ -261,9 +260,6 @@ public class BookingDataService implements IBookingDataService {
 			if (realtimeInvCheckSwitcher.equals("1")) {
 				invRealTimeTask = taskFactory.submit(new RealTimeInvCheckThread(request, productForMisServiceRepository));
 			}
-
-			// end RealtimeInv
-
 			// #region Rate
 			// 如果是返回drr计算后的价格，从detail接口拿rate数据
 			Future<Object> rateTask = null;
@@ -272,14 +268,9 @@ public class BookingDataService implements IBookingDataService {
 			} else {
 				rateTask = taskFactory.submit(new RateThread(request, rateService));
 			}
-
-			// #endregion Rate
-
 			// #region 产品、库存和价格的结果处理
 			List<Exception> exceptions = new LinkedList<Exception>();
 			taskFactory.shutdown();
-			// taskFactory.awaitTermination(5, TimeUnit.SECONDS);
-
 			if (rateTask != null) {
 				Object obj = rateTask.get();
 				if (obj != null)

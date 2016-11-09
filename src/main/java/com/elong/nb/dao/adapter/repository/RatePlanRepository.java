@@ -32,9 +32,6 @@ public class RatePlanRepository {
 	        return url + query;
 	}
 	public SearchHotelRatePlanListResp getRatePlan(SearchHotelRatePlanListReq req){
-		String str="{\"cNDescription\":\"预定此产品需要将手机号码提供给酒店\"}";
-		HotelBookingRule rule=JSON.parseObject(str, HotelBookingRule.class);
-		System.out.println(rule);
 		String requestUrl = getServerUrl("/rest/com/elong/hotel/product/entity/req/forpartner/nbapi/SearchHotelRatePlanListReq");
 		//SearchHotelRatePlanListReq realRequest=new SearchHotelRatePlanListReq();
 		RequestBase<SearchHotelRatePlanListReq> request=new RequestBase<SearchHotelRatePlanListReq>();
