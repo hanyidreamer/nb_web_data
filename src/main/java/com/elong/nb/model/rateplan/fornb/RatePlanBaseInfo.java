@@ -19,6 +19,7 @@ public class RatePlanBaseInfo {
     private int isLimitTimeSale;
     private String productType;
     private int bookingChannel;
+    private int ratePlanSellChannel;
     private Date startTime;
     private Date endTime;
     private int minAdvanceBookingDays;
@@ -159,5 +160,17 @@ public class RatePlanBaseInfo {
 	}
 	public void setCustomerLevel(int customerLevel) {
 		this.customerLevel = customerLevel;
+	}
+	/**
+	 * @return the ratePlanSellChannel
+	 */
+	public int getRatePlanSellChannel() {
+		return ratePlanSellChannel;
+	}
+	/**
+	 * @param ratePlanSellChannel the ratePlanSellChannel to set
+	 */
+	public void setRatePlanSellChannel(int ratePlanSellChannel) {
+		this.ratePlanSellChannel = ratePlanSellChannel;
 	}
 }
