@@ -158,9 +158,17 @@ public class BookingDataService implements IBookingDataService {
 				// String data = gson.toJson(detailreq, new
 				// TypeToken<RestRequest<HotelDetailRequest>>(){}.getType());
 				String data = GsonUtil.toJson(detailreq, 1.26);
-
-				String responseStr = HttpUtil.httpPost(url, data);
-
+				String responseStr ="";
+				try{
+					responseStr = HttpUtil.httpPost(url, data);
+				}catch(Exception ex){
+					time--;
+					if(time>0){
+						continue;
+					}else{
+						throw new RuntimeException(ex);
+					}
+				}
 				// detailres = gson.fromJson(responseStr, new
 				// TypeToken<RestResponse<HotelListResponse>>() { }.getType());
 

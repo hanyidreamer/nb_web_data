@@ -762,7 +762,7 @@ public class RatePlansService implements IRatePlansService {
 				&& !entry.getValue().toString().isEmpty()) {
 
 			try {
-				result = Boolean.parseBoolean(entry.getValue().toString());
+				result =("1".equals(entry.getValue()));
 			} catch (Exception e)// 若转换失败，则使用默认值返回 -1
 			{
 				LocalMsg.error(e.getMessage());
@@ -840,8 +840,8 @@ public class RatePlansService implements IRatePlansService {
 				temp.setStartDate(rule.getStartDate());
 			if (rule.getEndDate() != null)
 				temp.setEndDate(rule.getEndDate());
-			temp.setStartTime(rule.getArriveStartTime());
-			temp.setEndTime(rule.getArriveEndTime());
+			temp.setStartTime(rule.getArriveStartTime()!=null?rule.getArriveStartTime():"");
+			temp.setEndTime(rule.getArriveEndTime()!=null?rule.getArriveEndTime():"");
 			temp.setAmount(rule.getRoomCount());
 
 			// Tools.ParseEnum<EnumGuaranteeChangeRule>(rule.VouchChangeRule.GetHashCode().ToString(),
