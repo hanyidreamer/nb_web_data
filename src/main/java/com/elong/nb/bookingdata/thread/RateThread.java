@@ -40,7 +40,7 @@ public class RateThread implements Callable<Object> {
             {
             for(Rate x: list)
             {
-            	if(x.getRoomTypeId()==request.getRequest().getRoomTypeId() && x.getRateplanId()==request.getRequest().getRatePlanId())
+            	if(request.getRequest().getRoomTypeId().equals(x.getRoomTypeId()) && request.getRequest().getRatePlanId()==x.getRateplanId())
             		rates.add(x);
             }
             

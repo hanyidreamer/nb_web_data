@@ -32,7 +32,7 @@ public class RateRepository {
 			String mHotelId, String sHotelId, Date startDate, Date endDate,
 			EnumPaymentType paymentType) {
 		RequestAttributes httpRequest = RequestContextHolder.getRequestAttributes();
-		Object guid = httpRequest.getAttribute(Constants.ELONG_REQUEST_REQUESTGUID, ServletRequestAttributes.SCOPE_REQUEST);
+		Object guid = httpRequest!=null?httpRequest.getAttribute(Constants.ELONG_REQUEST_REQUESTGUID, ServletRequestAttributes.SCOPE_REQUEST):"";
 		BigLog log = new BigLog();
 		if(guid!=null)
 			log.setUserLogType(guid.toString());

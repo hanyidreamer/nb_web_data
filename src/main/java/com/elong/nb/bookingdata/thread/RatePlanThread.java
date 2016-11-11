@@ -23,8 +23,7 @@ public class RatePlanThread implements Callable<Object>{
 	public Object call() throws Exception {
 		
 		HotelRatePlan item = null;
-        List<HotelRatePlan> list = null;
-        ratePlanService.getRatePlans(
+        List<HotelRatePlan> list = ratePlanService.getRatePlans(
             request.getLocal(), request.getRequest().getHotelId(), request.getRequest().getHotelCode(),
             request.getRequest().getPaymentType(), request.getProxyInfo(), request.getVersion(), null);
         if ( list != null && list.size() > 0 )

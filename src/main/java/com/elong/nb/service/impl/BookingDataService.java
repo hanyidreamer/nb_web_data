@@ -33,7 +33,6 @@ import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.common.util.CommonsUtil;
 import com.elong.nb.dao.adapter.repository.EffectiveStatusRepository;
 import com.elong.nb.dao.adapter.repository.ProductForMisServiceRepository;
-import com.elong.nb.dao.adapter.repository.RatePlanRepository;
 import com.elong.nb.model.HotelDetailRequest;
 import com.elong.nb.model.HotelListResponse;
 import com.elong.nb.model.bean.BookingRule;
@@ -69,7 +68,7 @@ import com.google.gson.TypeAdapter;
 @Service
 public class BookingDataService implements IBookingDataService {
 
-	private static Logger logger = LogManager.getLogger("biglog");
+	private static Logger logger = LogManager.getLogger("kafka");
 	private Gson gson = new Gson();
 	private static final RedisManager redis = RedisManager.getInstance("redis_job", "redis_job");
 
@@ -364,9 +363,6 @@ public class BookingDataService implements IBookingDataService {
 				if (rpOfSearch.getPaymentType() == EnumPaymentType.SelfPay) {
 					if (rpOfSearch.getGuaranteeRuleIds() != null && !rpOfSearch.getGuaranteeRuleIds().isEmpty()) {
 						GuaranteeRule g = null;
-						// hotelInfoFromSearch.GuaranteeRules.FirstOrDefault(x
-						// => x.GuranteeRuleId ==
-						// int.Parse(rpOfSearch.GuaranteeRuleIds));
 						for (GuaranteeRule ru : hotelInfoFromSearch.getGuaranteeRules()) {
 							if (ru.getGuranteeRuleId() == Integer.parseInt(rpOfSearch.getGuaranteeRuleIds()))
 								g = ru;
@@ -378,8 +374,6 @@ public class BookingDataService implements IBookingDataService {
 				} else if (rpOfSearch.getPrepayRuleIds() != null && !rpOfSearch.getPrepayRuleIds().isEmpty()) // PrepayRules
 				{
 					PrepayRule g = null;
-					// hotelInfoFromSearch.PrepayRules.FirstOrDefault(x =>
-					// x.PrepayRuleId == int.Parse(rpOfSearch.PrepayRuleIds));
 					for (PrepayRule pr : hotelInfoFromSearch.getPrepayRules()) {
 						if (pr.getPrepayRuleId() == Integer.parseInt(rpOfSearch.getPrepayRuleIds()))
 							g = pr;
@@ -391,18 +385,11 @@ public class BookingDataService implements IBookingDataService {
 
 				// ValueAdds
 				if (rpOfSearch.getValueAddIds() != null && !rpOfSearch.getValueAddIds().isEmpty()) {
-					String[] ids = rpOfSearch.getValueAddIds().split(",");// new
-																			// char[]
-																			// {
-																			// ','
-																			// },
-																			// StringSplitOptions.RemoveEmptyEntries);
+					String[] ids = rpOfSearch.getValueAddIds().split(",");
 					for (String id : ids) {
 						ValueAdd v = null;
-						// hotelInfoFromSearch.ValueAdds.FirstOrDefault(x =>
-						// x.ValueAddId == id);
 						for (ValueAdd va : hotelInfoFromSearch.getValueAdds()) {
-							if (va.getValueAddId() == id)
+							if (id.equals(va.getValueAddId()))
 								v = va;
 						}
 						if (v != null) {
@@ -414,16 +401,9 @@ public class BookingDataService implements IBookingDataService {
 				// BookingRules
 				List<BaseBookingRule> bookingRules = new LinkedList<BaseBookingRule>();
 				if (rpOfSearch.getBookingRuleIds() != null && !rpOfSearch.getBookingRuleIds().isEmpty()) {
-					String[] ids = rpOfSearch.getBookingRuleIds().split(",");// new
-																				// char[]
-																				// {
-																				// ','
-																				// },
-																				// StringSplitOptions.RemoveEmptyEntries);
+					String[] ids = rpOfSearch.getBookingRuleIds().split(",");
 					for (String id : ids) {
 						BookingRule v = null;
-						// hotelInfoFromSearch.BookingRules.FirstOrDefault(x =>
-						// x.BookingRuleId == long.Parse(id));
 						for (BookingRule br : hotelInfoFromSearch.getBookingRules()) {
 							if (br.getBookingRuleId() == Long.parseLong(id))
 								v = br;
@@ -436,16 +416,9 @@ public class BookingDataService implements IBookingDataService {
 
 				// DrrRules
 				if (rpOfSearch.getDrrRuleIds() != null && !rpOfSearch.getDrrRuleIds().isEmpty()) {
-					String[] ids = rpOfSearch.getDrrRuleIds().split(",");// new
-																			// char[]
-																			// {
-																			// ','
-																			// },
-																			// StringSplitOptions.RemoveEmptyEntries);
+					String[] ids = rpOfSearch.getDrrRuleIds().split(",");
 					for (String id : ids) {
 						DrrRule v = null;
-						// hotelInfoFromSearch.DrrRules.FirstOrDefault(x =>
-						// x.DrrRuleId == int.Parse(id));
 						for (DrrRule dr : hotelInfoFromSearch.getDrrRules()) {
 							if (dr.getDrrRuleId() == Integer.parseInt(id))
 								v = dr;
@@ -515,7 +488,7 @@ public class BookingDataService implements IBookingDataService {
 						for (NightlyRate nr : rpOfSearch.getNightlyRates()) {
 							Rate r = new Rate();
 							r.setAddBed(nr.getAddBed());
-							r.setCurrencyCode(rpOfSearch.getCurrencyCode().getValue() + "");
+							r.setCurrencyCode(rpOfSearch.getCurrencyCode().name());
 							r.setEndDate(nr.getDate());
 							r.setHotelCode(rpOfSearch.getHotelCode());
 							r.setHotelID(hotelInfoFromSearch.getHotelId());
