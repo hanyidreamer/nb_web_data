@@ -40,11 +40,10 @@ public class RatePlanRepository {
 		String json=JSON.toJSONString(request);
 		String result = HttpUtil.httpPost(requestUrl, "requestJson="+json);
 		ResponseBase<SearchHotelRatePlanListResp> response = JSON.parseObject(result, new TypeReference<ResponseBase<SearchHotelRatePlanListResp>>(){});
-//		if(response!=null&&response.getRealResponse()!=null){
-//			return response.getRealResponse().getInventoryLimitBlackList();
-//		}else{
-//			throw new RuntimeException("Inner Exception: "+response.getExceptionMsg());
-//		}
-		return response.getRealResponse();
+		if(response!=null&&response.getRealResponse()!=null){
+			return response.getRealResponse();
+		}else{
+			throw new RuntimeException("Inner Exception: "+response.getExceptionMsg());
+		}
 	}
 }

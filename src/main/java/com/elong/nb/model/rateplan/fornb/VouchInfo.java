@@ -76,13 +76,13 @@ public class VouchInfo {
 	public boolean isRoomCountVouch() {
 		return isRoomCountVouch;
 	}
-	public void setRoomCountVouch(boolean isRoomCountVouch) {
+	public void setIsRoomCountVouch(boolean isRoomCountVouch) {
 		this.isRoomCountVouch = isRoomCountVouch;
 	}
 	public boolean isArriveTimeVouch() {
 		return isArriveTimeVouch;
 	}
-	public void setArriveTimeVouch(boolean isArriveTimeVouch) {
+	public void setIsArriveTimeVouch(boolean isArriveTimeVouch) {
 		this.isArriveTimeVouch = isArriveTimeVouch;
 	}
 	public int getVouchMoneyType() {

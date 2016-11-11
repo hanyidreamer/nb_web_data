@@ -45,7 +45,7 @@ public class AddValueInfoSimple {
 	public boolean isAdd() {
 		return isAdd;
 	}
-	public void setAdd(boolean isAdd) {
+	public void setIsAdd(boolean isAdd) {
 		this.isAdd = isAdd;
 	}
 	public double getSinglePrice() {
