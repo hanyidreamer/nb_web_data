@@ -52,7 +52,6 @@ public class RateThread implements Callable<Object> {
         {
         	return null;
         }
-	 
         return obj;
 		
 	}

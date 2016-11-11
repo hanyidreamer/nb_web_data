@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
@@ -446,7 +447,7 @@ public class BookingDataService implements IBookingDataService {
 			}
 			// #endregion 产品信息
 
-			if (taskFactory.isTerminated()) {
+			if (taskFactory.awaitTermination(5, TimeUnit.SECONDS)) {
 				if (exceptions.size() > 0) {
 					result.setResult(null);
 					result.setCode(ErrorCode.Common_SystemException + exceptions.get(0).getMessage());
