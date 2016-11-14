@@ -166,7 +166,10 @@ public class BookingDataService implements IBookingDataService {
 					if(time>0){
 						continue;
 					}else{
-						throw new RuntimeException(ex);
+						//isHaveSearchResult=false;
+						detailres.setCode("0");
+						detailres.setResult(null);
+						break;
 					}
 				}
 				// detailres = gson.fromJson(responseStr, new
@@ -434,16 +437,14 @@ public class BookingDataService implements IBookingDataService {
 
 				result.getResult().setRatePlan(rp);
 				result.getResult().setBookingRules(bookingRules);
-
-				Integer WeekendStart = rpOfSearch.getWeekendStart();
-				if (WeekendStart == null)
-					WeekendStart = 0;
-				result.getResult().setWeekendStart(WeekendStart);
-
+				
+				if (rpOfSearch.getWeekendStart() != null){
+					result.getResult().setWeekendStart(rpOfSearch.getWeekendStart());
+				}
 				Integer WeekendEnd = rpOfSearch.getWeekendEnd();
-				if (WeekendEnd == null)
-					WeekendEnd = 0;
-				result.getResult().setWeekendEnd(WeekendEnd);
+				if (rpOfSearch.getWeekendEnd()!= null){
+					result.getResult().setWeekendEnd(WeekendEnd);
+				}
 			}
 			// #endregion 产品信息
 
