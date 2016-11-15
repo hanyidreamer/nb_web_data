@@ -162,6 +162,10 @@ public class BookingDataService implements IBookingDataService {
 				String responseStr ="";
 				try{
 					responseStr = HttpUtil.httpPost(url, data);
+					Map<Class, TypeAdapter> m = new HashMap<Class, TypeAdapter>();
+					m.put(Date.class, new DateTypeAdapter());
+					detailres = GsonUtil.toResponse(responseStr, new TypeToken<RestResponse<HotelListResponse>>() {
+					}.getType(), m);
 				}catch(Exception ex){
 					time--;
 					if(time>0){
@@ -175,12 +179,6 @@ public class BookingDataService implements IBookingDataService {
 				}
 				// detailres = gson.fromJson(responseStr, new
 				// TypeToken<RestResponse<HotelListResponse>>() { }.getType());
-
-				Map<Class, TypeAdapter> m = new HashMap<Class, TypeAdapter>();
-				m.put(Date.class, new DateTypeAdapter());
-				detailres = GsonUtil.toResponse(responseStr, new TypeToken<RestResponse<HotelListResponse>>() {
-				}.getType(), m);
-
 				if (detailres != null && detailres.getCode().equals("0")) {
 					break;
 				}
