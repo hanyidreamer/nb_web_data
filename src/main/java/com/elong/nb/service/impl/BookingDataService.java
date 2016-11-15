@@ -142,6 +142,7 @@ public class BookingDataService implements IBookingDataService {
 			Request.setRatePlanId(request.getRequest().getRatePlanId());
 			Request.setRoomTypeId(request.getRequest().getRoomTypeId());
 			Request.setPaymentType(request.getRequest().getPaymentType());
+	
 			detailreq.setRequest(Request);
 			// #endregion
 
@@ -289,8 +290,13 @@ public class BookingDataService implements IBookingDataService {
 			}
 			if (invTask != null) {
 				Object obj = invTask.get();
-				if (obj != null)
-					result.getResult().setInventories((List<com.elong.nb.model.bean.Inventory>) obj);
+				if (obj != null){
+					List<Inventory> invList=(List<com.elong.nb.model.bean.Inventory>) obj;
+//					for(Inventory inv:invList){
+//						inv.setIsInstantConfirm(isInstantConfirmInSearch);
+//					}
+					result.getResult().setInventories(invList);
+				}
 			}
 			if (invRealTimeTask != null) {
 				Object obj = invRealTimeTask.get();

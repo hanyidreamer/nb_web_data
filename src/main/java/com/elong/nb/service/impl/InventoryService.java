@@ -78,7 +78,18 @@ public class InventoryService implements IInventoryService{
 				restRequest.getGuid());
 		InventoryResult result = new InventoryResult();
 		List<Inventory> list= getInentory(restRequest.getProxyInfo(),restRequest.getRequest().getHotelIds(),restRequest.getRequest().getHotelCodes(),restRequest.getRequest().getRoomTypeId(),restRequest.getRequest().getStartDate(),restRequest.getRequest().getEndDate(),
-				restRequest.getRequest().isIsNeedInstantConfirm(),restRequest.getProxyInfo().getOrderFrom());
+				restRequest.getRequest().isIsNeedInstantConfirm(),restRequest.getProxyInfo().getOrderFrom(),false);
+		result.setInventories(list);
+		response.setResult(result);
+		return response;
+	}
+	@Override
+	public RestResponse<InventoryResult> getInventoriesForBooking(RestRequest<InventoryCondition> restRequest) throws Exception {
+		RestResponse<InventoryResult> response = new RestResponse<InventoryResult>(
+				restRequest.getGuid());
+		InventoryResult result = new InventoryResult();
+		List<Inventory> list= getInentory(restRequest.getProxyInfo(),restRequest.getRequest().getHotelIds(),restRequest.getRequest().getHotelCodes(),restRequest.getRequest().getRoomTypeId(),restRequest.getRequest().getStartDate(),restRequest.getRequest().getEndDate(),
+				restRequest.getRequest().isIsNeedInstantConfirm(),restRequest.getProxyInfo().getOrderFrom(),true);
 		result.setInventories(list);
 		response.setResult(result);
 		return response;
@@ -125,7 +136,7 @@ public class InventoryService implements IInventoryService{
 		
 	}
 	//获取库存
-	private List<Inventory> getInentory(ProxyAccount proxyInfo,String hotelId,String hotelCodeString,String roomTypeId,Date startDate,Date endDate,boolean isNeedInstantConfirm,int orderFrom) throws Exception{
+	private List<Inventory> getInentory(ProxyAccount proxyInfo,String hotelId,String hotelCodeString,String roomTypeId,Date startDate,Date endDate,boolean isNeedInstantConfirm,int orderFrom,boolean isForBooking) throws Exception{
 		List<Inventory> result=new ArrayList<Inventory>();
 		// 仅提供昨天和近90天的房态数据
 		int days = proxyInfo.getMaxDays() != null ? proxyInfo.getMaxDays() : 90;
@@ -167,7 +178,7 @@ public class InventoryService implements IInventoryService{
 		RequestAttributes httpRequest = RequestContextHolder.getRequestAttributes();
 		Object requestGUID=httpRequest!=null?httpRequest.getAttribute(Constants.ELONG_REQUEST_REQUESTGUID, ServletRequestAttributes.SCOPE_REQUEST):null;
 		String guid = requestGUID!=null?requestGUID.toString():"";
-		InventoryHotelIdTask inventoryTask=new InventoryHotelIdTask(mHotelIdArray,sHotelIdArrays,roomTypeId,startDate,endDate,isNeedInstantConfirm,inventoryDao,guid);
+		InventoryHotelIdTask inventoryTask=new InventoryHotelIdTask(mHotelIdArray,sHotelIdArrays,roomTypeId,startDate,endDate,isNeedInstantConfirm,inventoryDao,guid,isForBooking);
 		ForkJoinPool forkJoinPool = new ForkJoinPool();
 		forkJoinPool.execute(inventoryTask);
 		do {

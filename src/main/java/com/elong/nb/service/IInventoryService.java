@@ -30,4 +30,7 @@ import com.elong.nb.model.inventory.InventoryResult;
  */
 public interface IInventoryService {
 	RestResponse<InventoryResult> getInventories(RestRequest<InventoryCondition> restRequest) throws IOException, Exception;
+
+	RestResponse<InventoryResult> getInventoriesForBooking(
+			RestRequest<InventoryCondition> restRequest) throws Exception;
 }

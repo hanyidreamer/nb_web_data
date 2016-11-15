@@ -43,7 +43,7 @@ public class InventoryRepository {
 	 * @param isNeedInstantConfirm
 	 * @return
 	 */
-	public List<Inventory> getInventorys(String mHotelId,String sHotelId,String roomTypeId,Date startDate,Date endDate,boolean isNeedInstantConfirm,String guid){
+	public List<Inventory> getInventorys(String mHotelId,String sHotelId,String roomTypeId,Date startDate,Date endDate,boolean isNeedInstantConfirm,boolean isForBooking,String guid){
 		List<Inventory> inventorys=new LinkedList<Inventory>();
 		
 		BigLog log = new BigLog();
@@ -61,7 +61,7 @@ public class InventoryRepository {
 				request.setRoomTypeIDs(roomTypeId);
 			}
 			request.setOperatorTime(new DateTime());
-			request.setIsNeedInstantConfirm(isNeedInstantConfirm);
+			request.setIsNeedInstantConfirm(!isForBooking);
 			log.setServiceName("IProductForPartnerServiceContract.getInventoryChangeDetailAndInstantConfirm");
 			log.setRequestBody(JSON.toJSONString(request));
 			long start = System.currentTimeMillis();

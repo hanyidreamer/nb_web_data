@@ -39,6 +39,7 @@ public class RatePlanRepository {
 		request.setLogId(UUID.randomUUID().toString());
 		String json=JSON.toJSONString(request);
 		String result = HttpUtil.httpPost(requestUrl, "requestJson="+json);
+		System.out.println(result);
 		ResponseBase<SearchHotelRatePlanListResp> response = JSON.parseObject(result, new TypeReference<ResponseBase<SearchHotelRatePlanListResp>>(){});
 		if(response!=null&&response.getRealResponse()!=null){
 			return response.getRealResponse();

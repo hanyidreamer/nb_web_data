@@ -21,9 +21,10 @@ public class InventoryHotelIdTask  extends RecursiveTask<List<Inventory>> {
 	private String roomTypeId;
 	private String guid;
 	private InventoryRepository inventoryDao;
+	private boolean isForBooking;
 	public InventoryHotelIdTask(String[] mHotelIdArray,
 			List<String[]> sHotelIdArrays, String roomTypeId, Date startDate, Date endDate,
-			boolean isNeedInstantConfirm,InventoryRepository inventoryDao,String guid) {
+			boolean isNeedInstantConfirm,InventoryRepository inventoryDao,String guid,boolean isForBooking) {
 		super();
 		this.mHotelIdArray = mHotelIdArray;
 		this.sHotelIdArrays = sHotelIdArrays;
@@ -33,6 +34,7 @@ public class InventoryHotelIdTask  extends RecursiveTask<List<Inventory>> {
 		this.roomTypeId = roomTypeId;
 		this.inventoryDao=inventoryDao;
 		this.guid=guid;
+		this.isForBooking=isForBooking;
 	}
 	@Override
 	protected List<Inventory> compute() {
@@ -41,7 +43,7 @@ public class InventoryHotelIdTask  extends RecursiveTask<List<Inventory>> {
 		for(int i=0;i<mHotelIdArray.length;i++){
 			if(sHotelIdArrays.get(i)!=null){
 				List<String> hotelCodes= Arrays.asList(sHotelIdArrays.get(i));
-				InventoryHotelCodeTask task=new InventoryHotelCodeTask(mHotelIdArray[i],hotelCodes,roomTypeId,startDate,endDate,isNeedInstantConfirm,inventoryDao,guid);
+				InventoryHotelCodeTask task=new InventoryHotelCodeTask(mHotelIdArray[i],hotelCodes,roomTypeId,startDate,endDate,isNeedInstantConfirm,inventoryDao,guid,isForBooking);
 				tasks.add(task);
 			}
 		}
