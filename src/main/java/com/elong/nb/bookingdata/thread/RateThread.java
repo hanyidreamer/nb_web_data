@@ -33,7 +33,7 @@ public class RateThread implements Callable<Object> {
             List<Rate> list = rateService.getRate(request.getProxyInfo(), request.getRequest().getHotelId(), request.getRequest().getHotelCode(), 
             		request.getRequest().getArrivalDate(), 
             		cd.getTime(),//request.getRequest().getDepartureDate().AddDays(-1), 
-            		request.getRequest().getPaymentType(), request.getProxyInfo().getLowestProfitPercent());
+            		request.getRequest().getPaymentType(), request.getProxyInfo().getLowestProfitPercent(),request.getGuid());
             //List<Rate> rates = list.Where(x => x.RoomTypeId == request.Request.RoomTypeId && x.RateplanId == request.Request.RatePlanId).ToList();
             List<Rate> rates = new ArrayList<Rate>();
             if(list !=null)

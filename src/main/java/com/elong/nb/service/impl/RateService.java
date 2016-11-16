@@ -52,14 +52,14 @@ public class RateService implements IRateService {
 		if (request.getRequest().getPaymentType() == EnumPaymentType.All) {
 			rates.addAll(getRate(request.getProxyInfo(), request.getRequest().getHotelIds(), request.getRequest().getHotelCodes(),
 					request.getRequest().getStartDate(), request.getRequest().getEndDate(), EnumPaymentType.SelfPay, request
-							.getProxyInfo().getLowestProfitPercent()));
+							.getProxyInfo().getLowestProfitPercent(),request.getGuid()));
 			rates.addAll(getRate(request.getProxyInfo(), request.getRequest().getHotelIds(), request.getRequest().getHotelCodes(),
 					request.getRequest().getStartDate(), request.getRequest().getEndDate(), EnumPaymentType.Prepay, request
-							.getProxyInfo().getLowestProfitPercent()));
+							.getProxyInfo().getLowestProfitPercent(),request.getGuid()));
 		} else {
 			rates.addAll(getRate(request.getProxyInfo(), request.getRequest().getHotelIds(), request.getRequest().getHotelCodes(),
 					request.getRequest().getStartDate(), request.getRequest().getEndDate(), request.getRequest().getPaymentType(), request.getProxyInfo()
-							.getLowestProfitPercent()));
+							.getLowestProfitPercent(),request.getGuid()));
 		}
 		result.setRates(rates);
 		response.setResult(result);
@@ -68,7 +68,7 @@ public class RateService implements IRateService {
 
 	public List<Rate> getRate(ProxyAccount proxyInfo, String mHotelId,
 			String sHotelId, Date startDate, Date endDate,
-			EnumPaymentType paymentType, double lowestProfitPercent)
+			EnumPaymentType paymentType, double lowestProfitPercent,String guid)
 			throws Exception {
 		List<Rate> result = new ArrayList<Rate>();
 		// 仅提供昨天和近180天的房态数据
@@ -102,7 +102,7 @@ public class RateService implements IRateService {
 			sHotelId = StringUtils.join(sHotelIdArray, ',');
 			GetHotelRoomPriceResponse2 response = this.rateRepository.getRate(
 					proxyInfo, mHotelIdArray[i], sHotelId, startDate, endDate,
-					paymentType);
+					paymentType,guid);
 			if (response != null && response.getResult() != null
 					&& response.getResult().getResponseCode() == 0) {
 				if (response.getPriceInfoList() != null) {

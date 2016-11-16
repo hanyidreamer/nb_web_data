@@ -15,5 +15,5 @@ public interface IRatePlansService {
 
 	RestResponse<RatePlanResult> GetRatePlans(RestRequest<RatePlanCondition> request);
 	List<HotelRatePlan> getRatePlans(EnumLocal language,String mHotelId, String shotelId, EnumPaymentType paymentType,
-			ProxyAccount proxyInfo, double requestVersion, String options);
+			ProxyAccount proxyInfo, double requestVersion, String options,String guid);
 }

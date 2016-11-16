@@ -25,7 +25,7 @@ public class RealTimeInvCheckThread implements Callable<Object> {
 		 try
          {
       	   InventoryAndPriceCheckResult realtimeInvResult = productForMisServiceRepository.CheckHotelRealTimeInventory(request.getRequest().getArrivalDate(), request.getRequest().getDepartureDate(), request.getRequest().getHotelCode(),
-                  request.getRequest().getRoomTypeId(), request.getRequest().getRatePlanId(), 1);
+                  request.getRequest().getRoomTypeId(), request.getRequest().getRatePlanId(), 1,request.getGuid());
 
              realtimeInvAvailable = (realtimeInvResult != InventoryAndPriceCheckResult.INVENTORY_CLOSE);
          }

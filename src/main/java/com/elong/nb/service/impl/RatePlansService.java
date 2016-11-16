@@ -162,7 +162,7 @@ public class RatePlansService implements IRatePlansService {
 									EnumPaymentType.Prepay, request
 											.getProxyInfo(), request
 											.getVersion(), request.getRequest()
-											.getOptions()));
+											.getOptions(),request.getGuid()));
 				break;
 			case 1:// EnumPaymentType.SelfPay:
 				MergeHotelRatePlans(
@@ -171,7 +171,7 @@ public class RatePlansService implements IRatePlansService {
 						getRatePlans(request.getLocal(), null, sHotelIds,
 								EnumPaymentType.SelfPay,
 								request.getProxyInfo(), request.getVersion(),
-								request.getRequest().getOptions()));
+								request.getRequest().getOptions(),request.getGuid()));
 				break;
 			case 0: // EnumPaymentType.All:
 				MergeHotelRatePlans(
@@ -180,7 +180,7 @@ public class RatePlansService implements IRatePlansService {
 						getRatePlans(request.getLocal(), null, sHotelIds,
 								EnumPaymentType.All, request.getProxyInfo(),
 								request.getVersion(), request.getRequest()
-										.getOptions()));
+										.getOptions(),request.getGuid()));
 				break;
 			}
 		}
@@ -272,7 +272,7 @@ public class RatePlansService implements IRatePlansService {
 
 	public List<HotelRatePlan> getRatePlans(EnumLocal language,
 			String mHotelId, String shotelId, EnumPaymentType paymentType,
-			ProxyAccount proxyInfo, double requestVersion, String options) {
+			ProxyAccount proxyInfo, double requestVersion, String options,String guid) {
 		SearchHotelRatePlanListReq condition = new SearchHotelRatePlanListReq();
 		if (paymentType != EnumPaymentType.All) {
 			condition.setPaymentType(paymentType.getValue());
@@ -284,7 +284,7 @@ public class RatePlansService implements IRatePlansService {
 		// }
 		condition.setShotelId(shotelId);
 		SearchHotelRatePlanListResp response = this.ratePlanRepository
-				.getRatePlan(condition);
+				.getRatePlan(condition,guid);
 		if (response != null && response.getResult() != null) {
 			list.addAll(response.getResult());
 		}
@@ -327,6 +327,9 @@ public class RatePlansService implements IRatePlansService {
 				int s=hotel.getRoomBaseInfos().get(i).getRatePlans().get(j).getRatePlanSellChannel();
 				int es=enumSellChannel.getValue();
 				boolean isCanShow=((b&eb)==eb)&&((s&es)==es);
+				if(hotel.getRoomBaseInfos().get(i).getRatePlans().get(j).getRatePlanID()==1560205){
+					System.out.println(i);
+				}
 				if(isCanShow){
 					if(!isHasCanShow){
 						isHasCanShow=true;

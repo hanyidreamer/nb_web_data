@@ -8,9 +8,6 @@ import javax.annotation.Resource;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.alibaba.fastjson.JSON;
 import com.elong.nb.agent.ProductForNBServiceContract.EnumPayMentType;
@@ -18,7 +15,6 @@ import com.elong.nb.agent.ProductForNBServiceContract.GetHotelRoomPriceRequest;
 import com.elong.nb.agent.ProductForNBServiceContract.GetHotelRoomPriceResponse2;
 import com.elong.nb.agent.ProductForNBServiceContract.IProductForNBServiceContract;
 import com.elong.nb.common.biglog.BigLog;
-import com.elong.nb.common.biglog.Constants;
 import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.model.bean.enums.EnumPaymentType;
 import com.elong.nb.util.DateUtil;
@@ -30,13 +26,10 @@ public class RateRepository {
 	private static Logger logger = LogManager.getLogger("biglog");
 	public GetHotelRoomPriceResponse2 getRate(ProxyAccount proxyInfo,
 			String mHotelId, String sHotelId, Date startDate, Date endDate,
-			EnumPaymentType paymentType) {
-		RequestAttributes httpRequest = RequestContextHolder.getRequestAttributes();
-		Object guid = httpRequest!=null?httpRequest.getAttribute(Constants.ELONG_REQUEST_REQUESTGUID, ServletRequestAttributes.SCOPE_REQUEST):"";
+			EnumPaymentType paymentType,String guid) {
 		BigLog log = new BigLog();
-		if(guid!=null)
-			log.setUserLogType(guid.toString());
-		log.setAppName("wcf");
+		log.setUserLogType(guid);
+		log.setAppName("data_wcf");
 		log.setTraceId(UUID.randomUUID().toString());
 		log.setSpan("1.1");
 		

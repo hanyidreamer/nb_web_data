@@ -1,21 +1,27 @@
 package com.elong.nb.dao.adapter.repository;
 
 import java.util.Date;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
+import com.alibaba.fastjson.JSON;
 import com.elong.nb.agent.ProductForSearchServiceForRealTimeCheck.ArrayOfPriceDaySimple;
 import com.elong.nb.agent.ProductForSearchServiceForRealTimeCheck.CheckInventoryAndPriceRequest;
 import com.elong.nb.agent.ProductForSearchServiceForRealTimeCheck.CheckInventoryAndPriceResponse;
 import com.elong.nb.agent.ProductForSearchServiceForRealTimeCheck.IProductForSearchServiceContract;
 import com.elong.nb.agent.ProductForSearchServiceForRealTimeCheck.InventoryAndPriceCheckResult;
+import com.elong.nb.common.biglog.BigLog;
+import com.elong.nb.common.model.ErrorCode;
 import com.elong.nb.util.DateUtil;
 
 @Repository
 public class ProductForMisServiceRepository {
-
+	private static Logger logger = LogManager.getLogger("biglog");
 	@Resource(name = "productForSearchService")
 	private IProductForSearchServiceContract ProductForSearchServiceForRealTimeCheck;
 
@@ -31,10 +37,14 @@ public class ProductForMisServiceRepository {
 	// / <returns></returns>
 	public InventoryAndPriceCheckResult CheckHotelRealTimeInventory(
 			Date arrivalDate, Date departureDate, String hotelCode,
-			String roomTypeId, int ratePlanId, int numberOfRooms) {
+			String roomTypeId, int ratePlanId, int numberOfRooms,String guid) {
 
 		CheckInventoryAndPriceRequest req = new CheckInventoryAndPriceRequest();
-
+		BigLog log = new BigLog();
+		log.setUserLogType(guid);
+		log.setAppName("data_wcf");
+		log.setTraceId(UUID.randomUUID().toString());
+		log.setSpan("1.1");
 		req.setArriveDate(DateUtil.toDateTime(arrivalDate));
 		req.setBookingTime(DateUtil.toDateTime(new Date()));
 		req.setCurrencyCode("RMB");
@@ -55,9 +65,20 @@ public class ProductForMisServiceRepository {
 		ArrayOfPriceDaySimple arrayPrice = new ArrayOfPriceDaySimple();
 		req.setPriceList(arrayPrice);
 		req.setDynamicId("");
-
+		log.setServiceName("IProductForSearchServiceContract.checkInventoryAndPriceForNB");
+		log.setRequestBody(JSON.toJSONString(req));
+		long start = System.currentTimeMillis();
 		CheckInventoryAndPriceResponse res = ProductForSearchServiceForRealTimeCheck
 				.checkInventoryAndPriceForNB(req);
+		log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
+        log.setRequestBody(res!=null?JSON.toJSONString(res):"");
+        if(res !=null && res.getResult() != null){
+        		log.setBusinessErrorCode(String.valueOf(res.getResult().getResponseCode()));
+        		log.setExceptionMsg(res.getResult().getErrorMessage());
+        }else{
+        		log.setBusinessErrorCode("1");
+        }
+        logger.info(log.toString());
 		if (res != null
 				&& res.getResult() != null
 				&& res.getResult().getResponseCode() == 0

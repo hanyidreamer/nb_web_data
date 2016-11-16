@@ -48,7 +48,8 @@ public class InventoryRepository {
 		
 		BigLog log = new BigLog();
 		log.setUserLogType(guid);
-		log.setAppName("wcf");
+		
+		log.setAppName("data_wcf");
 		log.setTraceId(UUID.randomUUID().toString());
 		log.setSpan("1.1");
 		//需要即时确认的库存

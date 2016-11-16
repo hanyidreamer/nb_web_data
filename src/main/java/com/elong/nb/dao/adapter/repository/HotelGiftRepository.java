@@ -3,16 +3,22 @@ package com.elong.nb.dao.adapter.repository;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
+import com.alibaba.fastjson.JSON;
 import com.elong.nb.agent.HotelGiftService.GetHotelGiftListResponse;
 import com.elong.nb.agent.HotelGiftService.HotelGiftModel;
 import com.elong.nb.agent.HotelGiftService.HotelGiftRelationDate;
 import com.elong.nb.agent.HotelGiftService.HotelGiftRelationProduct;
 import com.elong.nb.agent.HotelGiftService.IHotelGiftServiceContract;
+import com.elong.nb.common.biglog.BigLog;
+import com.elong.nb.common.model.ErrorCode;
 import com.elong.nb.model.bean.enums.HotelGiftDateTypeEnum;
 import com.elong.nb.model.bean.enums.HotelGiftHourTypeEnum;
 import com.elong.nb.model.bean.enums.HotelGiftWayOfGivingEnum;
@@ -22,7 +28,7 @@ import com.elong.nb.model.rateplan.HotelGiftProductRelation;
 
 @Repository
 public class HotelGiftRepository {
-
+	private static Logger logger = LogManager.getLogger("biglog");
 	@Resource(name="hotelGiftServiceContract")
 	IHotelGiftServiceContract hotelGiftServiceContract;
 	
@@ -34,9 +40,24 @@ public class HotelGiftRepository {
     public List<HotelGift> getHotelGiftBySHotelId(String sHotelId)
     {
         List<HotelGift> list = new ArrayList<HotelGift>();
-
+        BigLog log = new BigLog();
+		//log.setUserLogType(guid);
+        log.setAppName("data_wcf");
+		log.setTraceId(UUID.randomUUID().toString());
+		log.setSpan("1.1");
+		log.setServiceName("IHotelGiftServiceContract.getHotelGiftListByHotelID");
+		log.setRequestBody(sHotelId);
+		long start = System.currentTimeMillis();
         GetHotelGiftListResponse res = hotelGiftServiceContract.getHotelGiftListByHotelID(sHotelId);
-
+        log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
+        log.setRequestBody(res!=null?JSON.toJSONString(res):"");
+        if(res !=null && res.getResult() != null){
+        		log.setBusinessErrorCode(String.valueOf(res.getResult().getResponseCode()));
+        		log.setExceptionMsg(res.getResult().getErrorMessage());
+        }else{
+        		log.setBusinessErrorCode("1");
+        }
+        logger.info(log.toString());
         if (res !=null && res.getResult() != null && res.getResult().getResponseCode() == 0 
         		&& res.getHotelGiftList() != null 
         		&& res.getHotelGiftList().getHotelGiftModel() !=null
