@@ -62,12 +62,14 @@ public class InventoryRuleRepository {
 		Gson gson=new Gson();
 		String content=JSON.toJSONString(request);
 		String url=getServerUrl("/api/Hotel/CheckInvRuleHit");
-		String str=HttpUtil.httpPost(url, content);
-		InventoryRuleHitCheckSoaResponse response=gson.fromJson(str, InventoryRuleHitCheckSoaResponse.class);
-		if("0".equals(response.getResponseCode())){
-			return response.getRealResponse();
-		}else{
-			throw new RuntimeException("Inner Exception" + response.getExceptionMsg());
+		try{
+			String str=HttpUtil.httpPost(url, content);
+			InventoryRuleHitCheckSoaResponse response=gson.fromJson(str, InventoryRuleHitCheckSoaResponse.class);
+			if("0".equals(response.getResponseCode())){
+				return response.getRealResponse();
+			}
+		}catch(Exception ex){
 		}
+		return new InventoryRuleHitCheckRealResponse();
 	}
 }

@@ -37,6 +37,9 @@ public class HttpUtil {
 	protected static Logger logger = LogManager.getLogger(HttpUtil.class);
 	private static Gson gson=new Gson();
 	public static String httpPost(String reqUrl,String reqData){
+		return httpPost(reqUrl,reqData,8 * 1000);
+	}
+	public static String httpPost(String reqUrl,String reqData,int timeout){
 		HttpURLConnection conn = null;
 		try{
 			URL url = new URL(reqUrl);
@@ -45,7 +48,7 @@ public class HttpUtil {
 			conn.setDoInput(true);// 设置是否从httpUrlConnection读入，默认情况下是true;   
 			conn.setDoOutput(true);
 			conn.setUseCaches(false);   // Post 请求不能使用缓存
-			conn.setConnectTimeout(8 * 1000);
+			conn.setConnectTimeout(timeout);
 			conn.setReadTimeout(30 * 1000);
 			conn.setInstanceFollowRedirects(true);
 			conn.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
