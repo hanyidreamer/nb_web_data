@@ -129,7 +129,7 @@ public class BookingDataService implements IBookingDataService {
 
 			detailreq.setGuid(request.getGuid());
 			detailreq.setLocal(request.getLocal());
-			detailreq.setVersion(request.getVersion());
+			detailreq.setVersion(1.32);
 			detailreq.setProxyInfo(request.getProxyInfo());
 
 			// Request = new HotelDetailCondition
@@ -158,7 +158,7 @@ public class BookingDataService implements IBookingDataService {
 
 				// String data = gson.toJson(detailreq, new
 				// TypeToken<RestRequest<HotelDetailRequest>>(){}.getType());
-				String data = GsonUtil.toJson(detailreq, 1.26);
+				String data = GsonUtil.toJson(detailreq, 1.32);
 				String responseStr ="";
 				try{
 					responseStr = HttpUtil.httpPost(url, data);

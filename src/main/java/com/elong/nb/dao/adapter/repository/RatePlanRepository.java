@@ -47,7 +47,7 @@ public class RatePlanRepository {
 		log.setAppName("data_http");
 		log.setTraceId(UUID.randomUUID().toString());
 		log.setSpan("1.1");
-		log.setServiceName("IProductForNBServiceContract.getHotelRoomPrice");
+		log.setServiceName("SearchHotelRatePlanList");
 		log.setRequestBody(json);
 		long start = System.currentTimeMillis();
 		String result = HttpUtil.httpPost(requestUrl, "requestJson="+json);
