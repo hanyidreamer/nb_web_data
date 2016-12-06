@@ -107,7 +107,7 @@ public class RateService implements IRateService {
 					&& response.getResult().getResponseCode() == 0) {
 				if (response.getPriceInfoList() != null) {
 					if (response.getPriceInfoList().getPriceInfoForNB() != null) {
-						Date validDate = DateUtil.addYears(new Date(), 1);
+						Date validDate = DateUtil.addYears(DateUtil.getDate(new Date()), 1);
 						for (PriceInfoForNB item : response.getPriceInfoList()
 								.getPriceInfoForNB()) {
 							Date rateEndDate = item.getEndDate().toDate();

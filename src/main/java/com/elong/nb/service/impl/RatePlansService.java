@@ -811,7 +811,7 @@ public class RatePlansService implements IRatePlansService {
 			productTypes += "3,";
 		if (isHourPayRoom || (pt & 32) == 32)
 			productTypes += "4,";
-		if ((bookingchanel & 2) == 2 && (bookingchanel & 16) == 16)
+		if ((bookingchanel & 2) == 0 && (bookingchanel & 16) == 16)
 			productTypes += "5,";
 		// 买一送一 productType值是2的14次方
 		if ((pt & 16384) == 16384) {

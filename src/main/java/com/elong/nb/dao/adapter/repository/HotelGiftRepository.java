@@ -25,6 +25,7 @@ import com.elong.nb.model.bean.enums.HotelGiftWayOfGivingEnum;
 import com.elong.nb.model.rateplan.HotelGift;
 import com.elong.nb.model.rateplan.HotelGiftDate;
 import com.elong.nb.model.rateplan.HotelGiftProductRelation;
+import com.elong.nb.util.DateUtil;
 
 @Repository
 public class HotelGiftRepository {
@@ -63,7 +64,7 @@ public class HotelGiftRepository {
         		&& res.getHotelGiftList().getHotelGiftModel() !=null
         		&& res.getHotelGiftList().getHotelGiftModel().size() > 0)
         {
-            Date today = new Date();
+            Date today = DateUtil.getDate(new Date());
             for (HotelGiftModel item : res.getHotelGiftList().getHotelGiftModel())
             {
                 if (item.getStatus() == 0)
