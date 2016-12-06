@@ -140,12 +140,12 @@ public class InventoryService implements IInventoryService{
 		List<Inventory> result=new ArrayList<Inventory>();
 		// 仅提供昨天和近90天的房态数据
 		int days = proxyInfo.getMaxDays() != null ? proxyInfo.getMaxDays() : 90;
-		Date date= DateUtil.addDays(new Date(), -1);
+		Date date= DateUtil.getDate(DateUtil.addDays(new Date(), -1));
 		if (startDate.getTime()<date.getTime()) {
-			startDate = DateUtil.addDays(new Date(), -1);
+			startDate = DateUtil.getDate(DateUtil.addDays(new Date(), -1));
 		}
-		if (endDate.getTime()>DateUtil.addDays(new Date(), days).getTime()) {
-			endDate = DateUtil.addDays(new Date(), days);
+		if (endDate.getTime()>DateUtil.getDate(DateUtil.addDays(new Date(), days)).getTime()) {
+			endDate = DateUtil.getDate(DateUtil.addDays(new Date(), days));
 		}
 		String[] shotelIdsUnderSupplier=null;
 		if(StringUtils.isNotBlank(proxyInfo.getSupplier())){

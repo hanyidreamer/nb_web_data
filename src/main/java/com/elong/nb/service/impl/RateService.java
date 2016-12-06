@@ -125,7 +125,7 @@ public class RateService implements IRateService {
 								}
 							}
 							Rate rate = new Rate();
-							rate.setHotelID(mHotelId);
+							rate.setHotelID(mHotelIdArray[i]);
 							rate.setHotelCode(item.getHotelID());
 							double member = item.getMemberRate() != null ? item.getMemberRate().doubleValue() : -1d;
 							member = toIntegerPrice(member,proxyInfo.getIntegerPriceType());
