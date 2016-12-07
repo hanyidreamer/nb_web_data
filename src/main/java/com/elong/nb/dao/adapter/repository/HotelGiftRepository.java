@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Repository;
@@ -219,12 +220,12 @@ public class HotelGiftRepository {
             }
             loopNum /= 2;
         }
-        String joinStrs = "";
-        for(int i : list)
-        {
-        	joinStrs+= ","+i;
-        }
-        joinStrs = joinStrs.substring(1);
+        String joinStrs = StringUtils.join(list.toArray(),",");
+//        for(int i : list)
+//        {
+//        	joinStrs+= ","+i;
+//        }
+//        joinStrs = joinStrs.substring(1);
         return joinStrs;
     }
 
