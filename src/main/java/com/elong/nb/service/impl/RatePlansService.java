@@ -327,9 +327,6 @@ public class RatePlansService implements IRatePlansService {
 				int s=hotel.getRoomBaseInfos().get(i).getRatePlans().get(j).getRatePlanSellChannel();
 				int es=enumSellChannel.getValue();
 				boolean isCanShow=((b&eb)==eb)&&((s&es)==es);
-				if(hotel.getRoomBaseInfos().get(i).getRatePlans().get(j).getRatePlanID()==1560205){
-					System.out.println(i);
-				}
 				if(isCanShow){
 					if(!isHasCanShow){
 						isHasCanShow=true;
