@@ -1,12 +1,14 @@
 package com.elong.nb.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
 
 import javax.annotation.Resource;
 
@@ -66,7 +68,10 @@ import com.elong.nb.model.rateplan.fornb.SearchHotelRatePlanListReq;
 import com.elong.nb.model.rateplan.fornb.SearchHotelRatePlanListResp;
 import com.elong.nb.model.rateplan.fornb.VouchInfo;
 import com.elong.nb.service.IRatePlansService;
+import com.elong.nb.service.task.RatePlanHotelCodeTask;
 import com.elong.nb.util.DateUtil;
+
+import edu.emory.mathcs.backport.java.util.Arrays;
 
 @Service
 public class RatePlansService implements IRatePlansService {
@@ -98,7 +103,7 @@ public class RatePlansService implements IRatePlansService {
 		String[] mHotelArrays = request.getRequest().getHotelIds().split(",");
 		List<String[]> sHotelIdArrays = M_SRelationRepository
 				.getSHotelIds(mHotelArrays);
-		HashSet<String> sHotelIdSet = new HashSet<String>();
+		List<String> sHotelIds = new ArrayList<String>();
 		for (String[] ids : sHotelIdArrays) {
 			if (ids == null || ids.length <= 0 || ids[0] == null)
 				continue;
@@ -117,74 +122,19 @@ public class RatePlansService implements IRatePlansService {
 						}
 					}
 				}
-				sHotelIdSet.add(shotelId);
+				sHotelIds.add(shotelId);
 			}
 		}
-		int pageSize = 10;
-		int pageCount = (int) Math.ceil((sHotelIdSet.size() * 1.0 / pageSize));
-		pageSize = (int) Math.ceil((sHotelIdSet.size()) * 1.0 / pageCount);
-		LinkedList<String> al = new LinkedList<String>();
-		int count = 0;
-		String str = new String();
-		for (String s : sHotelIdSet) {
-			if (count < pageSize) {
-				if (count == pageSize - 1) {
-					str += s;
-				} else {
-					str += s + ",";
-				}
-			} else {
-				al.add(str);
-				count = 0;
-				str = new String();
-			}
-		}
-		if (str.length() > 0) {
-			if (str.contains(","))
-				str = str.substring(0, str.lastIndexOf(","));
-			al.add(str);
-		}
-
-		// for (int pageIndex = 1; pageIndex <= pageCount; pageIndex++)
-		// String sHotelIds = String.Join(",", sHotelIdSet.Skip((pageIndex - 1)
-		// * pageSize).Take(pageSize));
 
 		HashMap<String, HotelRatePlan> hashHotel = new HashMap<String, HotelRatePlan>();
 
-		for (String sHotelIds : al) {
-			switch (request.getRequest().getPaymentType().getValue()) {
-			case 2: // EnumPaymentType.Prepay:
-				if (request.getProxyInfo().getEnabledPrepayProducts())
-					MergeHotelRatePlans(
-							result,
-							hashHotel,
-							getRatePlans(request.getLocal(), null, sHotelIds,
-									EnumPaymentType.Prepay, request
-											.getProxyInfo(), request
-											.getVersion(), request.getRequest()
-											.getOptions(),request.getGuid()));
-				break;
-			case 1:// EnumPaymentType.SelfPay:
-				MergeHotelRatePlans(
-						result,
-						hashHotel,
-						getRatePlans(request.getLocal(), null, sHotelIds,
-								EnumPaymentType.SelfPay,
-								request.getProxyInfo(), request.getVersion(),
-								request.getRequest().getOptions(),request.getGuid()));
-				break;
-			case 0: // EnumPaymentType.All:
-				MergeHotelRatePlans(
-						result,
-						hashHotel,
-						getRatePlans(request.getLocal(), null, sHotelIds,
-								EnumPaymentType.All, request.getProxyInfo(),
-								request.getVersion(), request.getRequest()
-										.getOptions(),request.getGuid()));
-				break;
-			}
-		}
-
+		MergeHotelRatePlans(
+				result,
+				hashHotel,
+				getRatePlans(request.getLocal(), null, StringUtils.join(
+						sHotelIds, ','), request.getRequest().getPaymentType(),
+						request.getProxyInfo(), request.getVersion(), request
+								.getRequest().getOptions(), request.getGuid()));
 		if (request.getVersion() > 1.10) {
 			// 获取礼品相关信息
 			for (HotelRatePlan hotel : result) {
@@ -272,36 +222,50 @@ public class RatePlansService implements IRatePlansService {
 
 	public List<HotelRatePlan> getRatePlans(EnumLocal language,
 			String mHotelId, String shotelId, EnumPaymentType paymentType,
-			ProxyAccount proxyInfo, double requestVersion, String options,String guid) {
+			ProxyAccount proxyInfo, double requestVersion, String options,
+			String guid) {
 		SearchHotelRatePlanListReq condition = new SearchHotelRatePlanListReq();
 		if (paymentType != EnumPaymentType.All) {
 			condition.setPaymentType(paymentType.getValue());
 		}
 		List<HotelRatePlan> result = new LinkedList<HotelRatePlan>();
 		List<HotelDetail> list = new LinkedList<HotelDetail>();
-		// for (String id : shotelId.split(",")) {
-		//
-		// }
-		condition.setShotelId(shotelId);
-		SearchHotelRatePlanListResp response = this.ratePlanRepository
-				.getRatePlan(condition,guid);
-		if (response != null && response.getResult() != null) {
-			list.addAll(response.getResult());
+
+		RatePlanHotelCodeTask ratePlanTask = new RatePlanHotelCodeTask(
+				Arrays.asList(shotelId.split(",")), ratePlanRepository, guid);
+		ForkJoinPool forkJoinPool = new ForkJoinPool();
+		forkJoinPool.execute(ratePlanTask);
+		do {
+
+		} while (!ratePlanTask.isDone());
+
+		forkJoinPool.shutdown();
+		try {
+			list = ratePlanTask.get();
+		} catch (InterruptedException | ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		// condition.setShotelId(shotelId);
+		// SearchHotelRatePlanListResp response = this.ratePlanRepository
+		// .getRatePlan(condition, guid);
+		// if (response != null && response.getResult() != null) {
+		// list.addAll(response.getResult());
+		// }
 		if (list == null || list.size() <= 0) {
 			return result;
 		}
 		for (HotelDetail hotel : list) {
-			HotelDetail filterHotel = filterHotel(hotel, proxyInfo.getSellChannel(),
-					proxyInfo.getBookingChannel());
-			if(filterHotel==null){
+			HotelDetail filterHotel = filterHotel(hotel,
+					proxyInfo.getSellChannel(), proxyInfo.getBookingChannel());
+			if (filterHotel == null) {
 				continue;
 			}
 			HotelRatePlan rp = new HotelRatePlan();
 			if (filterHotel.getHotelBaseInfo() != null) {
 				rp.setHotelID(mHotelId == null ? mSRelationRepository
-						.GetMHotelId(filterHotel.getHotelBaseInfo().getShotelId())
-						: mHotelId);
+						.GetMHotelId(filterHotel.getHotelBaseInfo()
+								.getShotelId()) : mHotelId);
 			}
 			rp.setRatePlans(getRatePlans(filterHotel, language, proxyInfo,
 					requestVersion, options));
@@ -315,34 +279,37 @@ public class RatePlansService implements IRatePlansService {
 	private HotelDetail filterHotel(HotelDetail hotel,
 			EnumSellChannel enumSellChannel,
 			EnumBookingChannel enumBookingChannel) {
-		HotelDetail hotelNew=null;
-		boolean isHasCanShow=false;
-		List<RoomTypeInfo> roomBaseInfos=new LinkedList<RoomTypeInfo>();
+		HotelDetail hotelNew = null;
+		boolean isHasCanShow = false;
+		List<RoomTypeInfo> roomBaseInfos = new LinkedList<RoomTypeInfo>();
 		for (int i = 0; i < hotel.getRoomBaseInfos().size(); i++) {
 			List<RatePlanBaseInfo> ratePlanList = new LinkedList<RatePlanBaseInfo>();
 			for (int j = 0; j < hotel.getRoomBaseInfos().get(i).getRatePlans()
 					.size(); j++) {
-				int b= hotel.getRoomBaseInfos().get(i).getRatePlans().get(j).getBookingChannel();
-				int eb=enumBookingChannel.getValue();
-				int s=hotel.getRoomBaseInfos().get(i).getRatePlans().get(j).getRatePlanSellChannel();
-				int es=enumSellChannel.getValue();
-				boolean isCanShow=((b&eb)==eb)&&((s&es)==es);
-				if(isCanShow){
-					if(!isHasCanShow){
-						isHasCanShow=true;
-						hotelNew=new HotelDetail();
+				int b = hotel.getRoomBaseInfos().get(i).getRatePlans().get(j)
+						.getBookingChannel();
+				int eb = enumBookingChannel.getValue();
+				int s = hotel.getRoomBaseInfos().get(i).getRatePlans().get(j)
+						.getRatePlanSellChannel();
+				int es = enumSellChannel.getValue();
+				boolean isCanShow = ((b & eb) == eb) && ((s & es) == es);
+				if (isCanShow) {
+					if (!isHasCanShow) {
+						isHasCanShow = true;
+						hotelNew = new HotelDetail();
 						hotelNew.setHotelBaseInfo(hotel.getHotelBaseInfo());
 					}
-					ratePlanList.add(hotel.getRoomBaseInfos().get(i).getRatePlans().get(j));
+					ratePlanList.add(hotel.getRoomBaseInfos().get(i)
+							.getRatePlans().get(j));
 				}
 			}
-			if(ratePlanList.size()>0){
-				RoomTypeInfo roomTypeInfo=hotel.getRoomBaseInfos().get(i);
+			if (ratePlanList.size() > 0) {
+				RoomTypeInfo roomTypeInfo = hotel.getRoomBaseInfos().get(i);
 				roomTypeInfo.setRatePlans(ratePlanList);
 				roomBaseInfos.add(roomTypeInfo);
 			}
 		}
-		if(isHasCanShow){
+		if (isHasCanShow) {
 			hotelNew.setRoomBaseInfos(roomBaseInfos);
 			return hotelNew;
 		}
@@ -762,7 +729,7 @@ public class RatePlansService implements IRatePlansService {
 				&& !entry.getValue().toString().isEmpty()) {
 
 			try {
-				result =("1".equals(entry.getValue()));
+				result = ("1".equals(entry.getValue()));
 			} catch (Exception e)// 若转换失败，则使用默认值返回 -1
 			{
 				LocalMsg.error(e.getMessage());
@@ -840,8 +807,10 @@ public class RatePlansService implements IRatePlansService {
 				temp.setStartDate(rule.getStartDate());
 			if (rule.getEndDate() != null)
 				temp.setEndDate(rule.getEndDate());
-			temp.setStartTime(rule.getArriveStartTime()!=null?rule.getArriveStartTime():"");
-			temp.setEndTime(rule.getArriveEndTime()!=null?rule.getArriveEndTime():"");
+			temp.setStartTime(rule.getArriveStartTime() != null ? rule
+					.getArriveStartTime() : "");
+			temp.setEndTime(rule.getArriveEndTime() != null ? rule
+					.getArriveEndTime() : "");
 			temp.setAmount(rule.getRoomCount());
 
 			// Tools.ParseEnum<EnumGuaranteeChangeRule>(rule.VouchChangeRule.GetHashCode().ToString(),

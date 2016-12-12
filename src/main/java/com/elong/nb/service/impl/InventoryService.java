@@ -17,12 +17,8 @@ import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.elong.nb.common.ComparableUtil;
-import com.elong.nb.common.biglog.Constants;
 import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
@@ -175,9 +171,6 @@ public class InventoryService implements IInventoryService{
 				sHotelIdArrays.set(i, intersectHotelCode);
 			}
 		}
-//		RequestAttributes httpRequest = RequestContextHolder.getRequestAttributes();
-//		Object requestGUID=httpRequest!=null?httpRequest.getAttribute(Constants.ELONG_REQUEST_REQUESTGUID, ServletRequestAttributes.SCOPE_REQUEST):null;
-//		String guid = requestGUID!=null?requestGUID.toString():"";
 		InventoryHotelIdTask inventoryTask=new InventoryHotelIdTask(mHotelIdArray,sHotelIdArrays,roomTypeId,startDate,endDate,isNeedInstantConfirm,inventoryDao,guid,isForBooking);
 		ForkJoinPool forkJoinPool = new ForkJoinPool();
 		forkJoinPool.execute(inventoryTask);

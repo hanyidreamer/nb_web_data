@@ -9,7 +9,6 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
-import com.alibaba.fastjson.JSON;
 import com.elong.nb.agent.ProductForNBServiceContract.EnumPayMentType;
 import com.elong.nb.agent.ProductForNBServiceContract.GetHotelRoomPriceRequest;
 import com.elong.nb.agent.ProductForNBServiceContract.GetHotelRoomPriceResponse2;
@@ -46,7 +45,8 @@ public class RateRepository {
 		req.setStartDate(DateUtil.toDateTime(startDate));
 		req.setEndDate(DateUtil.toDateTime(endDate));
 		log.setServiceName("IProductForNBServiceContract.getHotelRoomPrice");
-		log.setRequestBody(JSON.toJSONString(req));
+//		log.setRequestBody(JSON.toJSONString(req));
+		log.setRequestBody("-");
 		long start = System.currentTimeMillis();
 		GetHotelRoomPriceResponse2 response = this.productForNBServiceContract
 				.getHotelRoomPrice(req);
