@@ -19,6 +19,8 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.elong.nb.bookingdata.thread.InventoryThread;
 import com.elong.nb.bookingdata.thread.RatePlanThread;
 import com.elong.nb.bookingdata.thread.RateThread;
@@ -70,9 +72,10 @@ import com.google.gson.TypeAdapter;
 public class BookingDataService implements IBookingDataService {
 
 	private static Logger logger = LogManager.getLogger("kafka");
-	private Gson gson = new Gson();
 	private static final RedisManager redis = RedisManager.getInstance("redis_job", "redis_job");
-
+	private static final String SEARCHURL=CommonsUtil.CONFIG_PROVIDAR.getProperty("InnerDetail.url");
+	private static final String ORDERFROMNAMEURL = CommonsUtil.CONFIG_PROVIDAR.getProperty("orderFromNameUrl")+"?orderFromId=%s";
+	private static final boolean isUseRPInSearch = CommonsUtil.CONFIG_PROVIDAR.getProperty("hotel.data.validate.use_detail").equals("1");
 	@Resource
 	private EffectiveStatusRepository effectiveStatusRepository;
 	@Resource
@@ -86,12 +89,11 @@ public class BookingDataService implements IBookingDataService {
 
 	@Override
 	public RestResponse<BookingDataResult> getBookingData(RestRequest<BookingDataCondition> request) {
+		
 		RestResponse<BookingDataResult> result = new RestResponse<BookingDataResult>(request.getGuid());
 		result.setResult(new BookingDataResult());
 
 		try {
-			boolean isUseRPInSearch = CommonsUtil.CONFIG_PROVIDAR.getProperty("hotel.data.validate.use_detail").equals("1");
-
 			boolean isInstantConfirmInSearch = true;
 			boolean isHaveSearchResult = true;
 
@@ -119,7 +121,7 @@ public class BookingDataService implements IBookingDataService {
 			}
 			// #endregion 参数校验
 
-			ExecutorService taskFactory = Executors.newFixedThreadPool(10);
+			ExecutorService taskFactory = Executors.newFixedThreadPool(4);
 			Hotel hotelInfoFromSearch = null;
 			ListRatePlan rpOfSearch = null;
 
@@ -131,8 +133,6 @@ public class BookingDataService implements IBookingDataService {
 			detailreq.setLocal(request.getLocal());
 			detailreq.setVersion(1.32);
 			detailreq.setProxyInfo(request.getProxyInfo());
-
-			// Request = new HotelDetailCondition
 			HotelDetailRequest Request = new HotelDetailRequest();
 
 			Request.setArrivalDate(request.getRequest().getArrivalDate());
@@ -142,22 +142,12 @@ public class BookingDataService implements IBookingDataService {
 			Request.setRatePlanId(request.getRequest().getRatePlanId());
 			Request.setRoomTypeId(request.getRequest().getRoomTypeId());
 			Request.setPaymentType(request.getRequest().getPaymentType());
-	
 			detailreq.setRequest(Request);
-			// #endregion
-
 			RestResponse<HotelListResponse> detailres = new RestResponse<HotelListResponse>(request.getGuid());
 			int time = 2;
 			// 遇到搜索不返回产品的时候，如果是异常，则重试一次。
 			while (time > 0) {
-				// detailres = IHotelManager.GetHotelDetailFromWCF(detailreq);
-
-				// String url
-				// ="http://nbapi-searchhd.vip.elong.com/OpenApiWeb/api/Hotel/InnerDetail";
-				String url = CommonsUtil.CONFIG_PROVIDAR.getProperty("InnerDetail.url");
-
-				// String data = gson.toJson(detailreq, new
-				// TypeToken<RestRequest<HotelDetailRequest>>(){}.getType());
+				String url = SEARCHURL;
 				String data = GsonUtil.toJson(detailreq, 1.32);
 				String responseStr ="";
 				try{
@@ -171,14 +161,11 @@ public class BookingDataService implements IBookingDataService {
 					if(time>0){
 						continue;
 					}else{
-						//isHaveSearchResult=false;
 						detailres.setCode("0");
 						detailres.setResult(null);
 						break;
 					}
 				}
-				// detailres = gson.fromJson(responseStr, new
-				// TypeToken<RestResponse<HotelListResponse>>() { }.getType());
 				if (detailres != null && detailres.getCode().equals("0")) {
 					break;
 				}
@@ -206,10 +193,9 @@ public class BookingDataService implements IBookingDataService {
 				} else {
 					// 如果是找不到产品，则请求酒店组的对象接口
 					isHaveSearchResult = false;
-					EffectiveStatus effectiveStatus = effectiveStatusRepository.GetEffectiveStatus(request.getRequest().getHotelId(),
+					EffectiveStatus effectiveStatus = effectiveStatusRepository.getEffectiveStatus(request.getRequest().getHotelId(),
 							request.getRequest().getRoomTypeId(), request.getRequest().getRatePlanId(), request.getRequest()
-									.getArrivalDate(), request.getRequest().getDepartureDate(), errorCode, 1);// ref
-																												// errorCode);
+									.getArrivalDate(), request.getRequest().getDepartureDate(), errorCode, 1);
 
 					if (errorCode.toString().equals("0") && effectiveStatus != null) {
 						ObjectEffectiveStatus objectStatus = new ObjectEffectiveStatus();
@@ -221,8 +207,6 @@ public class BookingDataService implements IBookingDataService {
 							objectStatus.setProductRelation(effectiveStatus.getSroomRatePlanRelation() == 1);
 							objectStatus.setRatePlanStaus(effectiveStatus.getRatePlanStaus() == 1);
 						}
-						;
-
 						if (result.getResult() == null)
 							result.setResult(new BookingDataResult());
 						result.getResult().setObjectEffectiveStatus(objectStatus);
@@ -233,13 +217,6 @@ public class BookingDataService implements IBookingDataService {
 							result.setCode(ErrorCode.Order_ObjectStatusInvalid);
 							return result;
 						}
-						// if (isUseRPInSearch)
-						// {
-						// result.Code = ErrorCode.Order_HotelNotInService +
-						// "(S)";
-						// result.Result = null;
-						// return result;
-						// }
 					} else {
 						result.setCode(ErrorCode.Order_ObjectRelationError);
 						return result;
@@ -262,9 +239,6 @@ public class BookingDataService implements IBookingDataService {
 
 			// Inventory Realtime Check
 			boolean realtimeInvAvailable = true;
-			// string realtimeInvCheckSwitcher =
-			// ConfigService.GetAppServerConfig("hotel.booking.realtime.checkinv",
-			// "0");
 			String realtimeInvCheckSwitcher = CommonsUtil.CONFIG_PROVIDAR.getProperty("hotel.booking.realtime.checkinv");
 			Future<Object> invRealTimeTask = null;
 			if (realtimeInvCheckSwitcher.equals("1")) {
@@ -273,9 +247,7 @@ public class BookingDataService implements IBookingDataService {
 			// #region Rate
 			// 如果是返回drr计算后的价格，从detail接口拿rate数据
 			Future<Object> rateTask = null;
-			if (request.getRequest().isIsRatesWithDRR()) {
-				// 放在下面处理
-			} else {
+			if (!request.getRequest().isIsRatesWithDRR()) {
 				rateTask = taskFactory.submit(new RateThread(request, rateService));
 			}
 			// #region 产品、库存和价格的结果处理
@@ -290,9 +262,6 @@ public class BookingDataService implements IBookingDataService {
 				Object obj = invTask.get();
 				if (obj != null){
 					List<Inventory> invList=(List<com.elong.nb.model.bean.Inventory>) obj;
-//					for(Inventory inv:invList){
-//						inv.setIsInstantConfirm(isInstantConfirmInSearch);
-//					}
 					result.getResult().setInventories(invList);
 				}
 			}
@@ -582,7 +551,7 @@ public class BookingDataService implements IBookingDataService {
 
 					CheckMinitor checkMinitor = new CheckMinitor();
 					checkMinitor.setAgentId(request.getProxyInfo().getOrderFrom().toString());
-					checkMinitor.setAgentName(GetOrderFromProjectName(request.getProxyInfo().getOrderFrom()));
+					checkMinitor.setAgentName(getOrderFromProjectName(request.getProxyInfo().getOrderFrom()));
 					checkMinitor.setOrderCheckTime(DateUtils.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss"));
 					checkMinitor.setRoomNightsCount(roomNightsCount + "");
 					String checkJson;
@@ -598,7 +567,7 @@ public class BookingDataService implements IBookingDataService {
 					} else {
 						checkMinitor.setOrderCheckStatus("Y");
 					}
-					checkJson = gson.toJson(checkMinitor);
+					checkJson =JSON.toJSONString(checkMinitor);
 					logger.info(checkJson);
 				} catch (Exception e) {
 					logger.error(e.getMessage());
@@ -607,7 +576,7 @@ public class BookingDataService implements IBookingDataService {
 		}
 	}
 
-	public String GetOrderFromProjectName(int orderFromId) {
+	public String getOrderFromProjectName(int orderFromId) {
 		String projectName = "";
 		String key = String.format(RedisKeyConst.KEY_Minitor_OrderFrom_ProjectName, orderFromId + "");
 		ICacheKey cacheKey = RedisManager.getCacheKey(key);
@@ -615,19 +584,12 @@ public class BookingDataService implements IBookingDataService {
 			projectName = redis.get(cacheKey);
 			return projectName;
 		}
-
-		String orderFromNameUrl = CommonsUtil.CONFIG_PROVIDAR.getProperty("orderFromNameUrl");
-		if (orderFromNameUrl == null || orderFromNameUrl.isEmpty()) {
-			orderFromNameUrl = "http://api.vip.elong.com/admin.php/Api/getprojectname";
-		}
-		orderFromNameUrl += "?orderFromId=%s";
-
+		String orderFromNameUrl = ORDERFROMNAMEURL;
 		String url = String.format(orderFromNameUrl, orderFromId);
 		OrderFromResult orderFromResult = new OrderFromResult();
 		try {
 			String res = HttpUtil.httpGetData(url);
-			orderFromResult = gson.fromJson(res, new TypeToken<OrderFromResult>() {
-			}.getType());
+			orderFromResult = JSON.parseObject(res, OrderFromResult.class);
 		} catch (Exception ex) {
 			orderFromResult.setCode(0);
 			orderFromResult.setData(null);

@@ -57,7 +57,7 @@ public class InventoryService implements IInventoryService{
 	@Resource
 	private M_SRelationCache m_SRelationCache;
 	@Resource
-	private InventoryRepository inventoryDao;
+	private InventoryRepository inventoryRepository;
 	@Resource
 	private InventoryRuleRepository inventoryRuleRepository;
 	/** 
@@ -171,7 +171,7 @@ public class InventoryService implements IInventoryService{
 				sHotelIdArrays.set(i, intersectHotelCode);
 			}
 		}
-		InventoryHotelIdTask inventoryTask=new InventoryHotelIdTask(mHotelIdArray,sHotelIdArrays,roomTypeId,startDate,endDate,isNeedInstantConfirm,inventoryDao,guid,isForBooking);
+		InventoryHotelIdTask inventoryTask=new InventoryHotelIdTask(mHotelIdArray,sHotelIdArrays,roomTypeId,startDate,endDate,isNeedInstantConfirm,inventoryRepository,guid,isForBooking);
 		ForkJoinPool forkJoinPool = new ForkJoinPool();
 		forkJoinPool.execute(inventoryTask);
 		do {
@@ -211,7 +211,6 @@ public class InventoryService implements IInventoryService{
 						}
 					}
 				}
-				
 			}
 		}
 		return result;

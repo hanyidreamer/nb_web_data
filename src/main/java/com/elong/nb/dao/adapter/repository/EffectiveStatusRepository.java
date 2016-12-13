@@ -4,53 +4,44 @@ import java.util.Date;
 
 import org.springframework.stereotype.Repository;
 
-import com.elong.nb.common.model.RestResponse;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.elong.nb.common.util.CommonsUtil;
 import com.elong.nb.common.util.DateUtils;
-import com.elong.nb.model.HotelListResponse;
 import com.elong.nb.model.effectivestatuscheck.EffectiveStatus;
 import com.elong.nb.model.effectivestatuscheck.EffectiveStatusRequest;
 import com.elong.nb.model.effectivestatuscheck.EffectiveStatusResponse;
 import com.elong.nb.model.effectivestatuscheck.SoaRestRequest;
 import com.elong.nb.model.effectivestatuscheck.SoaRestResponse;
 import com.elong.nb.util.HttpUtil;
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
 
 @Repository
 public class EffectiveStatusRepository {
 
-	private Gson gson=new Gson();
+	private static final String EFFECTIVEURL=getEffectiveStatusServiceURL("/rest/com/elong/hotel/product/entity/req/nbapi/EffectiveStatusRequest");
 	
-    private String GetEffectiveStatusServiceURL(String query)
-    {
-        //String url = EffectiveStatusBaseURL;
-    	String url = CommonsUtil.CONFIG_PROVIDAR.getProperty("EffectiveStatusBaseURL");
-        if (url==null ||url.isEmpty())
-        {
-             //#if DEBUG
-            //url = "http://192.168.67.34:8110";
-            //#else
-          url = "http://jcp.mis.elong.com:8110";
-
+    private static String getEffectiveStatusServiceURL(String query){
+    		String url = CommonsUtil.CONFIG_PROVIDAR.getProperty("EffectiveStatusBaseURL");
+        if (url==null ||url.isEmpty()){
+        		throw new RuntimeException("EFFECTIVEURL URL配置错误，请联系系统管理员");
         }
-   
         return url + query;
     }
-    /// <summary>
-    /// 获取对象有效性状态
-    /// </summary>
-    /// <param name="mhotelId"></param>
-    /// <param name="roomTypeId"></param>
-    /// <param name="ratePlanId"></param>
-    /// <param name="ArrivalDate"></param>
-    /// <param name="DepartureDate"></param>
-    /// <param name="errorCode"></param>
-    /// <returns></returns>
-    public EffectiveStatus GetEffectiveStatus(String mhotelId, String roomTypeId, int ratePlanId, Date ArrivalDate, Date DepartureDate, StringBuilder errorCode,int retryTimes)
+    /**
+     * 获取对象有效性状态
+     * @param mhotelId
+     * @param roomTypeId
+     * @param ratePlanId
+     * @param ArrivalDate
+     * @param DepartureDate
+     * @param errorCode
+     * @param retryTimes
+     * @return
+     */
+    public EffectiveStatus getEffectiveStatus(String mhotelId, String roomTypeId, int ratePlanId, Date ArrivalDate, Date DepartureDate, StringBuilder errorCode,int retryTimes)
     {
         EffectiveStatus effectiveStatus = null;
-        String url = GetEffectiveStatusServiceURL("/rest/com/elong/hotel/product/entity/req/nbapi/EffectiveStatusRequest");
+        String url = EFFECTIVEURL;
         SoaRestRequest<EffectiveStatusRequest> req = new SoaRestRequest<EffectiveStatusRequest>();
         
         EffectiveStatusRequest eff = new EffectiveStatusRequest();
@@ -60,41 +51,25 @@ public class EffectiveStatusRepository {
         	eff.setCheckinDate(DateUtils.convertDate(ArrivalDate, "yyyy-MM-dd"));
         	eff.setCheckoutDate(DateUtils.convertDate(DepartureDate, "yyyy-MM-dd") );
         req.setRealRequest(eff);
-        
-        try
-        {
-        String data = gson.toJson(req, SoaRestRequest.class);
-        //String responseStr = HttpUtil.httpPost(url, "?requestJson="+data);
-        String responseStr = HttpUtil.httpPostData(url+"?requestJson=",data);
-        
-        if (responseStr !=null && !responseStr.isEmpty())
-        {
-            //var result = Newtonsoft.Json.JsonConvert.DeserializeObject<SoaRestResponse<EffectiveStatusResponse>>(response.Data);
-
-        	SoaRestResponse<EffectiveStatusResponse> result = gson.fromJson(responseStr,  new TypeToken<SoaRestResponse<EffectiveStatusResponse>>() {
-                                                                                                          }.getType());
-        	
-            if (result != null && result.getResponseCode() == 0 && result.getRealResponse() != null && result.getRealResponse().getResponseCode() == 0)
-            {
-                effectiveStatus = result.getRealResponse().getEffectiveStatus();
-                errorCode.append("0");
-            }
-            else
-            {
-                errorCode.append("-1");
-            }
+        try{
+			String data = JSON.toJSONString(req);
+			String responseStr = HttpUtil.httpPostData(url + "?requestJson=",data);
+			if (responseStr != null && !responseStr.isEmpty()) {
+				SoaRestResponse<EffectiveStatusResponse> result = JSON.parseObject(responseStr,new TypeReference<SoaRestResponse<EffectiveStatusResponse>>(){});
+				if (result != null && result.getResponseCode()==0&&result.getRealResponse()!=null
+						&& result.getRealResponse().getResponseCode() == 0) {
+					effectiveStatus = result.getRealResponse().getEffectiveStatus();
+					errorCode.append("0");
+				} else {
+					errorCode.append("-1");
+				}
+			} else if (retryTimes > 0) {
+				return getEffectiveStatus(mhotelId, roomTypeId, ratePlanId, ArrivalDate, DepartureDate,errorCode,retryTimes-1);
+			}
         }
-        else if (retryTimes > 0)
-        {
-            return GetEffectiveStatus(mhotelId, roomTypeId, ratePlanId, ArrivalDate, DepartureDate,errorCode,retryTimes-1);
-        }
+        catch(Exception e){
         
         }
-        catch(Exception e)
-        {
-        
-        }
-        
         return effectiveStatus;
     }
 }
