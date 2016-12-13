@@ -65,7 +65,6 @@ import com.elong.nb.model.rateplan.fornb.PrePayInfo;
 import com.elong.nb.model.rateplan.fornb.RatePlanBaseInfo;
 import com.elong.nb.model.rateplan.fornb.RoomTypeInfo;
 import com.elong.nb.model.rateplan.fornb.SearchHotelRatePlanListReq;
-import com.elong.nb.model.rateplan.fornb.SearchHotelRatePlanListResp;
 import com.elong.nb.model.rateplan.fornb.VouchInfo;
 import com.elong.nb.service.IRatePlansService;
 import com.elong.nb.service.task.RatePlanHotelCodeTask;
