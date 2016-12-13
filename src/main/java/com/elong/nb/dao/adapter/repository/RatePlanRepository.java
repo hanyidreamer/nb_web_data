@@ -28,16 +28,16 @@ import com.elong.nb.util.HttpUtil;
 @Repository
 public class RatePlanRepository {
 	private static Logger logger = LogManager.getLogger("biglog");
-	private static String url=CommonsUtil.CONFIG_PROVIDAR.getProperty("rp.url");
-	private String getServerUrl(String query){
-	        if (StringUtils.isBlank(url)){
+	private final static String RPURL=getServerUrl("/rest/com/elong/hotel/product/entity/req/forpartner/nbapi/SearchHotelRatePlanListReq");
+	private static String getServerUrl(String query){
+		    String serverURL=CommonsUtil.CONFIG_PROVIDAR.getProperty("rp.url");
+	        if (StringUtils.isBlank(serverURL)){
 	        		throw new RuntimeException("Inner Error:RP URL为空，请联系管理员检查配置");
 	        }
-	        return url + query;
+	        return serverURL + query;
 	}
 	public SearchHotelRatePlanListResp getRatePlan(SearchHotelRatePlanListReq req,String guid){
-		String requestUrl = getServerUrl("/rest/com/elong/hotel/product/entity/req/forpartner/nbapi/SearchHotelRatePlanListReq");
-		//SearchHotelRatePlanListReq realRequest=new SearchHotelRatePlanListReq();
+		String requestUrl =RPURL;
 		RequestBase<SearchHotelRatePlanListReq> request=new RequestBase<SearchHotelRatePlanListReq>();
 		request.setRealRequest(req);
 		request.setLogId(UUID.randomUUID().toString());

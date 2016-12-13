@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 
 import javax.annotation.Resource;
+import javax.management.RuntimeErrorException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.LogManager;
@@ -31,7 +32,7 @@ import com.elong.nb.common.model.ErrorCode;
 import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
-import com.elong.nb.dao.adapter.cache.M_SRelationRepository;
+import com.elong.nb.dao.adapter.cache.M_SRelationCache;
 import com.elong.nb.dao.adapter.repository.HotelGiftRepository;
 import com.elong.nb.dao.adapter.repository.RatePlanRepository;
 import com.elong.nb.model.bean.enums.EnumBookingRule;
@@ -81,7 +82,7 @@ public class RatePlansService implements IRatePlansService {
 			.getLogger(RatePlansService.class);
 
 	@Resource
-	M_SRelationRepository mSRelationRepository;
+	private M_SRelationCache m_SRelationCache;
 	@Resource(name = "productForNBServiceContract")
 	IProductForNBServiceContract productForNBServiceContract;
 	@Resource(name = "supplierService")
@@ -100,8 +101,7 @@ public class RatePlansService implements IRatePlansService {
 			}
 		}
 		String[] mHotelArrays = request.getRequest().getHotelIds().split(",");
-		List<String[]> sHotelIdArrays = M_SRelationRepository
-				.getSHotelIds(mHotelArrays);
+		List<String[]> sHotelIdArrays = m_SRelationCache.getSHotelIds(mHotelArrays);
 		List<String> sHotelIds = new ArrayList<String>();
 		for (String[] ids : sHotelIdArrays) {
 			if (ids == null || ids.length <= 0 || ids[0] == null)
@@ -109,12 +109,9 @@ public class RatePlansService implements IRatePlansService {
 			for (String shotelId : ids) {
 				if (request.getProxyInfo().isIsOnlyStraight()) {
 					// 只保留艺龙直签，其他供应商的rp都过滤
-					MSHotelRelation hotelRelation = M_SRelationRepository
-							.getHotelRelation(shotelId);
+					MSHotelRelation hotelRelation = m_SRelationCache.getHotelRelation(shotelId);
 					if (hotelRelation != null) {
-						int type = mSRelationRepository
-								.getCooperationTypeBySupplierID(hotelRelation
-										.getSupplierId());
+						int type = m_SRelationCache.getCooperationTypeBySupplierID(hotelRelation.getSupplierId());
 						// CooperationType=1为直签，2为非直签，0为未知
 						if (type == 2) {
 							continue;
@@ -241,8 +238,8 @@ public class RatePlansService implements IRatePlansService {
 		try {
 			list = ratePlanTask.get();
 		} catch (InterruptedException | ExecutionException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			throw new RuntimeException(e.getMessage());
 		}
 		// condition.setShotelId(shotelId);
 		// SearchHotelRatePlanListResp response = this.ratePlanRepository
@@ -261,7 +258,7 @@ public class RatePlansService implements IRatePlansService {
 			}
 			HotelRatePlan rp = new HotelRatePlan();
 			if (filterHotel.getHotelBaseInfo() != null) {
-				rp.setHotelID(mHotelId == null ? mSRelationRepository
+				rp.setHotelID(mHotelId == null ? m_SRelationCache
 						.GetMHotelId(filterHotel.getHotelBaseInfo()
 								.getShotelId()) : mHotelId);
 			}
@@ -328,11 +325,11 @@ public class RatePlansService implements IRatePlansService {
 						&& hotel.getHotelBaseInfo().getShotelId() != null
 						&& !hotel.getHotelBaseInfo().getShotelId().isEmpty()) {
 					// 获取合作类型，是艺龙直签还是其它供应商
-					MSHotelRelation hotelRelation = M_SRelationRepository
+					MSHotelRelation hotelRelation = m_SRelationCache
 							.getHotelRelation(hotel.getHotelBaseInfo()
 									.getShotelId());
 					if (hotelRelation != null) {
-						int type = mSRelationRepository
+						int type = m_SRelationCache
 								.getCooperationTypeBySupplierID(hotelRelation
 										.getSupplierId());
 						// CooperationType=1为直签，2为非直签，0为未知
@@ -1214,7 +1211,7 @@ public class RatePlansService implements IRatePlansService {
 			return result;
 
 		EnumInvoiceMode InvoiceMode = EnumInvoiceMode.Hotel;
-		MSHotelRelation hotelRelation = M_SRelationRepository
+		MSHotelRelation hotelRelation = m_SRelationCache
 				.getHotelRelation(hotel.getHotelBaseInfo().getShotelId());
 		if (hotelRelation != null) {
 			InvoiceMode = getInvoiceMode(hotelRelation.getSupplierId());
@@ -1228,7 +1225,7 @@ public class RatePlansService implements IRatePlansService {
 			suprp.setHotelCode(hotel.getHotelBaseInfo().getShotelId());
 			suprp.setWeekendStart(hotel.getHotelBaseInfo().getWeekEndStart());
 			suprp.setWeekendEnd(hotel.getHotelBaseInfo().getWeekEndEnd());
-			List<MSRoomRelation> msList = mSRelationRepository
+			List<MSRoomRelation> msList = m_SRelationCache
 					.getMSRoomRelation(hotel.getHotelBaseInfo().getShotelId());
 			suprp.setRooms(msList);
 		}
@@ -1259,9 +1256,6 @@ public class RatePlansService implements IRatePlansService {
 					}
 				}
 			}
-
-			// result[0].Rooms = ids.Distinct().Select(rid => new MSRoomRelation
-			// { RoomId = rid, RoomTypeId = rid }).ToList();
 			result.get(0).setRooms(rooms);
 		}
 
@@ -1322,9 +1316,6 @@ public class RatePlansService implements IRatePlansService {
 			temp.setStartHour(rule.getStartHour());
 			temp.setEndHour(rule.getEndHour());
 			temp.setRoomTypeIds(rule.getRoomTypeID());
-
-			// Tools.ParseEnum<EnumBookingRule>(rule.HotelBooKingRule.GetHashCode().ToString(),
-			// EnumBookingRule.NeedPhoneNo)
 			EnumBookingRule br = EnumBookingRule.NeedPhoneNo;
 			if (rule.getHotelBooKingRule() == EnumBookingRule.ForeignerNeedEnName
 					.getValue())
@@ -1363,8 +1354,6 @@ public class RatePlansService implements IRatePlansService {
 				if (response.getSupplierBaseInfo() != null
 						&& response.getSupplierBaseInfo()
 								.getSupplierInvoiceInfo() != null) {
-					// return
-					// (EnumInvoiceMode)response.getSupplierBaseInfo().getSupplierInvoiceInfo().getInvoiceMode();
 					EnumInvoiceMode invoiceMode = EnumInvoiceMode.Elong;
 					if (response.getSupplierBaseInfo().getSupplierInvoiceInfo()
 							.getInvoiceMode() == InvoiceMode.ELONG_AFTER)

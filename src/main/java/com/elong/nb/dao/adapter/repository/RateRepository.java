@@ -45,7 +45,6 @@ public class RateRepository {
 		req.setStartDate(DateUtil.toDateTime(startDate));
 		req.setEndDate(DateUtil.toDateTime(endDate));
 		log.setServiceName("IProductForNBServiceContract.getHotelRoomPrice");
-//		log.setRequestBody(JSON.toJSONString(req));
 		log.setRequestBody("-");
 		long start = System.currentTimeMillis();
 		GetHotelRoomPriceResponse2 response = this.productForNBServiceContract
