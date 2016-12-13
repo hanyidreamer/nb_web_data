@@ -42,7 +42,7 @@ public class InventoryRuleRepository {
 		request.setLogId(UUID.randomUUID().toString());
 		String content=JSON.toJSONString(request);
 		String url=getServerUrl("/api/Hotel/GetChangedInventory");
-		String str=HttpUtil.httpPost(url, content);
+		String str=HttpUtil.httpPost(url, content,"application/x-www-form-urlencoded");
 		InventoryRuleSoaResponse response=JSON.parseObject(str, InventoryRuleSoaResponse.class);
 		if("0".equals(response.getResponseCode())){
 			return response.getRealResponse().getInventorys();
@@ -63,7 +63,7 @@ public class InventoryRuleRepository {
 		String content=JSON.toJSONString(request);
 		String url=getServerUrl("/api/Hotel/CheckInvRuleHit");
 		try{
-			String str=HttpUtil.httpPost(url, content);
+			String str=HttpUtil.httpPost(url, content,"application/x-www-form-urlencoded");
 			InventoryRuleHitCheckSoaResponse response=gson.fromJson(str, InventoryRuleHitCheckSoaResponse.class);
 			if("0".equals(response.getResponseCode())){
 				return response.getRealResponse();

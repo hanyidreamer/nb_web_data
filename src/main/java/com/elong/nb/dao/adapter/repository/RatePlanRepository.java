@@ -50,7 +50,7 @@ public class RatePlanRepository {
 		log.setServiceName("SearchHotelRatePlanList");
 		log.setRequestBody(json);
 		long start = System.currentTimeMillis();
-		String result = HttpUtil.httpPost(requestUrl, "requestJson="+json);
+		String result = HttpUtil.httpPost(requestUrl, "requestJson="+json,"application/x-www-form-urlencoded");
 		log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
 		ResponseBase<SearchHotelRatePlanListResp> response = JSON.parseObject(result, new TypeReference<ResponseBase<SearchHotelRatePlanListResp>>(){});
 		if(response!=null&&response.getRealResponse()!=null){
