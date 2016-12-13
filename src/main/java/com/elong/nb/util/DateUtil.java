@@ -8,7 +8,7 @@ import java.util.GregorianCalendar;
 import org.joda.time.DateTime;
 
 public class DateUtil {
-
+	private static  Calendar calendar = Calendar.getInstance();
 	public static DateTime toDateTime(Date date) {
 		try {
 			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
@@ -47,7 +47,6 @@ public class DateUtil {
 	}
 
 	public static Date getMinValue() {
-		Calendar calendar = Calendar.getInstance();
 		calendar.set(1970, 0, 1, 0, 0, 0);
 		return calendar.getTime();
 	}
@@ -57,7 +56,7 @@ public class DateUtil {
 	 * @return
 	 */
 	public static Date getDate(Date date){
-		Calendar calendar = Calendar.getInstance();
+		calendar = Calendar.getInstance();
 		calendar.setTime(date);
 		calendar.set(Calendar.HOUR_OF_DAY, 0);
 		calendar.set(Calendar.MINUTE, 0);

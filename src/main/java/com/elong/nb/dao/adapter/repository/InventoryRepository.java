@@ -1,7 +1,6 @@
 package com.elong.nb.dao.adapter.repository;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -137,9 +136,7 @@ public class InventoryRepository {
 	}
 	//超售状态转换
 	private void convertInventory(Inventory inv){
-		 Calendar calendar=Calendar.getInstance();
-		 calendar.set(1970, 0, 1,0,0,0);
-		 Date minDate=calendar.getTime();
+		Date minDate=DateUtil.getMinValue();
 		if(inv.getAvailableAmount()>3){
 			inv.setAvailableAmount(3);
 			inv.setOverBooking(0);

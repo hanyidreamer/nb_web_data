@@ -230,8 +230,7 @@ public class RatePlansService implements IRatePlansService {
 		List<HotelRatePlan> result = new LinkedList<HotelRatePlan>();
 		List<HotelDetail> list = new LinkedList<HotelDetail>();
 
-		RatePlanHotelCodeTask ratePlanTask = new RatePlanHotelCodeTask(
-				Arrays.asList(shotelId.split(",")), ratePlanRepository, guid);
+		RatePlanHotelCodeTask ratePlanTask = new RatePlanHotelCodeTask(Arrays.asList(shotelId.split(",")), ratePlanRepository, guid);
 		ForkJoinPool forkJoinPool = new ForkJoinPool();
 		forkJoinPool.execute(ratePlanTask);
 		do {

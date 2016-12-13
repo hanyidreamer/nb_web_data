@@ -28,10 +28,10 @@ import com.elong.nb.util.HttpUtil;
 @Repository
 public class RatePlanRepository {
 	private static Logger logger = LogManager.getLogger("biglog");
+	private static String url=CommonsUtil.CONFIG_PROVIDAR.getProperty("rp.url");
 	private String getServerUrl(String query){
-		  String url = CommonsUtil.CONFIG_PROVIDAR.getProperty("rp.url");
 	        if (StringUtils.isBlank(url)){
-	        		throw new RuntimeException("Inner Error:RP URL为空，请检查配置");
+	        		throw new RuntimeException("Inner Error:RP URL为空，请联系管理员检查配置");
 	        }
 	        return url + query;
 	}
