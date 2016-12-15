@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.RecursiveTask;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.elong.nb.common.util.CommonsUtil;
 import com.elong.nb.dao.adapter.repository.RatePlanRepository;
 import com.elong.nb.model.bean.enums.EnumPaymentType;
@@ -35,13 +37,12 @@ public class RatePlanTask extends RecursiveTask<List<HotelDetail>> {
 	protected List<HotelDetail> compute() {
 		List<HotelDetail> lists = new ArrayList<HotelDetail>();
 		if (hotelCodes.size() <= rpThreadSize) {
-			for (String hotelCode : hotelCodes) {
 				try {
 					SearchHotelRatePlanListReq req=new SearchHotelRatePlanListReq();
 					if (paymentType != EnumPaymentType.All) {
 						req.setPaymentType(paymentType.getValue());
 					}
-					req.setShotelId(hotelCode);
+					req.setShotelId(StringUtils.join(hotelCodes, ','));
 					SearchHotelRatePlanListResp res = this.ratePlanRepository.getRatePlan(req, guid);
 					if (res != null&&res.getResult()!=null&&res.getResult().size() > 0) {
 						lists.addAll(res.getResult());
@@ -49,7 +50,6 @@ public class RatePlanTask extends RecursiveTask<List<HotelDetail>> {
 				} catch (Exception ex) {
 					throw new RuntimeException("Inner Exception: InventoryTaskException:"+ex.getMessage());
 				}
-			}
 		} else {
 			int threadCount=hotelCodes.size()/rpThreadSize;
 			if(hotelCodes.size()%rpThreadSize==0){
