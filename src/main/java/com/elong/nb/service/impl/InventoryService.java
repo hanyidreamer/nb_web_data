@@ -8,6 +8,7 @@ package com.elong.nb.service.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -22,6 +23,7 @@ import com.elong.nb.common.ComparableUtil;
 import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
+import com.elong.nb.common.util.CommonsUtil;
 import com.elong.nb.dao.adapter.cache.M_SRelationCache;
 import com.elong.nb.dao.adapter.repository.InventoryRepository;
 import com.elong.nb.dao.adapter.repository.InventoryRuleRepository;
@@ -31,8 +33,9 @@ import com.elong.nb.model.RuleInventoryResponse;
 import com.elong.nb.model.bean.Inventory;
 import com.elong.nb.model.inventory.InventoryCondition;
 import com.elong.nb.model.inventory.InventoryResult;
+import com.elong.nb.model.ms.MSHotelIdRelation;
 import com.elong.nb.service.IInventoryService;
-import com.elong.nb.service.task.InventoryHotelIdTask;
+import com.elong.nb.service.task.InventoryTask;
 import com.elong.nb.util.DateUtil;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
@@ -60,6 +63,8 @@ public class InventoryService implements IInventoryService{
 	private InventoryRepository inventoryRepository;
 	@Resource
 	private InventoryRuleRepository inventoryRuleRepository;
+	
+	private static final int invThreadSize=Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("inv.thread.size"));
 	/** 
 	 * (方法说明描述)获得库存接口 
 	 *
@@ -171,20 +176,48 @@ public class InventoryService implements IInventoryService{
 				sHotelIdArrays.set(i, intersectHotelCode);
 			}
 		}
-		InventoryHotelIdTask inventoryTask=new InventoryHotelIdTask(mHotelIdArray,sHotelIdArrays,roomTypeId,startDate,endDate,isNeedInstantConfirm,inventoryRepository,guid,isForBooking);
-		ForkJoinPool forkJoinPool = new ForkJoinPool();
-		forkJoinPool.execute(inventoryTask);
-		do {
-
-		} while (!inventoryTask.isDone());
-		
-		forkJoinPool.shutdown();
-		try {
-			result= inventoryTask.get();
-		} catch (InterruptedException | ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		List<MSHotelIdRelation> relationList=new LinkedList<MSHotelIdRelation>();
+		for(int i=0;i<mHotelIdArray.length;i++){
+			if(sHotelIdArrays.get(i)!=null){
+				String[] hotelCodes=sHotelIdArrays.get(i);
+				for(String hotelCode:hotelCodes){
+					MSHotelIdRelation relation=new MSHotelIdRelation();
+					relation.setHotelId(mHotelIdArray[i]);
+					relation.setHotelCode(hotelCode);
+					relationList.add(relation);
+				}
+			}
 		}
+		if(relationList.size()<=invThreadSize){
+			for (MSHotelIdRelation relation : relationList) {
+				try {
+					List<Inventory> list = this.inventoryRepository.getInventorys(
+							relation.getHotelId(), relation.getHotelCode(), roomTypeId, startDate, endDate,
+							isNeedInstantConfirm,isForBooking,guid);
+					if (list != null && list.size() > 0) {
+						result.addAll(list);
+					}
+				} catch (Exception ex) {
+					throw new RuntimeException("Inner Exception: InventoryTaskException:"+ex.getMessage());
+				}
+			}
+		}else{
+			InventoryTask inventoryTask=new InventoryTask(relationList,roomTypeId,startDate,endDate,isNeedInstantConfirm,inventoryRepository,guid,isForBooking);
+			ForkJoinPool forkJoinPool = new ForkJoinPool();
+			forkJoinPool.execute(inventoryTask);
+			do {
+
+			} while (!inventoryTask.isDone());
+			
+			forkJoinPool.shutdown();
+			try {
+				result= inventoryTask.get();
+			} catch (InterruptedException | ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 		Map<String,List<String>> hotelMap=new HashMap<String, List<String>>();
 		for(int index=0;index<mHotelIdArray.length;index++){
 			hotelMap.put(mHotelIdArray[index], Arrays.asList(sHotelIdArrays.get(index)));

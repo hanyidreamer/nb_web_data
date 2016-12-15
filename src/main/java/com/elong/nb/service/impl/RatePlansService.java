@@ -32,6 +32,7 @@ import com.elong.nb.common.model.ErrorCode;
 import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
+import com.elong.nb.common.util.CommonsUtil;
 import com.elong.nb.dao.adapter.cache.M_SRelationCache;
 import com.elong.nb.dao.adapter.repository.HotelGiftRepository;
 import com.elong.nb.dao.adapter.repository.RatePlanRepository;
@@ -66,9 +67,10 @@ import com.elong.nb.model.rateplan.fornb.PrePayInfo;
 import com.elong.nb.model.rateplan.fornb.RatePlanBaseInfo;
 import com.elong.nb.model.rateplan.fornb.RoomTypeInfo;
 import com.elong.nb.model.rateplan.fornb.SearchHotelRatePlanListReq;
+import com.elong.nb.model.rateplan.fornb.SearchHotelRatePlanListResp;
 import com.elong.nb.model.rateplan.fornb.VouchInfo;
 import com.elong.nb.service.IRatePlansService;
-import com.elong.nb.service.task.RatePlanHotelCodeTask;
+import com.elong.nb.service.task.RatePlanTask;
 import com.elong.nb.util.DateUtil;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
@@ -89,7 +91,7 @@ public class RatePlansService implements IRatePlansService {
 	ISupplierServiceContract supplierServiceContract;
 	@Resource
 	HotelGiftRepository hotelGiftRepository;
-
+	private static final int rpThreadSize=Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("inv.thread.size"));
 	public List<HotelRatePlan> getRatePlans(
 			RestRequest<RatePlanCondition> request) {
 		List<HotelRatePlan> result = new LinkedList<HotelRatePlan>();
@@ -226,27 +228,30 @@ public class RatePlansService implements IRatePlansService {
 		}
 		List<HotelRatePlan> result = new LinkedList<HotelRatePlan>();
 		List<HotelDetail> list = new LinkedList<HotelDetail>();
+		List<String> hotelCodes=Arrays.asList(shotelId.split(","));
+		if(hotelCodes.size()<=rpThreadSize){
+			 condition.setShotelId(shotelId);
+			 SearchHotelRatePlanListResp response = this.ratePlanRepository
+			 .getRatePlan(condition, guid);
+			 if (response != null && response.getResult() != null) {
+			 list.addAll(response.getResult());
+			 }
+		}else{
+			RatePlanTask ratePlanTask = new RatePlanTask(hotelCodes,paymentType,ratePlanRepository, guid);
+			ForkJoinPool forkJoinPool = new ForkJoinPool();
+			forkJoinPool.execute(ratePlanTask);
+			do {
 
-		RatePlanHotelCodeTask ratePlanTask = new RatePlanHotelCodeTask(Arrays.asList(shotelId.split(",")), ratePlanRepository, guid);
-		ForkJoinPool forkJoinPool = new ForkJoinPool();
-		forkJoinPool.execute(ratePlanTask);
-		do {
+			} while (!ratePlanTask.isDone());
 
-		} while (!ratePlanTask.isDone());
-
-		forkJoinPool.shutdown();
-		try {
-			list = ratePlanTask.get();
-		} catch (InterruptedException | ExecutionException e) {
-			e.printStackTrace();
-			throw new RuntimeException(e.getMessage());
+			forkJoinPool.shutdown();
+			try {
+				list = ratePlanTask.get();
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
+				throw new RuntimeException(e.getMessage());
+			}
 		}
-		// condition.setShotelId(shotelId);
-		// SearchHotelRatePlanListResp response = this.ratePlanRepository
-		// .getRatePlan(condition, guid);
-		// if (response != null && response.getResult() != null) {
-		// list.addAll(response.getResult());
-		// }
 		if (list == null || list.size() <= 0) {
 			return result;
 		}

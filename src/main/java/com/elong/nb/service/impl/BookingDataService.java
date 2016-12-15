@@ -20,7 +20,6 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
 import com.elong.nb.bookingdata.thread.InventoryThread;
 import com.elong.nb.bookingdata.thread.RatePlanThread;
 import com.elong.nb.bookingdata.thread.RateThread;
@@ -65,7 +64,6 @@ import com.elong.nb.service.IRatePlansService;
 import com.elong.nb.util.DateUtil;
 import com.elong.nb.util.HttpUtil;
 import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 
 @Service
