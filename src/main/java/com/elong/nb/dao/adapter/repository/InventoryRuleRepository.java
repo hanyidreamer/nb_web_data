@@ -23,8 +23,9 @@ import com.google.gson.Gson;
 
 @Repository
 public class InventoryRuleRepository {
+	private static final String RULEURL=CommonsUtil.CONFIG_PROVIDAR.getProperty("rule.url");
 	private String getServerUrl(String query){
-		  String url = CommonsUtil.CONFIG_PROVIDAR.getProperty("rule.url");
+		  String url = RULEURL;
 	        if (StringUtils.isBlank(url)){
 	        		throw new RuntimeException("Inner Error:分销规则URL为空，请检查配置");
 	        }
