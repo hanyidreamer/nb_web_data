@@ -53,6 +53,8 @@ public class RatePlanTask extends RecursiveTask<List<HotelDetail>> {
 							int size=(i+1)*10<hotelCodes.size()?(i+1)*preCount:hotelCodes.size();
 							shotelIdsList.add(StringUtils.join(hotelCodes.subList(i*preCount, size), ','));
 						}
+					}else{
+						shotelIdsList.add(StringUtils.join(hotelCodes, ','));
 					}
 					for(String shotelIds:shotelIdsList){
 						req.setShotelId(shotelIds);

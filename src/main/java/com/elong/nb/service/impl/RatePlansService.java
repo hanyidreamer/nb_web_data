@@ -241,6 +241,8 @@ public class RatePlansService implements IRatePlansService {
 					int size=(i+1)*10<hotelCodes.size()?(i+1)*preCount:hotelCodes.size();
 					shotelIdsList.add(StringUtils.join(hotelCodes.subList(i*preCount, size), ','));
 				}
+			}else{
+				shotelIdsList.add(StringUtils.join(hotelCodes, ','));
 			}
 			for(String shotelIds:shotelIdsList){
 				condition.setShotelId(shotelIds);
