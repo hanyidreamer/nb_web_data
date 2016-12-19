@@ -22,7 +22,7 @@ import com.elong.nb.agent.ProductForPartnerServiceContract.GetInventoryChangeDet
 import com.elong.nb.agent.ProductForPartnerServiceContract.IProductForPartnerServiceContract;
 import com.elong.nb.agent.ProductForPartnerServiceContract.ResourceInvAndInstantConfirmState;
 import com.elong.nb.agent.ProductForPartnerServiceContract.ResourceInventoryState;
-import com.elong.nb.common.biglog.BigLog;
+import com.elong.nb.data.biglog.BigLog;
 import com.elong.nb.model.bean.Inventory;
 import com.elong.nb.util.DateUtil;
 

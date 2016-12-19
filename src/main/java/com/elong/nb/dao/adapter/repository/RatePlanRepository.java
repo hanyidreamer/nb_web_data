@@ -12,8 +12,8 @@ import org.springframework.stereotype.Repository;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.elong.nb.common.biglog.BigLog;
 import com.elong.nb.common.util.CommonsUtil;
+import com.elong.nb.data.biglog.BigLog;
 import com.elong.nb.model.rateplan.fornb.HotelBookingRule;
 import com.elong.nb.model.rateplan.fornb.RequestBase;
 import com.elong.nb.model.rateplan.fornb.ResponseBase;

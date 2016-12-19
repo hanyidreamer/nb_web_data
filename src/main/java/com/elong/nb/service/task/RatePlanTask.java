@@ -42,13 +42,27 @@ public class RatePlanTask extends RecursiveTask<List<HotelDetail>> {
 					if (paymentType != EnumPaymentType.All) {
 						req.setPaymentType(paymentType.getValue());
 					}
-					req.setShotelId(StringUtils.join(hotelCodes, ','));
-					SearchHotelRatePlanListResp res = this.ratePlanRepository.getRatePlan(req, guid);
-					if (res != null&&res.getResult()!=null&&res.getResult().size() > 0) {
-						lists.addAll(res.getResult());
+					int preCount=10;
+					List<String> shotelIdsList=new LinkedList<String>();
+					if(hotelCodes.size()>=preCount){
+						int count=hotelCodes.size()/preCount;
+						if(hotelCodes.size()%preCount==0){
+							count--;
+						}
+						for(int i=0;i<=count;i++){
+							int size=(i+1)*10<hotelCodes.size()?(i+1)*preCount:hotelCodes.size();
+							shotelIdsList.add(StringUtils.join(hotelCodes.subList(i*preCount, size), ','));
+						}
+					}
+					for(String shotelIds:shotelIdsList){
+						req.setShotelId(shotelIds);
+						SearchHotelRatePlanListResp res = this.ratePlanRepository.getRatePlan(req, guid);
+						if (res != null&&res.getResult()!=null&&res.getResult().size() > 0) {
+							lists.addAll(res.getResult());
+						}
 					}
 				} catch (Exception ex) {
-					throw new RuntimeException("Inner Exception: InventoryTaskException:"+ex.getMessage());
+					throw new RuntimeException("Inner Exception: RatePlanTaskException:"+ex.getMessage());
 				}
 		} else {
 			int threadCount=hotelCodes.size()/rpThreadSize;

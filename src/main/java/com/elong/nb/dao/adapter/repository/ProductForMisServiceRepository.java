@@ -15,8 +15,8 @@ import com.elong.nb.agent.ProductForSearchServiceForRealTimeCheck.CheckInventory
 import com.elong.nb.agent.ProductForSearchServiceForRealTimeCheck.CheckInventoryAndPriceResponse;
 import com.elong.nb.agent.ProductForSearchServiceForRealTimeCheck.IProductForSearchServiceContract;
 import com.elong.nb.agent.ProductForSearchServiceForRealTimeCheck.InventoryAndPriceCheckResult;
-import com.elong.nb.common.biglog.BigLog;
 import com.elong.nb.common.model.ErrorCode;
+import com.elong.nb.data.biglog.BigLog;
 import com.elong.nb.util.DateUtil;
 
 @Repository
