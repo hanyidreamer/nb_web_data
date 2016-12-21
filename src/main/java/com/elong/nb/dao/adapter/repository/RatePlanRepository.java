@@ -43,6 +43,7 @@ public class RatePlanRepository {
 		request.setLogId(UUID.randomUUID().toString());
 		String json=JSON.toJSONString(request);
 		BigLog log = new BigLog();
+		try{
 		log.setUserLogType(guid);
 		log.setAppName("data_http");
 		log.setTraceId(UUID.randomUUID().toString());
@@ -61,6 +62,13 @@ public class RatePlanRepository {
 			log.setResponseCode("1");
 			logger.info(log.toString());
 			throw new RuntimeException("Inner Exception: "+response!=null?response.getExceptionMsg():"");
+		}
+		}catch(Exception ex){
+			log.setException(ex);
+			log.setExceptionMsg(ex.getMessage());
+			log.setBusinessErrorCode("1");
+			logger.info(log.toString());
+			throw new RuntimeException(ex);
 		}
 	}
 }

@@ -27,14 +27,15 @@ public class RateRepository {
 			String mHotelId, String sHotelId, Date startDate, Date endDate,
 			EnumPaymentType paymentType,String guid) {
 		BigLog log = new BigLog();
+		GetHotelRoomPriceResponse2 response=null;
+		try{
 		log.setUserLogType(guid);
 		log.setAppName("data_wcf");
 		log.setTraceId(UUID.randomUUID().toString());
 		log.setSpan("1.1");
 		
 		GetHotelRoomPriceRequest req = new GetHotelRoomPriceRequest();
-		req.setBookingChannel(MathUtil.Log(
-				proxyInfo.getBookingChannel().getValue(), 2).intValue());
+		req.setBookingChannel(MathUtil.Log(proxyInfo.getBookingChannel().getValue(), 2).intValue());
 		req.setCustomerLevel(proxyInfo.getMemberLevel().getValue());
 		req.setSellChannel(MathUtil.Log(proxyInfo.getSellChannel().getValue(),
 				2).intValue());
@@ -47,9 +48,16 @@ public class RateRepository {
 		log.setServiceName("IProductForNBServiceContract.getHotelRoomPrice");
 		log.setRequestBody("-");
 		long start = System.currentTimeMillis();
-		GetHotelRoomPriceResponse2 response = this.productForNBServiceContract
+		response = this.productForNBServiceContract
 				.getHotelRoomPrice(req);
 		log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
+		}catch(Exception ex){
+			log.setException(ex);
+			log.setExceptionMsg(ex.getMessage());
+			log.setBusinessErrorCode("1");
+			logger.info(log.toString());
+			throw new RuntimeException(ex);
+		}
 		logger.info(log.toString());
 		return response;
 	}

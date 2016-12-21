@@ -63,27 +63,28 @@ public class LogAop {
 		log.setServiceName(handlerMethodName);
 		log.setElapsedTime(useTime);
 		log.setRequestBody((String) (request.getAttribute(Constants.ELONG_REQUEST_JSON, ServletRequestAttributes.SCOPE_REQUEST)));
+		log.setRequestBody((String) (request.getAttribute(Constants.ELONG_RESPONSE_CODE, ServletRequestAttributes.SCOPE_REQUEST)));
 		String responseStr = null;
 //		if(StringUtils.equals("IncrController.getIncrDatas", handlerMethodName)){
 //			responseStr = null;
 //		}else 
-		if (returnValue instanceof String) {
-			responseStr = (String) returnValue;
-		} else {
-			@SuppressWarnings("unchecked")
-			ResponseEntity<byte[]> resp = (ResponseEntity<byte[]>) returnValue;
-			responseStr = new String(resp.getBody());
-		}
-		if(responseStr!=null){
-			JSONObject jsStr = JSONObject.fromObject(responseStr);
-			String code=jsStr.getString("Code");
-			if("0".equals(code)){
-				log.setResponseBody("");
-			}else{
-				log.setBusinessErrorCode(code.split("\\|")[0]);
-				log.setResponseBody(responseStr);
-			}
-		}
+//		if (returnValue instanceof String) {
+//			responseStr = (String) returnValue;
+//		} else {
+//			@SuppressWarnings("unchecked")
+//			ResponseEntity<byte[]> resp = (ResponseEntity<byte[]>) returnValue;
+//			responseStr = new String(resp.getBody());
+//		}
+//		if(responseStr!=null){
+//			JSONObject jsStr = JSONObject.fromObject(responseStr);
+//			String code=jsStr.getString("Code");
+//			if("0".equals(code)){
+//				log.setResponseBody("");
+//			}else{
+//				log.setBusinessErrorCode(code.split("\\|")[0]);
+//				log.setResponseBody(responseStr);
+//			}
+//		}
 		Object guid = request.getAttribute(Constants.ELONG_REQUEST_REQUESTGUID, ServletRequestAttributes.SCOPE_REQUEST);
 		if (guid != null)
 			log.setUserLogType((String) guid);

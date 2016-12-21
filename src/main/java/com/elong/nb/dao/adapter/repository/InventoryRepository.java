@@ -46,6 +46,7 @@ public class InventoryRepository {
 		List<Inventory> inventorys=new LinkedList<Inventory>();
 		
 		BigLog log = new BigLog();
+		try{
 		log.setUserLogType(guid);
 		
 		log.setAppName("data_wcf");
@@ -130,6 +131,13 @@ public class InventoryRepository {
 			}else{
 				inventorys=new ArrayList<Inventory>();
 			}
+		}
+		}catch(Exception ex){
+			log.setException(ex);
+			log.setExceptionMsg(ex.getMessage());
+			log.setBusinessErrorCode("1");
+			logger.info(log.toString());
+			throw new RuntimeException(ex);
 		}
 		logger.info(log.toString());
 		return inventorys;
