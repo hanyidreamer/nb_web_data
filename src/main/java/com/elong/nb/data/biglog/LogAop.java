@@ -2,7 +2,8 @@ package com.elong.nb.data.biglog;
 
 import java.util.UUID;
 
-import org.apache.commons.lang.StringUtils;
+import net.sf.json.JSONObject;
+
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -65,14 +66,24 @@ public class LogAop {
 		String responseStr = null;
 //		if(StringUtils.equals("IncrController.getIncrDatas", handlerMethodName)){
 //			responseStr = null;
-//		}else if (returnValue instanceof String) {
-//			responseStr = (String) returnValue;
-//		} else {
-//			@SuppressWarnings("unchecked")
-//			ResponseEntity<byte[]> resp = (ResponseEntity<byte[]>) returnValue;
-//			responseStr = new String(resp.getBody());
-//		}
-		log.setResponseBody(responseStr);
+//		}else 
+		if (returnValue instanceof String) {
+			responseStr = (String) returnValue;
+		} else {
+			@SuppressWarnings("unchecked")
+			ResponseEntity<byte[]> resp = (ResponseEntity<byte[]>) returnValue;
+			responseStr = new String(resp.getBody());
+		}
+		if(responseStr!=null){
+			JSONObject jsStr = JSONObject.fromObject(responseStr);
+			String code=jsStr.getString("Code");
+			if("0".equals(code)){
+				log.setResponseBody("");
+			}else{
+				log.setBusinessErrorCode(code.split("\\|")[0]);
+				log.setResponseBody(responseStr);
+			}
+		}
 		Object guid = request.getAttribute(Constants.ELONG_REQUEST_REQUESTGUID, ServletRequestAttributes.SCOPE_REQUEST);
 		if (guid != null)
 			log.setUserLogType((String) guid);

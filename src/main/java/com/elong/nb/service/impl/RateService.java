@@ -33,7 +33,6 @@ public class RateService implements IRateService {
 	@Override
 	public RestResponse<RateResult> getRates(RestRequest<RateCondition> request)
 			throws Exception {
-
 		RestResponse<RateResult> response = new RestResponse<RateResult>(
 				request.getGuid());
 		RateResult result = new RateResult();

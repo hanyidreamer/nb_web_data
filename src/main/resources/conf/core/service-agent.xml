@@ -23,8 +23,8 @@
 		name="{http://tempuri.org/}IProductForNBServiceContractPort.http-conduit">
 		<http-conf:client Connection="close" MaxRetransmits="1"
 			AllowChunking="false"
-			ConnectionTimeout="10000"
-			ReceiveTimeout="10000" />
+			ConnectionTimeout="20000"
+			ReceiveTimeout="20000" />
 	</http-conf:conduit>
 	<!--ProductForPartnerServiceContract -->
 	<jaxws:client id="productForPartnerServiceContract"
@@ -38,8 +38,8 @@
 		name="{http://tempuri.org/}IProductForPartnerServiceContractPort.http-conduit">
 		<http-conf:client Connection="close" MaxRetransmits="1"
 			AllowChunking="false"
-			ConnectionTimeout="10000"
-			ReceiveTimeout="10000" />
+			ConnectionTimeout="20000"
+			ReceiveTimeout="20000" />
 	</http-conf:conduit>
 	
 	<jaxws:client id="supplierService"
@@ -52,7 +52,7 @@
 	<http-conf:conduit
 		name="{http://tempuri.org/}ISupplierServiceContractPort.http-conduit">
 		<http-conf:client Connection="close" MaxRetransmits="1"
-			AllowChunking="false" ConnectionTimeout="10000" ReceiveTimeout="10000" />
+			AllowChunking="false" ConnectionTimeout="20000" ReceiveTimeout="20000" />
 	</http-conf:conduit>
 	
 	<jaxws:client id="hotelGiftServiceContract"
@@ -65,7 +65,7 @@
 	<http-conf:conduit
 		name="{http://tempuri.org/}IHotelGiftServiceContractPort.http-conduit">
 		<http-conf:client Connection="close" MaxRetransmits="1"
-			AllowChunking="false" ConnectionTimeout="10000" ReceiveTimeout="10000" />
+			AllowChunking="false" ConnectionTimeout="20000" ReceiveTimeout="20000" />
 	</http-conf:conduit>
 	
 	<jaxws:client id="productForSearchService"
@@ -78,7 +78,7 @@
 	<http-conf:conduit
 		name="{http://tempuri.org/}IProductForSearchServiceContractPort.http-conduit">
 		<http-conf:client Connection="close" MaxRetransmits="1"
-			AllowChunking="false" ConnectionTimeout="10000" ReceiveTimeout="10000" />
+			AllowChunking="false" ConnectionTimeout="20000" ReceiveTimeout="20000" />
 	</http-conf:conduit>
 	
 	

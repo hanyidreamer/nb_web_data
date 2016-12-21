@@ -53,14 +53,12 @@ public class HotelDataController {
 		
 		//调用Service
 		RestResponse<RatePlanResult> response=null;
-		try {
-			
+//		try {
 			response = ratePlansService.GetRatePlans(restRequest);
-			
-		} catch (Exception e) {
-			response=new RestResponse<RatePlanResult>(restRequest.getGuid());
-			response.setCode(ErrorCode.Unknown+e.getMessage());
-		}
+//		} catch (Exception e) {
+//			response=new RestResponse<RatePlanResult>(restRequest.getGuid());
+//			response.setCode(ErrorCode.Unknown+e.getMessage());
+//		}
 		
 		//反回JSON
 		return new ResponseEntity<byte[]>(GsonUtil.toJson(
@@ -105,14 +103,14 @@ public class HotelDataController {
 			
 			//调用Service
 			RestResponse<BookingDataResult> response=null;
-			try {
+//			try {
 				
 				response = bookingDataService.getBookingData(restRequest);
 				
-			} catch (Exception e) {
-				response=new RestResponse<BookingDataResult>(restRequest.getGuid());
-				response.setCode(ErrorCode.Unknown+e.getMessage());
-			}
+//			} catch (Exception e) {
+//				response=new RestResponse<BookingDataResult>(restRequest.getGuid());
+//				response.setCode(ErrorCode.Unknown+e.getMessage());
+//			}
 			
 			//反回JSON
 			return new ResponseEntity<byte[]>(GsonUtil.toJson(

@@ -28,7 +28,7 @@ public class HotelRateController {
 	private IRateService rateService;
 	@RequestMapping(value = "/api/Hotel/GetRates", method = RequestMethod.POST)
 	public ResponseEntity<byte[]> getRates(HttpServletRequest request)
-			throws IOException {
+			throws Exception {
 		RestRequest<RateCondition> restRequest = GsonUtil.toReq(request,
 				RateCondition.class, null);
 		String rst = validateRateRequest(restRequest);
@@ -43,13 +43,13 @@ public class HotelRateController {
 							.getVersion()).getBytes(), HttpStatus.OK);
 		}
 		RestResponse<RateResult> response = null;
-		try {
+//		try {
 			response = rateService.getRates(restRequest);
-		} catch (Exception e) {
-			response = new RestResponse<RateResult>(restRequest.getGuid());
-			response.setResult(null);
-			response.setCode(ErrorCode.Common_UnkownException + e.getMessage());
-		}
+//		} catch (Exception e) {
+//			response = new RestResponse<RateResult>(restRequest.getGuid());
+//			response.setResult(null);
+//			response.setCode(ErrorCode.Common_UnkownException + e.getMessage());
+//		}
 		return new ResponseEntity<byte[]>(GsonUtil.toJson(response,
 				restRequest.getVersion()).getBytes(), HttpStatus.OK);
 
