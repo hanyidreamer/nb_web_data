@@ -63,8 +63,9 @@ public class LogAop {
 		log.setServiceName(handlerMethodName);
 		log.setElapsedTime(useTime);
 		log.setRequestBody((String) (request.getAttribute(Constants.ELONG_REQUEST_JSON, ServletRequestAttributes.SCOPE_REQUEST)));
-		log.setRequestBody((String) (request.getAttribute(Constants.ELONG_RESPONSE_CODE, ServletRequestAttributes.SCOPE_REQUEST)));
+		log.setBusinessErrorCode((String) (request.getAttribute(Constants.ELONG_RESPONSE_CODE, ServletRequestAttributes.SCOPE_REQUEST)));
 		String responseStr = null;
+		log.setResponseBody(responseStr);
 //		if(StringUtils.equals("IncrController.getIncrDatas", handlerMethodName)){
 //			responseStr = null;
 //		}else 
