@@ -553,9 +553,9 @@ public class BookingDataService implements IBookingDataService {
 					checkMinitor.setOrderCheckTime(DateUtils.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss"));
 					checkMinitor.setRoomNightsCount(roomNightsCount + "");
 					String checkJson;
-					if (result.getCode() != "0" || !checkResult.toString().isEmpty()) {
+					if (!"0".equals(result.getCode()) || !checkResult.toString().isEmpty()) {
 						checkMinitor.setOrderCheckStatus("N");
-						if (result.getCode() != "0") {
+						if (!"0".equals(result.getCode())) {
 							checkMinitor.setOrderCheckCode(result.getCode().split("\\|")[0]);
 							checkMinitor.setCheckFailureReason(result.getCode());
 						} else {
