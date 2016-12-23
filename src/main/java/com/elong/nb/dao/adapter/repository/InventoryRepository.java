@@ -68,7 +68,7 @@ public class InventoryRepository {
 			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
 			if(response!=null&&response.getResourceInvAndInstantConfirmStateList()!=null&&response.getResourceInvAndInstantConfirmStateList().getResourceInvAndInstantConfirmState().size()>0){
 				log.setBusinessErrorCode("0");
-				//log.setResponseBody(String.valueOf(response.getResourceInvAndInstantConfirmStateList().getResourceInvAndInstantConfirmState().size()));
+				log.setResponseBody("IP:"+response.getResult().getApplicationServerIP()+"time:"+response.getResult().getUsedMillionSecond());
 				for(ResourceInvAndInstantConfirmState item:response.getResourceInvAndInstantConfirmStateList().getResourceInvAndInstantConfirmState()){
 					Inventory inv=new Inventory();
 					inv.setHotelID(mHotelId);
@@ -109,7 +109,7 @@ public class InventoryRepository {
 			log.setElapsedTime(String.valueOf(end-start));
 			if(response!=null&&response.getResourceInventoryStateList().getResourceInventoryState().size()>0){
 				log.setBusinessErrorCode("0");
-				//log.setResponseBody(String.valueOf(response.getResourceInventoryStateList().getResourceInventoryState().size()));
+				log.setResponseBody("IP:"+response.getResult().getApplicationServerIP()+"time:"+response.getResult().getUsedMillionSecond());
 				for(ResourceInventoryState item:response.getResourceInventoryStateList().getResourceInventoryState()){
 					Inventory inv=new Inventory();
 					inv.setHotelID(mHotelId);
