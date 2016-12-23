@@ -79,6 +79,9 @@ public class HotelDataController {
 		{
 			sb.append(ErrorCode.Common_PaymentTypeRequired)	;
 		}
+		if(StringUtils.isEmpty(req.getHotelIds())&&StringUtils.isEmpty(sb.toString())){
+			sb.append(ErrorCode.Common_HotelIdRequired);
+		}
 		return sb.toString();
 	}
 	
