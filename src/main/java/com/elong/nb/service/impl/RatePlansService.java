@@ -35,7 +35,9 @@ import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.common.util.CommonsUtil;
 import com.elong.nb.dao.adapter.cache.M_SRelationCache;
 import com.elong.nb.dao.adapter.repository.HotelGiftRepository;
+import com.elong.nb.dao.adapter.repository.InventoryRuleRepository;
 import com.elong.nb.dao.adapter.repository.RatePlanRepository;
+import com.elong.nb.model.HotelCodeRuleRealResponse;
 import com.elong.nb.model.bean.enums.EnumBookingRule;
 import com.elong.nb.model.bean.enums.EnumDateType;
 import com.elong.nb.model.bean.enums.EnumDrrFeeType;
@@ -82,7 +84,8 @@ public class RatePlansService implements IRatePlansService {
 	private RatePlanRepository ratePlanRepository;
 	private static Logger LocalMsg = LogManager
 			.getLogger(RatePlansService.class);
-
+	@Resource
+	private InventoryRuleRepository inventoryRuleRepository;
 	@Resource
 	private M_SRelationCache m_SRelationCache;
 	@Resource(name = "productForNBServiceContract")
@@ -123,7 +126,6 @@ public class RatePlansService implements IRatePlansService {
 				sHotelIds.add(shotelId);
 			}
 		}
-
 		HashMap<String, HotelRatePlan> hashHotel = new HashMap<String, HotelRatePlan>();
 
 		MergeHotelRatePlans(
@@ -148,7 +150,9 @@ public class RatePlansService implements IRatePlansService {
 
 		return result;
 	}
-
+	private void CommisionLevelFilter(){
+		
+	}
 	// 将MHotel对应的多个HotelCode的SHotel合并起来
 	private void MergeHotelRatePlans(List<HotelRatePlan> result,
 			HashMap<String, HotelRatePlan> hashHotel, List<HotelRatePlan> hotels) {
@@ -217,11 +221,54 @@ public class RatePlansService implements IRatePlansService {
 			}
 		}
 	}
-
 	public List<HotelRatePlan> getRatePlans(EnumLocal language,
 			String mHotelId, String shotelId, EnumPaymentType paymentType,
 			ProxyAccount proxyInfo, double requestVersion, String options,
-			String guid) {
+			String guid){
+		List<String> showHotelCodes=new LinkedList<String>();
+		Map<String,EnumPaymentType> hotelCodeFilterType=new HashMap<String, EnumPaymentType>();
+		Map<String, String> hotelCodeRule=new HashMap<String, String>();
+		hotelCodeRule.put("AgencyCommisionLevel", String.valueOf(proxyInfo.getAgencyCommisionLevel().getValue()));
+		hotelCodeRule.put("PrepayCommisionLevel", String.valueOf(proxyInfo.getPrepayCommisionLevel().getValue()));
+		HotelCodeRuleRealResponse rule= inventoryRuleRepository.getCodeRuleInfo(hotelCodeRule, proxyInfo.getOrderFrom(), Arrays.asList(shotelId.split(",")), paymentType.getValue());
+		if(rule!=null&&rule.getResultMap()!=null){
+			for(String hotelCode:shotelId.split(",")){
+				boolean canShowPrepay=true;
+				boolean canShowSelfpay=true;
+				if(rule.getResultMap().containsKey(hotelCode)){
+					if(rule.getResultMap().get(hotelCode).size()>0){
+						for(String ruleValue:rule.getResultMap().get(hotelCode)){
+							if(ruleValue.equals("PrepayCommisionLevel")){
+								canShowPrepay=false;
+							}else if(ruleValue.equals("AgencyCommisionLevel")){
+								canShowSelfpay=false;
+							}
+						}
+						if(!canShowPrepay&&!canShowSelfpay){
+							continue;
+						}else{
+							if(!canShowPrepay){
+								hotelCodeFilterType.put(hotelCode, EnumPaymentType.Prepay);
+							}else if(!canShowSelfpay){
+								hotelCodeFilterType.put(hotelCode, EnumPaymentType.SelfPay);
+							}
+							showHotelCodes.add(hotelCode);
+						}
+					}
+				}
+			}
+		}
+		if(showHotelCodes.size()<=0){
+			List<HotelRatePlan> result=new LinkedList<HotelRatePlan>();
+			return result;
+		}
+		return getRatePlans(language,
+				mHotelId,StringUtils.join(showHotelCodes,','), paymentType,proxyInfo, requestVersion,options,guid,hotelCodeFilterType);
+	}
+	public List<HotelRatePlan> getRatePlans(EnumLocal language,
+			String mHotelId, String shotelId, EnumPaymentType paymentType,
+			ProxyAccount proxyInfo, double requestVersion, String options,
+			String guid,Map<String,EnumPaymentType> hotelCodeFilterType) {
 		SearchHotelRatePlanListReq condition = new SearchHotelRatePlanListReq();
 		if (paymentType != EnumPaymentType.All) {
 			condition.setPaymentType(paymentType.getValue());
@@ -272,7 +319,7 @@ public class RatePlansService implements IRatePlansService {
 		}
 		for (HotelDetail hotel : list) {
 			HotelDetail filterHotel = filterHotel(hotel,
-					proxyInfo.getSellChannel(), proxyInfo.getBookingChannel());
+					proxyInfo.getSellChannel(), proxyInfo.getBookingChannel(),hotelCodeFilterType);
 			if (filterHotel == null) {
 				continue;
 			}
@@ -293,7 +340,7 @@ public class RatePlansService implements IRatePlansService {
 
 	private HotelDetail filterHotel(HotelDetail hotel,
 			EnumSellChannel enumSellChannel,
-			EnumBookingChannel enumBookingChannel) {
+			EnumBookingChannel enumBookingChannel,Map<String,EnumPaymentType> hotelCodeFilterType) {
 		HotelDetail hotelNew = null;
 		boolean isHasCanShow = false;
 		List<RoomTypeInfo> roomBaseInfos = new LinkedList<RoomTypeInfo>();
@@ -308,6 +355,23 @@ public class RatePlansService implements IRatePlansService {
 						.getRatePlanSellChannel();
 				int es = enumSellChannel.getValue();
 				boolean isCanShow = ((b & eb) == eb) && ((s & es) == es);
+				if(isCanShow&&hotelCodeFilterType.containsKey(hotel.getHotelBaseInfo().getShotelId())){
+					// 全部，仅用于检索All(0), 前台自付SelfPay(1), 预付Prepay(2);
+					EnumPaymentType payType = EnumPaymentType.Prepay;
+					RatePlanBaseInfo oldrp=hotel.getRoomBaseInfos().get(i).getRatePlans().get(j);
+					if (oldrp.getSettlementType() == null
+							|| oldrp.getSettlementType().equals("")
+							|| oldrp.getSettlementType().equals("2"))
+						payType = EnumPaymentType.Prepay;
+					else if (oldrp.getSettlementType().equals("0"))
+						payType = EnumPaymentType.All;
+					else if (oldrp.getSettlementType().equals("1"))
+						payType = EnumPaymentType.SelfPay;
+					
+					if(hotelCodeFilterType.get(hotel.getHotelBaseInfo().getShotelId())==payType){
+						isCanShow=false;
+					}
+				}
 				if (isCanShow) {
 					if (!isHasCanShow) {
 						isHasCanShow = true;

@@ -13,6 +13,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.elong.nb.common.util.CommonsUtil;
 import com.elong.nb.data.biglog.BigLog;
+import com.elong.nb.model.HotelCodeRuleRealRequest;
+import com.elong.nb.model.HotelCodeRuleRealResponse;
 import com.elong.nb.model.InventoryBlackListRuleRealRequest;
 import com.elong.nb.model.InventoryBlackListRuleRealResponse;
 import com.elong.nb.model.InventoryRuleHitCheckRealRequest;
@@ -91,6 +93,41 @@ public class InventoryRuleRepository {
 			String str=HttpUtil.httpPost(url, content,"application/x-www-form-urlencoded");
 			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
 			ResponseBase<InventoryRuleHitCheckRealResponse> response=JSON.parseObject(str,new TypeReference<ResponseBase<InventoryRuleHitCheckRealResponse>>(){});
+			if("0".equals(response.getResponseCode())){
+				logger.info(log.toString());
+				return response.getRealResponse();
+			}
+		}catch(Exception e){
+			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
+			log.setException(e);
+			log.setExceptionMsg(e.getMessage());
+			log.setResponseCode("1");
+			logger.info(log.toString());
+		}
+		return null;
+	}
+	public HotelCodeRuleRealResponse getCodeRuleInfo(Map<String, String> hotelCodeRule, int orderFrom, List<String> hotelCodes, int paymentType){
+		RequestBase<HotelCodeRuleRealRequest> request=new RequestBase<HotelCodeRuleRealRequest>();
+		HotelCodeRuleRealRequest realRequest=new HotelCodeRuleRealRequest();
+		realRequest.setHotelCodeRule(hotelCodeRule);
+		realRequest.setOrderFrom(orderFrom);
+		realRequest.setHotelCodes(hotelCodes);
+		realRequest.setPaymentType(paymentType);
+		request.setFrom("NB_Data");
+		request.setRealRequest(realRequest);
+		request.setLogId(UUID.randomUUID().toString());
+		String content=JSON.toJSONString(request);
+		String url=getServerUrl("/api/Hotel/GetHitHotelCode");
+		BigLog log = new BigLog();
+        log.setAppName("data_http");
+        log.setServiceName("api.Hotel.GetHitHotelCode");
+		log.setTraceId(UUID.randomUUID().toString());
+		log.setSpan("1.1");
+		long start = System.currentTimeMillis();
+		try{
+			String str=HttpUtil.httpPost(url, content,"application/x-www-form-urlencoded");
+			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
+			ResponseBase<HotelCodeRuleRealResponse> response=JSON.parseObject(str,new TypeReference<ResponseBase<HotelCodeRuleRealResponse>>(){});
 			if("0".equals(response.getResponseCode())){
 				logger.info(log.toString());
 				return response.getRealResponse();

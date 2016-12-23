@@ -593,8 +593,7 @@ public class BookingDataService implements IBookingDataService {
 			orderFromResult.setData(null);
 			orderFromResult.setMsg("反序列化出现错误");
 		}
-		if (orderFromResult.getCode() == 200 && orderFromResult.getData() != null && orderFromResult.getData().getProjectName() != null
-				&& orderFromResult.getData().getProjectName().isEmpty()) {
+		if (orderFromResult.getCode() == 200 && orderFromResult.getData() != null && orderFromResult.getData().getProjectName() != null) {
 			projectName = orderFromResult.getData().getProjectName();
 			redis.put(cacheKey, projectName);
 		}
