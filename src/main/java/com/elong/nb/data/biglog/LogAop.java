@@ -27,6 +27,7 @@ import com.elong.nb.common.biglog.Constants;
 public class LogAop {
 
 	private static Logger logger = LogManager.getLogger("biglog");
+	private static Logger errorLog = LogManager.getLogger(LogAop.class);
 
 	// ------------------------controller begin---------------------------
 	/**
@@ -110,11 +111,13 @@ public class LogAop {
 		Throwable t = (Throwable) throwing;
 		log.setResponseBody(t.getMessage());
 		log.setException(t);
-		log.setBusinessErrorCode("1");
+		log.setResponseCode("-1");
+		log.setBusinessErrorCode("-1");
 		Object guid = request.getAttribute(Constants.ELONG_REQUEST_REQUESTGUID, ServletRequestAttributes.SCOPE_REQUEST);
 		if (guid != null)
 			log.setUserLogType((String) guid);
 		logger.info(log.toString());
+		errorLog.info(log.toString(), t);
 	}
 
 	// ----------------------------controller end-------------------------------

@@ -13,7 +13,6 @@ import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Repository;
 
-import com.alibaba.fastjson.JSON;
 import com.elong.common.util.StringUtils;
 import com.elong.nb.agent.ProductForPartnerServiceContract.GetInvChangeAndInstantConfirmRequest;
 import com.elong.nb.agent.ProductForPartnerServiceContract.GetInvChangeAndInstantConfirmResponse;
@@ -48,7 +47,6 @@ public class InventoryRepository {
 		BigLog log = new BigLog();
 		try{
 		log.setUserLogType(guid);
-		
 		log.setAppName("data_wcf");
 		log.setTraceId(UUID.randomUUID().toString());
 		log.setSpan("1.1");
@@ -64,13 +62,13 @@ public class InventoryRepository {
 			request.setOperatorTime(new DateTime());
 			request.setIsNeedInstantConfirm(!isForBooking);
 			log.setServiceName("IProductForPartnerServiceContract.getInventoryChangeDetailAndInstantConfirm");
-			log.setRequestBody(JSON.toJSONString(request));
+			//log.setRequestBody(JSON.toJSONString(request));
 			long start = System.currentTimeMillis();
 			GetInvChangeAndInstantConfirmResponse response=this.productForPartnerServiceContract.getInventoryChangeDetailAndInstantConfirm(request);
 			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
 			if(response!=null&&response.getResourceInvAndInstantConfirmStateList()!=null&&response.getResourceInvAndInstantConfirmStateList().getResourceInvAndInstantConfirmState().size()>0){
 				log.setBusinessErrorCode("0");
-				log.setResponseBody(String.valueOf(response.getResourceInvAndInstantConfirmStateList().getResourceInvAndInstantConfirmState().size()));
+				//log.setResponseBody(String.valueOf(response.getResourceInvAndInstantConfirmStateList().getResourceInvAndInstantConfirmState().size()));
 				for(ResourceInvAndInstantConfirmState item:response.getResourceInvAndInstantConfirmStateList().getResourceInvAndInstantConfirmState()){
 					Inventory inv=new Inventory();
 					inv.setHotelID(mHotelId);
@@ -103,15 +101,15 @@ public class InventoryRepository {
 				request.setRoomTypeIDs(roomTypeId);
 			}
 			request.setOperatorTime(new DateTime());
-			log.setServiceName("IProductForPartnerServiceContract.getInventoryChangeDetailAndInstantConfirm");
-			log.setRequestBody(JSON.toJSONString(request));
+			log.setServiceName("IProductForPartnerServiceContract.getInventoryChangeDetail");
+			//log.setRequestBody(JSON.toJSONString(request));
 			long start = System.currentTimeMillis();
 			GetInventoryChangeDetailResponse response=this.productForPartnerServiceContract.getInventoryChangeDetail(request);
 			long end=System.currentTimeMillis();
 			log.setElapsedTime(String.valueOf(end-start));
 			if(response!=null&&response.getResourceInventoryStateList().getResourceInventoryState().size()>0){
 				log.setBusinessErrorCode("0");
-				log.setResponseBody(String.valueOf(response.getResourceInventoryStateList().getResourceInventoryState().size()));
+				//log.setResponseBody(String.valueOf(response.getResourceInventoryStateList().getResourceInventoryState().size()));
 				for(ResourceInventoryState item:response.getResourceInventoryStateList().getResourceInventoryState()){
 					Inventory inv=new Inventory();
 					inv.setHotelID(mHotelId);
@@ -135,7 +133,7 @@ public class InventoryRepository {
 		}catch(Exception ex){
 			log.setException(ex);
 			log.setExceptionMsg(ex.getMessage());
-			log.setBusinessErrorCode("1");
+			log.setResponseCode("1");
 			logger.info(log.toString());
 			throw new RuntimeException(ex);
 		}
