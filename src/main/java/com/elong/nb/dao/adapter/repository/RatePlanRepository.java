@@ -43,30 +43,31 @@ public class RatePlanRepository {
 		request.setLogId(UUID.randomUUID().toString());
 		String json=JSON.toJSONString(request);
 		BigLog log = new BigLog();
-		try{
 		log.setUserLogType(guid);
 		log.setAppName("data_http");
 		log.setTraceId(UUID.randomUUID().toString());
 		log.setSpan("1.1");
-		log.setServiceName("SearchHotelRatePlanList");
+		log.setServiceName("com.elong.hotel.product.entity.req.forpartner.nbapi.SearchHotelRatePlanListReq");
 		log.setRequestBody(json);
 		long start = System.currentTimeMillis();
-		String result = HttpUtil.httpPost(requestUrl, "requestJson="+json,"application/x-www-form-urlencoded");
-		log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
-		ResponseBase<SearchHotelRatePlanListResp> response = JSON.parseObject(result, new TypeReference<ResponseBase<SearchHotelRatePlanListResp>>(){});
-		if(response!=null&&response.getRealResponse()!=null){
-			log.setResponseCode("0");
-			logger.info(log.toString());
-			return response.getRealResponse();
-		}else{
-			log.setResponseCode("1");
-			logger.info(log.toString());
-			throw new RuntimeException("Inner Exception: "+response!=null?response.getExceptionMsg():"");
-		}
+		try{
+			String result = HttpUtil.httpPost(requestUrl, "requestJson="+json,"application/x-www-form-urlencoded");
+			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
+			ResponseBase<SearchHotelRatePlanListResp> response = JSON.parseObject(result, new TypeReference<ResponseBase<SearchHotelRatePlanListResp>>(){});
+			if(response!=null&&response.getRealResponse()!=null){
+				log.setResponseCode("0");
+				logger.info(log.toString());
+				return response.getRealResponse();
+			}else{
+				log.setResponseCode("1");
+				logger.info(log.toString());
+				throw new RuntimeException("Inner Exception: "+response!=null?response.getExceptionMsg():"");
+			}
 		}catch(Exception ex){
+			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
 			log.setException(ex);
 			log.setExceptionMsg(ex.getMessage());
-			log.setBusinessErrorCode("1");
+			log.setResponseCode("1");
 			logger.info(log.toString());
 			throw new RuntimeException(ex);
 		}

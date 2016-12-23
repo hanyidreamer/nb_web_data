@@ -198,7 +198,7 @@ public class InventoryService implements IInventoryService{
 						result.addAll(list);
 					}
 				} catch (Exception ex) {
-					throw new RuntimeException("Inner Exception: InventoryTaskException:"+ex.getMessage());
+					throw new RuntimeException("Inner Exception: InventoryTaskException:",ex);
 				}
 			}
 		}else{

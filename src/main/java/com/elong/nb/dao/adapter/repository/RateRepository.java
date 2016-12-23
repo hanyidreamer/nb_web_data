@@ -28,7 +28,7 @@ public class RateRepository {
 			EnumPaymentType paymentType,String guid) {
 		BigLog log = new BigLog();
 		GetHotelRoomPriceResponse2 response=null;
-		try{
+
 		log.setUserLogType(guid);
 		log.setAppName("data_wcf");
 		log.setTraceId(UUID.randomUUID().toString());
@@ -48,13 +48,14 @@ public class RateRepository {
 		log.setServiceName("IProductForNBServiceContract.getHotelRoomPrice");
 		log.setRequestBody("-");
 		long start = System.currentTimeMillis();
-		response = this.productForNBServiceContract
-				.getHotelRoomPrice(req);
+		try{
+		response = this.productForNBServiceContract.getHotelRoomPrice(req);
 		log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
 		}catch(Exception ex){
+			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
 			log.setException(ex);
 			log.setExceptionMsg(ex.getMessage());
-			log.setBusinessErrorCode("1");
+			log.setResponseCode("1");
 			logger.info(log.toString());
 			throw new RuntimeException(ex);
 		}

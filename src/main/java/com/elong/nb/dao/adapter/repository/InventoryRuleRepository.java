@@ -5,25 +5,28 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.elong.nb.common.util.CommonsUtil;
+import com.elong.nb.data.biglog.BigLog;
 import com.elong.nb.model.InventoryBlackListRuleRealRequest;
+import com.elong.nb.model.InventoryBlackListRuleRealResponse;
 import com.elong.nb.model.InventoryRuleHitCheckRealRequest;
 import com.elong.nb.model.InventoryRuleHitCheckRealResponse;
-import com.elong.nb.model.InventoryRuleHitCheckSoaRequest;
-import com.elong.nb.model.InventoryRuleHitCheckSoaResponse;
-import com.elong.nb.model.InventoryRuleSoaRequst;
-import com.elong.nb.model.InventoryRuleSoaResponse;
+import com.elong.nb.model.RequestBase;
+import com.elong.nb.model.ResponseBase;
 import com.elong.nb.model.RuleInventoryRequest;
 import com.elong.nb.model.RuleInventoryResponse;
 import com.elong.nb.util.HttpUtil;
-import com.google.gson.Gson;
 
 @Repository
 public class InventoryRuleRepository {
 	private static final String RULEURL=CommonsUtil.CONFIG_PROVIDAR.getProperty("rule.url");
+	private static Logger logger = LogManager.getLogger("biglog");
 	private String getServerUrl(String query){
 		  String url = RULEURL;
 	        if (StringUtils.isBlank(url)){
@@ -32,7 +35,7 @@ public class InventoryRuleRepository {
 	        return url + query;
 	}
 	public List<RuleInventoryResponse> convertInventoryWithRule(List<RuleInventoryRequest> ruleInventorys, int orderFrom,boolean isNeedInstantConfirm) throws Exception{
-		InventoryRuleSoaRequst request=new InventoryRuleSoaRequst();
+		RequestBase<InventoryBlackListRuleRealRequest> request=new RequestBase<InventoryBlackListRuleRealRequest>();
 		InventoryBlackListRuleRealRequest realRequest=new InventoryBlackListRuleRealRequest();
 		realRequest.setInventorys(ruleInventorys);
 		realRequest.setNeedInstantConfirm(isNeedInstantConfirm);
@@ -43,16 +46,32 @@ public class InventoryRuleRepository {
 		request.setLogId(UUID.randomUUID().toString());
 		String content=JSON.toJSONString(request);
 		String url=getServerUrl("/api/Hotel/GetChangedInventory");
-		String str=HttpUtil.httpPost(url, content,"application/x-www-form-urlencoded");
-		InventoryRuleSoaResponse response=JSON.parseObject(str, InventoryRuleSoaResponse.class);
-		if("0".equals(response.getResponseCode())){
-			return response.getRealResponse().getInventorys();
-		}else{
-			throw new RuntimeException("Inner Exception" + response.getExceptionMsg());
+		BigLog log = new BigLog();
+        log.setAppName("data_http");
+        log.setServiceName("api.Hotel.GetChangedInventory");
+		log.setTraceId(UUID.randomUUID().toString());
+		log.setSpan("1.1");
+		long start = System.currentTimeMillis();
+		try{
+			String str=HttpUtil.httpPost(url, content,"application/x-www-form-urlencoded");
+			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
+			ResponseBase<InventoryBlackListRuleRealResponse> response=JSON.parseObject(str, new TypeReference<ResponseBase<InventoryBlackListRuleRealResponse>>(){});
+			if("0".equals(response.getResponseCode())){
+				logger.info(log.toString());
+				return response.getRealResponse().getInventorys();
+			}
+		}catch(Exception e){
+			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
+			log.setException(e);
+			log.setExceptionMsg(e.getMessage());
+			log.setResponseCode("1");
+			logger.info(log.toString());
 		}
+		logger.info(log.toString());
+		return null;
 	}
 	public InventoryRuleHitCheckRealResponse getCheckInfo(Map<String,List<String>> hotelMap, int orderFrom,boolean isNeedInstantConfirm) throws Exception{
-		InventoryRuleHitCheckSoaRequest request=new InventoryRuleHitCheckSoaRequest();
+		RequestBase<InventoryRuleHitCheckRealRequest> request=new RequestBase<InventoryRuleHitCheckRealRequest>();
 		InventoryRuleHitCheckRealRequest realRequest=new InventoryRuleHitCheckRealRequest();
 		realRequest.setHotelMap(hotelMap);
 		realRequest.setNeedInstantConfirm(isNeedInstantConfirm);
@@ -60,17 +79,29 @@ public class InventoryRuleRepository {
 		request.setFrom("NB_Data");
 		request.setRealRequest(realRequest);
 		request.setLogId(UUID.randomUUID().toString());
-		Gson gson=new Gson();
 		String content=JSON.toJSONString(request);
 		String url=getServerUrl("/api/Hotel/CheckInvRuleHit");
+		BigLog log = new BigLog();
+        log.setAppName("data_http");
+        log.setServiceName("api.Hotel.CheckInvRuleHit");
+		log.setTraceId(UUID.randomUUID().toString());
+		log.setSpan("1.1");
+		long start = System.currentTimeMillis();
 		try{
 			String str=HttpUtil.httpPost(url, content,"application/x-www-form-urlencoded");
-			InventoryRuleHitCheckSoaResponse response=gson.fromJson(str, InventoryRuleHitCheckSoaResponse.class);
+			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
+			ResponseBase<InventoryRuleHitCheckRealResponse> response=JSON.parseObject(str,new TypeReference<ResponseBase<InventoryRuleHitCheckRealResponse>>(){});
 			if("0".equals(response.getResponseCode())){
+				logger.info(log.toString());
 				return response.getRealResponse();
 			}
-		}catch(Exception ex){
+		}catch(Exception e){
+			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
+			log.setException(e);
+			log.setExceptionMsg(e.getMessage());
+			log.setResponseCode("1");
+			logger.info(log.toString());
 		}
-		return new InventoryRuleHitCheckRealResponse();
+		return null;
 	}
 }
