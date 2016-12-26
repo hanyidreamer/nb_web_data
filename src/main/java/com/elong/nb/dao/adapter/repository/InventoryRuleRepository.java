@@ -104,7 +104,7 @@ public class InventoryRuleRepository {
 			log.setResponseCode("1");
 			logger.info(log.toString());
 		}
-		return null;
+		return new InventoryRuleHitCheckRealResponse();
 	}
 	public HotelCodeRuleRealResponse getCodeRuleInfo(Map<String, String> hotelCodeRule, int orderFrom, List<String> hotelCodes, int paymentType){
 		RequestBase<HotelCodeRuleRealRequest> request=new RequestBase<HotelCodeRuleRealRequest>();

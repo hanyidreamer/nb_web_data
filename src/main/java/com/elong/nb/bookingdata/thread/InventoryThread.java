@@ -49,7 +49,7 @@ public class InventoryThread implements Callable<Object> {
 			con.setRoomTypeId(request.getRequest().getRoomTypeId());
 			restRequest.setRequest(con);
 			
-			RestResponse<InventoryResult> res = inventoryRepository.getInventories(restRequest);
+			RestResponse<InventoryResult> res = inventoryRepository.getInventoriesForBooking(restRequest);
            
 			if(res !=null && res.getResult()!=null && res.getResult().getInventories()!=null)
 			{

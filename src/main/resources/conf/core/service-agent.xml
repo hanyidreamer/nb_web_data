@@ -20,28 +20,28 @@
 		</jaxws:properties>
 	</jaxws:client>
 	<http-conf:conduit
-		name="{http://tempuri.org/}IProductForNBServiceContractPort.http-conduit">
-		<http-conf:client Connection="close" MaxRetransmits="1"
+		name="*.http-conduit">
+		<http-conf:client MaxRetransmits="1"
 			AllowChunking="false"
 			ConnectionTimeout="20000"
-			ReceiveTimeout="20000" />
+			ReceiveTimeout="30000" />
 	</http-conf:conduit>
 	<!--ProductForPartnerServiceContract -->
-	<jaxws:client id="productForPartnerServiceContract"
+	<jaxws:client id="webProductForPartnerServiceContract"
 		serviceClass="com.elong.nb.agent.ProductForPartnerServiceContract.IProductForPartnerServiceContract"
 		address="${services.productForPartnerServiceContract.address}">
 		<jaxws:properties>
 			<entry key="set-jaxb-validation-event-handler" value="false" />
 		</jaxws:properties>
 	</jaxws:client>
-	<http-conf:conduit
-		name="{http://tempuri.org/}IProductForPartnerServiceContractPort.http-conduit">
-		<http-conf:client Connection="close" MaxRetransmits="1"
-			AllowChunking="false"
-			ConnectionTimeout="20000"
-			ReceiveTimeout="20000" />
-	</http-conf:conduit>
-	
+	<!--ProductForPartnerServiceContract order组库存服务-->
+	<jaxws:client id="orderProductForPartnerServiceContract"
+		serviceClass="com.elong.nb.agent.ProductForPartnerServiceContract.IProductForPartnerServiceContract"
+		address="${order.services.productForPartnerServiceContract.address}">
+		<jaxws:properties>
+			<entry key="set-jaxb-validation-event-handler" value="false" />
+		</jaxws:properties>
+	</jaxws:client>
 	<jaxws:client id="supplierService"
 		serviceClass="com.elong.nb.agent.SupplierService.ISupplierServiceContract"
 		address="${services.supplierservice.address}">
@@ -49,12 +49,6 @@
 			<entry key="set-jaxb-validation-event-handler" value="false" />
 		</jaxws:properties>
 	</jaxws:client>
-	<http-conf:conduit
-		name="{http://tempuri.org/}ISupplierServiceContractPort.http-conduit">
-		<http-conf:client Connection="close" MaxRetransmits="1"
-			AllowChunking="false" ConnectionTimeout="20000" ReceiveTimeout="20000" />
-	</http-conf:conduit>
-	
 	<jaxws:client id="hotelGiftServiceContract"
 		serviceClass="com.elong.nb.agent.HotelGiftService.IHotelGiftServiceContract"
 		address="${services.HotelGiftService.address}">
@@ -62,12 +56,6 @@
 			<entry key="set-jaxb-validation-event-handler" value="false" />
 		</jaxws:properties>
 	</jaxws:client>
-	<http-conf:conduit
-		name="{http://tempuri.org/}IHotelGiftServiceContractPort.http-conduit">
-		<http-conf:client Connection="close" MaxRetransmits="1"
-			AllowChunking="false" ConnectionTimeout="20000" ReceiveTimeout="20000" />
-	</http-conf:conduit>
-	
 	<jaxws:client id="productForSearchService"
 		serviceClass="com.elong.nb.agent.ProductForSearchServiceForRealTimeCheck.IProductForSearchServiceContract"
 		address="${services.ProductForSearchServiceForRealTimeCheck.address}">
@@ -75,11 +63,4 @@
 			<entry key="set-jaxb-validation-event-handler" value="false" />
 		</jaxws:properties>
 	</jaxws:client>
-	<http-conf:conduit
-		name="{http://tempuri.org/}IProductForSearchServiceContractPort.http-conduit">
-		<http-conf:client Connection="close" MaxRetransmits="1"
-			AllowChunking="false" ConnectionTimeout="20000" ReceiveTimeout="20000" />
-	</http-conf:conduit>
-	
-	
 </beans>
