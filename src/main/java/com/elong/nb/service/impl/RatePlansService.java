@@ -225,10 +225,10 @@ public class RatePlansService implements IRatePlansService {
 		List<String> showHotelCodes=new LinkedList<String>();
 		Map<String,EnumPaymentType> hotelCodeFilterType=new HashMap<String, EnumPaymentType>();
 		Map<String, String> hotelCodeRule=new HashMap<String, String>();
-		if(proxyInfo.getAgencyCommisionLevel()!=EnumAgencyLevel.NOLIMIT){
+		if(proxyInfo.getAgencyCommisionLevel()!=null&&proxyInfo.getAgencyCommisionLevel()!=EnumAgencyLevel.NOLIMIT){
 			hotelCodeRule.put("AgencyCommisionLevel", String.valueOf(proxyInfo.getAgencyCommisionLevel().getValue()));
 		}
-		if(proxyInfo.getPrepayCommisionLevel()!=EnumPrepayLevel.NOLIMIT){
+		if(proxyInfo.getPrepayCommisionLevel()!=null&&proxyInfo.getPrepayCommisionLevel()!=EnumPrepayLevel.NOLIMIT){
 			hotelCodeRule.put("PrepayCommisionLevel", String.valueOf(proxyInfo.getPrepayCommisionLevel().getValue()));
 		}
 		HotelCodeRuleRealResponse rule= null;
