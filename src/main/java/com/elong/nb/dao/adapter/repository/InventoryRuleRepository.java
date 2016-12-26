@@ -102,6 +102,6 @@ public class InventoryRuleRepository {
 			log.setResponseCode("1");
 			logger.info(log.toString());
 		}
-		return null;
+		return new InventoryRuleHitCheckRealResponse();
 	}
 }
