@@ -11,8 +11,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 
 import javax.annotation.Resource;
-import javax.management.RuntimeErrorException;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -25,8 +23,10 @@ import com.elong.nb.agent.SupplierService.GetSupplierInfoBySupplierIDRequest;
 import com.elong.nb.agent.SupplierService.GetSupplierInfoBySupplierIDResponse;
 import com.elong.nb.agent.SupplierService.ISupplierServiceContract;
 import com.elong.nb.agent.SupplierService.InvoiceMode;
+import com.elong.nb.common.model.EnumAgencyLevel;
 import com.elong.nb.common.model.EnumBookingChannel;
 import com.elong.nb.common.model.EnumLocal;
+import com.elong.nb.common.model.EnumPrepayLevel;
 import com.elong.nb.common.model.EnumSellChannel;
 import com.elong.nb.common.model.ErrorCode;
 import com.elong.nb.common.model.ProxyAccount;
@@ -150,9 +150,6 @@ public class RatePlansService implements IRatePlansService {
 
 		return result;
 	}
-	private void CommisionLevelFilter(){
-		
-	}
 	// 将MHotel对应的多个HotelCode的SHotel合并起来
 	private void MergeHotelRatePlans(List<HotelRatePlan> result,
 			HashMap<String, HotelRatePlan> hashHotel, List<HotelRatePlan> hotels) {
@@ -228,9 +225,16 @@ public class RatePlansService implements IRatePlansService {
 		List<String> showHotelCodes=new LinkedList<String>();
 		Map<String,EnumPaymentType> hotelCodeFilterType=new HashMap<String, EnumPaymentType>();
 		Map<String, String> hotelCodeRule=new HashMap<String, String>();
-		hotelCodeRule.put("AgencyCommisionLevel", String.valueOf(proxyInfo.getAgencyCommisionLevel().getValue()));
-		hotelCodeRule.put("PrepayCommisionLevel", String.valueOf(proxyInfo.getPrepayCommisionLevel().getValue()));
-		HotelCodeRuleRealResponse rule= inventoryRuleRepository.getCodeRuleInfo(hotelCodeRule, proxyInfo.getOrderFrom(), Arrays.asList(shotelId.split(",")), paymentType.getValue());
+		if(proxyInfo.getAgencyCommisionLevel()!=EnumAgencyLevel.NOLIMIT){
+			hotelCodeRule.put("AgencyCommisionLevel", String.valueOf(proxyInfo.getAgencyCommisionLevel().getValue()));
+		}
+		if(proxyInfo.getPrepayCommisionLevel()!=EnumPrepayLevel.NOLIMIT){
+			hotelCodeRule.put("PrepayCommisionLevel", String.valueOf(proxyInfo.getPrepayCommisionLevel().getValue()));
+		}
+		HotelCodeRuleRealResponse rule= null;
+		if(hotelCodeRule.size()>0){
+			rule= inventoryRuleRepository.getCodeRuleInfo(hotelCodeRule, proxyInfo.getOrderFrom(), Arrays.asList(shotelId.split(",")), paymentType.getValue());
+		}
 		if(rule!=null&&rule.getResultMap()!=null){
 			for(String hotelCode:shotelId.split(",")){
 				boolean canShowPrepay=true;
@@ -246,6 +250,10 @@ public class RatePlansService implements IRatePlansService {
 						}
 						if(!canShowPrepay&&!canShowSelfpay){
 							continue;
+						}else if(!canShowPrepay&&paymentType==EnumPaymentType.Prepay){
+							continue;
+						}else if(!canShowSelfpay&&paymentType==EnumPaymentType.SelfPay){
+							continue;
 						}else{
 							if(!canShowPrepay){
 								hotelCodeFilterType.put(hotelCode, EnumPaymentType.Prepay);
@@ -257,6 +265,9 @@ public class RatePlansService implements IRatePlansService {
 					}
 				}
 			}
+		}else{
+			return getRatePlans(language,
+					mHotelId,shotelId, paymentType,proxyInfo, requestVersion,options,guid,hotelCodeFilterType);
 		}
 		if(showHotelCodes.size()<=0){
 			List<HotelRatePlan> result=new LinkedList<HotelRatePlan>();
