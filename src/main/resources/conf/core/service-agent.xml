@@ -24,7 +24,7 @@
 		<http-conf:client MaxRetransmits="1"
 			AllowChunking="false"
 			ConnectionTimeout="20000"
-			ReceiveTimeout="20000" />
+			ReceiveTimeout="30000" />
 	</http-conf:conduit>
 	<!--ProductForPartnerServiceContract -->
 	<jaxws:client id="webProductForPartnerServiceContract"
