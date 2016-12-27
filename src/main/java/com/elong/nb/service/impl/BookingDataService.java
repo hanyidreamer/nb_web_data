@@ -35,6 +35,7 @@ import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.common.util.CommonsUtil;
 import com.elong.nb.dao.adapter.repository.EffectiveStatusRepository;
 import com.elong.nb.dao.adapter.repository.ProductForMisServiceRepository;
+import com.elong.nb.dao.adapter.repository.SearchDetailRepository;
 import com.elong.nb.model.HotelDetailRequest;
 import com.elong.nb.model.HotelListResponse;
 import com.elong.nb.model.bean.BookingRule;
@@ -71,7 +72,6 @@ public class BookingDataService implements IBookingDataService {
 
 	private static Logger logger = LogManager.getLogger("kafka");
 	private static final RedisManager redis = RedisManager.getInstance("redis_job", "redis_job");
-	private static final String SEARCHURL=CommonsUtil.CONFIG_PROVIDAR.getProperty("InnerDetail.url");
 	private static final String ORDERFROMNAMEURL = CommonsUtil.CONFIG_PROVIDAR.getProperty("orderFromNameUrl")+"?orderFromId=%s";
 	private static final boolean isUseRPInSearch = CommonsUtil.CONFIG_PROVIDAR.getProperty("hotel.data.validate.use_detail").equals("1");
 	@Resource
@@ -84,6 +84,8 @@ public class BookingDataService implements IBookingDataService {
 	private RateService rateService;
 	@Resource
 	private IInventoryService inventoryService;
+	@Resource
+	private SearchDetailRepository searchDetailRepository;
 
 	@Override
 	public RestResponse<BookingDataResult> getBookingData(RestRequest<BookingDataCondition> request) {
@@ -125,51 +127,51 @@ public class BookingDataService implements IBookingDataService {
 
 			// #region 调用detail接口, 判断产品是否存在，并有关联
 			// #region 转化为detail参数
-			RestRequest<HotelDetailRequest> detailreq = new RestRequest<HotelDetailRequest>();
-
-			detailreq.setGuid(request.getGuid());
-			detailreq.setLocal(request.getLocal());
-			detailreq.setVersion(1.32);
-			detailreq.setProxyInfo(request.getProxyInfo());
-			HotelDetailRequest Request = new HotelDetailRequest();
-
-			Request.setArrivalDate(request.getRequest().getArrivalDate());
-			Request.setDepartureDate(request.getRequest().getDepartureDate());
-			Request.setHotelIds(request.getRequest().getHotelId());
-			Request.setOptions("0");// （仅单酒店有效）0.无1.酒店详情2.房型3.图片
-			Request.setRatePlanId(request.getRequest().getRatePlanId());
-			Request.setRoomTypeId(request.getRequest().getRoomTypeId());
-			Request.setPaymentType(request.getRequest().getPaymentType());
-			detailreq.setRequest(Request);
-			RestResponse<HotelListResponse> detailres = new RestResponse<HotelListResponse>(request.getGuid());
-			int time = 2;
-			// 遇到搜索不返回产品的时候，如果是异常，则重试一次。
-			while (time > 0) {
-				String url = SEARCHURL;
-				String data = GsonUtil.toJson(detailreq, 1.32);
-				String responseStr ="";
-				try{
-					responseStr = HttpUtil.httpPost(url, data,"application/x-www-form-urlencoded");
-					Map<Class, TypeAdapter> m = new HashMap<Class, TypeAdapter>();
-					m.put(Date.class, new DateTypeAdapter());
-					detailres = GsonUtil.toResponse(responseStr, new TypeToken<RestResponse<HotelListResponse>>() {
-					}.getType(), m);
-				}catch(Exception ex){
-					time--;
-					if(time>0){
-						continue;
-					}else{
-						detailres.setCode("0");
-						detailres.setResult(null);
-						break;
-					}
-				}
-				if (detailres != null && detailres.getCode().equals("0")) {
-					break;
-				}
-				time--;
-			}
-
+//			RestRequest<HotelDetailRequest> detailreq = new RestRequest<HotelDetailRequest>();
+//
+//			detailreq.setGuid(request.getGuid());
+//			detailreq.setLocal(request.getLocal());
+//			detailreq.setVersion(1.32);
+//			detailreq.setProxyInfo(request.getProxyInfo());
+//			HotelDetailRequest Request = new HotelDetailRequest();
+//
+//			Request.setArrivalDate(request.getRequest().getArrivalDate());
+//			Request.setDepartureDate(request.getRequest().getDepartureDate());
+//			Request.setHotelIds(request.getRequest().getHotelId());
+//			Request.setOptions("0");// （仅单酒店有效）0.无1.酒店详情2.房型3.图片
+//			Request.setRatePlanId(request.getRequest().getRatePlanId());
+//			Request.setRoomTypeId(request.getRequest().getRoomTypeId());
+//			Request.setPaymentType(request.getRequest().getPaymentType());
+//			detailreq.setRequest(Request);
+			
+//			int time = 2;
+//			// 遇到搜索不返回产品的时候，如果是异常，则重试一次。
+//			while (time > 0) {
+//				String url = SEARCHURL;
+//				String data = GsonUtil.toJson(detailreq, 1.32);
+//				String responseStr ="";
+//				try{
+//					responseStr = HttpUtil.httpPost(url, data,"application/x-www-form-urlencoded");
+//					Map<Class, TypeAdapter> m = new HashMap<Class, TypeAdapter>();
+//					m.put(Date.class, new DateTypeAdapter());
+//					detailres = GsonUtil.toResponse(responseStr, new TypeToken<RestResponse<HotelListResponse>>() {
+//					}.getType(), m);
+//				}catch(Exception ex){
+//					time--;
+//					if(time>0){
+//						continue;
+//					}else{
+//						detailres.setCode("0");
+//						detailres.setResult(null);
+//						break;
+//					}
+//				}
+//				if (detailres != null && detailres.getCode().equals("0")) {
+//					break;
+//				}
+//				time--;
+//			}
+			RestResponse<HotelListResponse> detailres = searchDetailRepository.getHotelDetail(request.getGuid(), request.getLocal(), request.getProxyInfo(), request.getRequest().getArrivalDate(), request.getRequest().getDepartureDate(), request.getRequest().getHotelId(), request.getRequest().getRoomTypeId(), request.getRequest().getRatePlanId(),request.getRequest().getPaymentType());
 			if (detailres == null || !detailres.getCode().equals("0")) {
 				if (detailres != null)
 					result.setCode(detailres.getCode());

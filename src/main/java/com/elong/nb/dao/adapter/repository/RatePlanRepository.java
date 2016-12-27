@@ -48,7 +48,7 @@ public class RatePlanRepository {
 		log.setTraceId(UUID.randomUUID().toString());
 		log.setSpan("1.1");
 		log.setServiceName("com.elong.hotel.product.entity.req.forpartner.nbapi.SearchHotelRatePlanListReq");
-		log.setRequestBody(json);
+		//log.setRequestBody(json);
 		long start = System.currentTimeMillis();
 		try{
 			String result = HttpUtil.httpPost(requestUrl, "requestJson="+json,"application/x-www-form-urlencoded");
