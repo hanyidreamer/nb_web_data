@@ -103,7 +103,7 @@ public class BookingDataService implements IBookingDataService {
 			Date now=DateUtil.getDate(new Date());
 			Calendar cdDeparture = Calendar.getInstance();
 			cdDeparture.add(Calendar.DATE, 1);
-
+			System.out.println(new Date());
 			if (request.getVersion() < 1.13) {
 				errorCode.append(MessageFormat.format(ErrorCode.Common_VersionToLow, 1.13));
 			} else if (request.getRequest().getPaymentType() == EnumPaymentType.All) {
@@ -552,7 +552,7 @@ public class BookingDataService implements IBookingDataService {
 					CheckMinitor checkMinitor = new CheckMinitor();
 					checkMinitor.setAgentId(request.getProxyInfo().getOrderFrom().toString());
 					checkMinitor.setAgentName(getOrderFromProjectName(request.getProxyInfo().getOrderFrom()));
-					checkMinitor.setOrderCheckTime(DateUtils.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss"));
+					checkMinitor.setOrderCheckTime(DateUtil.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss"));
 					checkMinitor.setRoomNightsCount(roomNightsCount + "");
 					String checkJson;
 					if (!"0".equals(result.getCode()) || !checkResult.toString().isEmpty()) {

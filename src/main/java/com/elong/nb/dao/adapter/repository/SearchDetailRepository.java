@@ -81,22 +81,21 @@ public class SearchDetailRepository {
 		try {
 			response = HttpUtil.httpPost(SEARCHURL, reqData, "application/x-www-form-urlencoded");
 			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
+			logger.info(log.toString());
 			if (StringUtils.isNotBlank(response)) {
 				Map<Class, TypeAdapter> m = new HashMap<Class, TypeAdapter>();
 				m.put(Date.class, new DateTypeAdapter());
 				detailres = GsonUtil.toResponse(response,
 						new TypeToken<RestResponse<HotelListResponse>>() {
 						}.getType(), m);
-				return detailres;
-//				if (detailres != null && detailres.getResult() != null
-//						&& detailres.getResult().getHotels() != null
-//						&& detailres.getResult().getHotels().size() > 0) {
-//					hotel = detailres.getResult().getHotels().get(0);
-//					return hotel;
-//				}
-			}
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+				return detailres;			}
+		} catch (Exception ex) {
+			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
+			log.setException(ex);
+			log.setExceptionMsg(ex.getMessage());
+			log.setResponseCode("1");
+			logger.info(log.toString());
+			throw new RuntimeException(ex);
 		}
 		return detailres;
 	}
