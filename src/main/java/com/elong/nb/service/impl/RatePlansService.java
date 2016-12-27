@@ -230,7 +230,7 @@ public class RatePlansService implements IRatePlansService {
 		List<HotelDetail> list = new LinkedList<HotelDetail>();
 		List<String> hotelCodes=Arrays.asList(shotelId.split(","));
 		if(hotelCodes.size()<=rpThreadSize){
-			int preCount=10;
+			int preCount=5;
 			List<String> shotelIdsList=new LinkedList<String>();
 			if(hotelCodes.size()>=preCount){
 				int count=hotelCodes.size()/preCount;
@@ -238,7 +238,7 @@ public class RatePlansService implements IRatePlansService {
 					count--;
 				}
 				for(int i=0;i<=count;i++){
-					int size=(i+1)*10<hotelCodes.size()?(i+1)*preCount:hotelCodes.size();
+					int size=(i+1)*preCount<hotelCodes.size()?(i+1)*preCount:hotelCodes.size();
 					shotelIdsList.add(StringUtils.join(hotelCodes.subList(i*preCount, size), ','));
 				}
 			}else{
