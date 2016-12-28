@@ -263,6 +263,8 @@ public class RatePlansService implements IRatePlansService {
 							showHotelCodes.add(hotelCode);
 						}
 					}
+				}else{
+					showHotelCodes.add(hotelCode);
 				}
 			}
 		}else{
