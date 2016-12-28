@@ -142,7 +142,7 @@ public class InventoryRepository {
 			log.setExceptionMsg(ex.getMessage());
 			log.setResponseCode("1");
 			logger.info(log.toString());
-			throw new RuntimeException(ex);
+			throw new RuntimeException("Inventory",ex);
 		}
 		logger.info(log.toString());
 		return inventorys;

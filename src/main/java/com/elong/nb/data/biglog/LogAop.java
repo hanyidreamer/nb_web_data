@@ -112,7 +112,7 @@ public class LogAop {
 		log.setResponseBody(t.getMessage());
 		log.setException(t);
 		log.setResponseCode("-1");
-		log.setBusinessErrorCode("-1");
+//		log.setBusinessErrorCode("-1");
 		Object guid = request.getAttribute(Constants.ELONG_REQUEST_REQUESTGUID, ServletRequestAttributes.SCOPE_REQUEST);
 		if (guid != null)
 			log.setUserLogType((String) guid);

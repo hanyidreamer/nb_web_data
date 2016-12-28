@@ -70,7 +70,6 @@ public class SearchDetailRepository {
 		String response = null;
 		RestResponse<HotelListResponse> detailres = new RestResponse<HotelListResponse>(
 				guid);
-		Hotel hotel = null;
 		BigLog log = new BigLog();
 		log.setUserLogType(guid);
 		log.setAppName("data_http");
@@ -95,7 +94,7 @@ public class SearchDetailRepository {
 			log.setExceptionMsg(ex.getMessage());
 			log.setResponseCode("1");
 			logger.info(log.toString());
-			throw new RuntimeException(ex);
+			throw new RuntimeException("search.InnerDetail",ex);
 		}
 		return detailres;
 	}

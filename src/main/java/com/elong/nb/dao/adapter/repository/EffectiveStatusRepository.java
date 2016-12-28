@@ -83,7 +83,7 @@ public class EffectiveStatusRepository {
 			log.setExceptionMsg(e.getMessage());
 			log.setResponseCode("1");
 			logger.info(log.toString());
-			throw new RuntimeException(e);
+			throw new RuntimeException("EffectiveStatusRequest",e);
         }
 		logger.info(log.toString());
         return effectiveStatus;

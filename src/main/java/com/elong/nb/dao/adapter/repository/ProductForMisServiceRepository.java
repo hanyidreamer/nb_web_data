@@ -95,7 +95,7 @@ public class ProductForMisServiceRepository {
 			log.setExceptionMsg(ex.getMessage());
 			log.setResponseCode("1");
 			logger.info(log.toString());
-			throw new RuntimeException(ex);
+			throw new RuntimeException("checkInventoryAndPriceForNB",ex);
 		}
 		return InventoryAndPriceCheckResult.INVENTORY_CLOSE;
 	}
