@@ -28,6 +28,7 @@ import com.elong.nb.util.HttpUtil;
 @Repository
 public class RatePlanRepository {
 	private static Logger logger = LogManager.getLogger("biglog");
+	private static Logger errorLogger = LogManager.getLogger(RatePlanRepository.class);
 	private final static String RPURL=getServerUrl("/rest/com/elong/hotel/product/entity/req/forpartner/nbapi/SearchHotelRatePlanListReq");
 	private static String getServerUrl(String query){
 		    String serverURL=CommonsUtil.CONFIG_PROVIDAR.getProperty("rp.url");
@@ -55,7 +56,10 @@ public class RatePlanRepository {
 			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
 			ResponseBase<SearchHotelRatePlanListResp> response = JSON.parseObject(result, new TypeReference<ResponseBase<SearchHotelRatePlanListResp>>(){});
 			if(response!=null&&response.getRealResponse()!=null){
-				log.setResponseCode("0");
+				if(response.getResponseCode()!=0){
+					errorLogger.info("requestJson="+json+" res"+result);
+				}
+				log.setResponseCode(""+response.getResponseCode());
 				logger.info(log.toString());
 				return response.getRealResponse();
 			}else{
