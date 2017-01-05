@@ -22,8 +22,8 @@ import com.elong.nb.common.biglog.BigLog;
 import com.elong.nb.common.biglog.Constants;
 
 //注掉这个aop，因为要上最新版checklist了，两个aop会记两遍
-@Component
-@Aspect
+//@Component
+//@Aspect
 public class LogAop {
 
 	private static Logger logger = LogManager.getLogger("biglog");

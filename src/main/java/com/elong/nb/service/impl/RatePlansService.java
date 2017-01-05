@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 
 import javax.annotation.Resource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -18,10 +19,8 @@ import org.springframework.stereotype.Service;
 
 import com.elong.nb.agent.ProductForNBServiceContract.GetRatePlanBaseInfoRequest;
 import com.elong.nb.agent.ProductForNBServiceContract.GetRatePlanBaseInfoResponse2;
-import com.elong.nb.agent.ProductForNBServiceContract.IProductForNBServiceContract;
 import com.elong.nb.agent.SupplierService.GetSupplierInfoBySupplierIDRequest;
 import com.elong.nb.agent.SupplierService.GetSupplierInfoBySupplierIDResponse;
-import com.elong.nb.agent.SupplierService.ISupplierServiceContract;
 import com.elong.nb.agent.SupplierService.InvoiceMode;
 import com.elong.nb.common.model.EnumAgencyLevel;
 import com.elong.nb.common.model.EnumBookingChannel;
@@ -36,7 +35,9 @@ import com.elong.nb.common.util.CommonsUtil;
 import com.elong.nb.dao.adapter.cache.M_SRelationCache;
 import com.elong.nb.dao.adapter.repository.HotelGiftRepository;
 import com.elong.nb.dao.adapter.repository.InventoryRuleRepository;
+import com.elong.nb.dao.adapter.repository.ProductForNBServiceRepository;
 import com.elong.nb.dao.adapter.repository.RatePlanRepository;
+import com.elong.nb.dao.adapter.repository.SupplierServiceRepository;
 import com.elong.nb.model.HotelCodeRuleRealResponse;
 import com.elong.nb.model.bean.enums.EnumBookingRule;
 import com.elong.nb.model.bean.enums.EnumDateType;
@@ -88,10 +89,10 @@ public class RatePlansService implements IRatePlansService {
 	private InventoryRuleRepository inventoryRuleRepository;
 	@Resource
 	private M_SRelationCache m_SRelationCache;
-	@Resource(name = "productForNBServiceContract")
-	IProductForNBServiceContract productForNBServiceContract;
-	@Resource(name = "supplierService")
-	ISupplierServiceContract supplierServiceContract;
+	@Resource
+	private ProductForNBServiceRepository productForNBServiceRepository;
+	@Resource
+	private SupplierServiceRepository supplierServiceRepository;
 	@Resource
 	HotelGiftRepository hotelGiftRepository;
 	private static final int rpThreadSize=Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("inv.thread.size"));
@@ -525,7 +526,7 @@ public class RatePlansService implements IRatePlansService {
 							req.setHotelID(hotel.getHotelBaseInfo()
 									.getShotelId());
 						req.setRatePlanID(oldrp.getRatePlanID());
-						GetRatePlanBaseInfoResponse2 r = productForNBServiceContract
+						GetRatePlanBaseInfoResponse2 r = productForNBServiceRepository
 								.getRatePlanBaseInfo(req);
 
 						if (r != null && r.getResult() != null
@@ -1015,9 +1016,6 @@ public class RatePlansService implements IRatePlansService {
 				basePrepay.setStartDate(rule.getStartDate());
 			if (rule.getEndDate() != null)
 				basePrepay.setEndDate(rule.getEndDate());
-
-			// Tools.ParseEnum<EnumPrepayCutPayment>(rule.CutTypeAfter.GetHashCode().ToString(),
-			// EnumPrepayCutPayment.FristNight)
 			EnumPrepayCutPayment after = EnumPrepayCutPayment.FristNight;
 			if (rule.getCutTypeAfter() > 0) {
 				after = EnumPrepayCutPayment.forValue(rule.getCutTypeAfter());
@@ -1123,12 +1121,6 @@ public class RatePlansService implements IRatePlansService {
 			baserule.setExtPrice(rule.getSinglePrice());
 			baserule.setIsExtAdd(rule.isAdd());
 			baserule.setAmount(rule.getShare());
-
-			// StartDate = DateTime.MinValue,
-			// EndDate = DateTime.MinValue,//
-			// CurrencyCode = "",//
-			// WeekSet = "",//
-
 			result.add(baserule);
 		}
 
@@ -1238,10 +1230,7 @@ public class RatePlansService implements IRatePlansService {
 					if (language == EnumLocal.zh_CN) {
 						sb2.append("首晚房费的" + addValue.getSinglePrice() + "%,");
 					} else {
-						// +addValue.SinglePrice + "%" +
-						// " of the first night room rate. ,"
-						sb2.append(addValue.getSinglePrice() + "%"
-								+ " of the first night room rate. ,");
+						sb2.append(addValue.getSinglePrice()+"%"+" of the first night room rate. ,");
 					}
 				}
 			}
@@ -1249,7 +1238,6 @@ public class RatePlansService implements IRatePlansService {
 
 		if (language == EnumLocal.zh_CN) {
 			if (sb1.length() != 0) {
-				// "包含" + sb1.ToString().TrimEnd(',') + ";"
 				String temp1 = "";
 				if (sb1.toString().contains(","))
 					temp1 = sb1.toString().substring(0,
@@ -1271,7 +1259,6 @@ public class RatePlansService implements IRatePlansService {
 			}
 		} else {
 			if (sb1.length() != 0) {
-				// " Including " + sb1.ToString().TrimEnd(',') + ";"
 				String temp1 = "";
 				if (sb1.toString().contains(","))
 					temp1 = sb1.toString().substring(0,
@@ -1282,7 +1269,6 @@ public class RatePlansService implements IRatePlansService {
 				sb3.append(" Including " + temp1 + ";");
 			}
 			if (sb2.length() != 0) {
-				// " every additional one costs " + sb2.ToString().TrimEnd(',')
 				String temp1 = "";
 				if (sb2.toString().contains(","))
 					temp1 = sb2.toString().substring(0,
@@ -1340,7 +1326,6 @@ public class RatePlansService implements IRatePlansService {
 			if (hotel.getRoomBaseInfos() != null
 					&& hotel.getRoomBaseInfos() != null) {
 				for (RoomTypeInfo room : hotel.getRoomBaseInfos()) {
-					// ids.AddRange(room.RoomTypeId.Split(','));
 					if (room.getRoomTypeId() != null
 							&& !room.getRoomTypeId().isEmpty()) {
 						for (String str : room.getRoomTypeId().split(",")) {
@@ -1444,7 +1429,7 @@ public class RatePlansService implements IRatePlansService {
 			GetSupplierInfoBySupplierIDRequest req = new GetSupplierInfoBySupplierIDRequest();
 			req.setSupplierID(SupplierID);
 
-			GetSupplierInfoBySupplierIDResponse response = supplierServiceContract
+			GetSupplierInfoBySupplierIDResponse response = supplierServiceRepository
 					.getSupplierInfoBySupplierID(req);
 			if (response != null && response.getResult() != null
 					&& response.getResult().getResponseCode() == 0) {

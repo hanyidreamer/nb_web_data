@@ -5,14 +5,11 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.elong.nb.common.util.CommonsUtil;
-import com.elong.nb.data.biglog.BigLog;
 import com.elong.nb.model.HotelCodeRuleRealRequest;
 import com.elong.nb.model.HotelCodeRuleRealResponse;
 import com.elong.nb.model.InventoryBlackListRuleRealRequest;
@@ -28,7 +25,7 @@ import com.elong.nb.util.HttpUtil;
 @Repository
 public class InventoryRuleRepository {
 	private static final String RULEURL=CommonsUtil.CONFIG_PROVIDAR.getProperty("rule.url");
-	private static Logger logger = LogManager.getLogger("biglog");
+//	private static Logger logger = LogManager.getLogger("biglog");
 	private String getServerUrl(String query){
 		  String url = RULEURL;
 	        if (StringUtils.isBlank(url)){
@@ -48,28 +45,28 @@ public class InventoryRuleRepository {
 		request.setLogId(UUID.randomUUID().toString());
 		String content=JSON.toJSONString(request);
 		String url=getServerUrl("/api/Hotel/GetChangedInventory");
-		BigLog log = new BigLog();
-        log.setAppName("data_http");
-        log.setServiceName("api.Hotel.GetChangedInventory");
-		log.setTraceId(UUID.randomUUID().toString());
-		log.setSpan("1.1");
-		long start = System.currentTimeMillis();
+//		BigLog log = new BigLog();
+//        log.setAppName("data_http");
+//        log.setServiceName("api.Hotel.GetChangedInventory");
+//		log.setTraceId(UUID.randomUUID().toString());
+//		log.setSpan("1.1");
+//		long start = System.currentTimeMillis();
 		try{
 			String str=HttpUtil.httpPost(url, content,"application/x-www-form-urlencoded");
-			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
+//			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
 			ResponseBase<InventoryBlackListRuleRealResponse> response=JSON.parseObject(str, new TypeReference<ResponseBase<InventoryBlackListRuleRealResponse>>(){});
 			if("0".equals(response.getResponseCode())){
-				logger.info(log.toString());
+//				logger.info(log.toString());
 				return response.getRealResponse().getInventorys();
 			}
 		}catch(Exception e){
-			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
-			log.setException(e);
-			log.setExceptionMsg(e.getMessage());
-			log.setResponseCode("1");
-			logger.info(log.toString());
+//			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
+//			log.setException(e);
+//			log.setExceptionMsg(e.getMessage());
+//			log.setResponseCode("1");
+//			logger.info(log.toString());
 		}
-		logger.info(log.toString());
+//		logger.info(log.toString());
 		return null;
 	}
 	public InventoryRuleHitCheckRealResponse getCheckInfo(Map<String,List<String>> hotelMap, int orderFrom,boolean isNeedInstantConfirm) throws Exception{
@@ -83,26 +80,26 @@ public class InventoryRuleRepository {
 		request.setLogId(UUID.randomUUID().toString());
 		String content=JSON.toJSONString(request);
 		String url=getServerUrl("/api/Hotel/CheckInvRuleHit");
-		BigLog log = new BigLog();
-        log.setAppName("data_http");
-        log.setServiceName("api.Hotel.CheckInvRuleHit");
-		log.setTraceId(UUID.randomUUID().toString());
-		log.setSpan("1.1");
-		long start = System.currentTimeMillis();
+//		BigLog log = new BigLog();
+//        log.setAppName("data_http");
+//        log.setServiceName("api.Hotel.CheckInvRuleHit");
+//		log.setTraceId(UUID.randomUUID().toString());
+//		log.setSpan("1.1");
+//		long start = System.currentTimeMillis();
 		try{
 			String str=HttpUtil.httpPost(url, content,"application/x-www-form-urlencoded");
-			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
+//			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
 			ResponseBase<InventoryRuleHitCheckRealResponse> response=JSON.parseObject(str,new TypeReference<ResponseBase<InventoryRuleHitCheckRealResponse>>(){});
 			if("0".equals(response.getResponseCode())){
-				logger.info(log.toString());
+//				logger.info(log.toString());
 				return response.getRealResponse();
 			}
 		}catch(Exception e){
-			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
-			log.setException(e);
-			log.setExceptionMsg(e.getMessage());
-			log.setResponseCode("1");
-			logger.info(log.toString());
+//			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
+//			log.setException(e);
+//			log.setExceptionMsg(e.getMessage());
+//			log.setResponseCode("1");
+//			logger.info(log.toString());
 		}
 		return new InventoryRuleHitCheckRealResponse();
 	}
@@ -118,26 +115,26 @@ public class InventoryRuleRepository {
 		request.setLogId(UUID.randomUUID().toString());
 		String content=JSON.toJSONString(request);
 		String url=getServerUrl("/api/Hotel/GetHitHotelCode");
-		BigLog log = new BigLog();
-        log.setAppName("data_http");
-        log.setServiceName("api.Hotel.GetHitHotelCode");
-		log.setTraceId(UUID.randomUUID().toString());
-		log.setSpan("1.1");
-		long start = System.currentTimeMillis();
+//		BigLog log = new BigLog();
+//        log.setAppName("data_http");
+//        log.setServiceName("api.Hotel.GetHitHotelCode");
+//		log.setTraceId(UUID.randomUUID().toString());
+//		log.setSpan("1.1");
+//		long start = System.currentTimeMillis();
 		try{
 			String str=HttpUtil.httpPost(url, content,"application/x-www-form-urlencoded");
-			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
+//			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
 			ResponseBase<HotelCodeRuleRealResponse> response=JSON.parseObject(str,new TypeReference<ResponseBase<HotelCodeRuleRealResponse>>(){});
 			if("0".equals(response.getResponseCode())){
-				logger.info(log.toString());
+//				logger.info(log.toString());
 				return response.getRealResponse();
 			}
 		}catch(Exception e){
-			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
-			log.setException(e);
-			log.setExceptionMsg(e.getMessage());
-			log.setResponseCode("1");
-			logger.info(log.toString());
+//			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
+//			log.setException(e);
+//			log.setExceptionMsg(e.getMessage());
+//			log.setResponseCode("1");
+//			logger.info(log.toString());
 		}
 		return null;
 	}

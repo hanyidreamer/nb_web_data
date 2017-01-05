@@ -8,8 +8,6 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Repository;
 
@@ -21,6 +19,7 @@ import com.elong.nb.agent.ProductForPartnerServiceContract.GetInventoryChangeDet
 import com.elong.nb.agent.ProductForPartnerServiceContract.IProductForPartnerServiceContract;
 import com.elong.nb.agent.ProductForPartnerServiceContract.ResourceInvAndInstantConfirmState;
 import com.elong.nb.agent.ProductForPartnerServiceContract.ResourceInventoryState;
+import com.elong.nb.checklist.CheckListUtil;
 import com.elong.nb.data.biglog.BigLog;
 import com.elong.nb.model.bean.Inventory;
 import com.elong.nb.util.DateUtil;
@@ -28,7 +27,7 @@ import com.elong.nb.util.DateUtil;
 @Repository
 public class InventoryRepository {
 
-	private static Logger logger = LogManager.getLogger("biglog");
+	//private static Logger logger = LogManager.getLogger("biglog");
 	@Resource(name="webProductForPartnerServiceContract")
 	private IProductForPartnerServiceContract webProductForPartnerServiceContract;
 	@Resource(name="orderProductForPartnerServiceContract")
@@ -141,10 +140,10 @@ public class InventoryRepository {
 			log.setException(ex);
 			log.setExceptionMsg(ex.getMessage());
 			log.setResponseCode("1");
-			logger.info(log.toString());
+			CheckListUtil.error(log);
 			throw new RuntimeException("Inventory",ex);
 		}
-		logger.info(log.toString());
+		CheckListUtil.info(log);
 		return inventorys;
 	}
 	//超售状态转换

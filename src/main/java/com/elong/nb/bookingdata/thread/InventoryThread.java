@@ -1,16 +1,18 @@
 package com.elong.nb.bookingdata.thread;
 
 import java.util.Calendar;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
+import com.elong.nb.model.bean.Inventory;
 import com.elong.nb.model.bookingdata.BookingDataCondition;
 import com.elong.nb.model.inventory.InventoryCondition;
 import com.elong.nb.model.inventory.InventoryResult;
 import com.elong.nb.service.IInventoryService;
 
-public class InventoryThread implements Callable<Object> {
+public class InventoryThread implements Callable<List<Inventory>> {
 
 	RestRequest<BookingDataCondition> request;
 	IInventoryService inventoryRepository;
@@ -23,9 +25,9 @@ public class InventoryThread implements Callable<Object> {
 	}
 
 	@Override
-	public Object call() throws Exception {
+	public List<Inventory> call() throws Exception {
 		
-		Object obj = null;
+		List<Inventory> obj = null;
 		
 		try
         {

@@ -11,7 +11,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.elong.nb.common.util.CommonsUtil;
 import com.elong.nb.common.util.DateUtils;
-import com.elong.nb.data.biglog.BigLog;
 import com.elong.nb.model.effectivestatuscheck.EffectiveStatus;
 import com.elong.nb.model.effectivestatuscheck.EffectiveStatusRequest;
 import com.elong.nb.model.effectivestatuscheck.EffectiveStatusResponse;
@@ -23,7 +22,7 @@ import com.elong.nb.util.HttpUtil;
 public class EffectiveStatusRepository {
 
 	private static final String EFFECTIVEURL=getEffectiveStatusServiceURL("/rest/com/elong/hotel/product/entity/req/nbapi/EffectiveStatusRequest");
-	private static Logger logger = LogManager.getLogger("biglog");
+//	private static Logger logger = LogManager.getLogger("biglog");
     private static String getEffectiveStatusServiceURL(String query){
     		String url = CommonsUtil.CONFIG_PROVIDAR.getProperty("EffectiveStatusBaseURL");
         if (url==null ||url.isEmpty()){
@@ -55,16 +54,16 @@ public class EffectiveStatusRepository {
         	eff.setCheckinDate(DateUtils.convertDate(ArrivalDate, "yyyy-MM-dd"));
         	eff.setCheckoutDate(DateUtils.convertDate(DepartureDate, "yyyy-MM-dd") );
         req.setRealRequest(eff);
-        BigLog log = new BigLog();
-        log.setAppName("data_http");
-        log.setServiceName("com.elong.hotel.product.entity.req.nbapi.EffectiveStatusRequest");
-		log.setTraceId(UUID.randomUUID().toString());
-		log.setSpan("1.1");
+//        BigLog log = new BigLog();
+//        log.setAppName("data_http");
+//        log.setServiceName("com.elong.hotel.product.entity.req.nbapi.EffectiveStatusRequest");
+//		log.setTraceId(UUID.randomUUID().toString());
+//		log.setSpan("1.1");
 		String data = JSON.toJSONString(req);
 		long start = System.currentTimeMillis();
         try{
 			String responseStr = HttpUtil.httpPostData(url + "?requestJson=",data);
-			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
+//			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
 			if (responseStr != null && !responseStr.isEmpty()) {
 				SoaRestResponse<EffectiveStatusResponse> result = JSON.parseObject(responseStr,new TypeReference<SoaRestResponse<EffectiveStatusResponse>>(){});
 				if (result != null && result.getResponseCode()==0&&result.getRealResponse()!=null
@@ -79,13 +78,13 @@ public class EffectiveStatusRepository {
 			}
         }
         catch(Exception e){
-        		log.setException(e);
-			log.setExceptionMsg(e.getMessage());
-			log.setResponseCode("1");
-			logger.info(log.toString());
+//        		log.setException(e);
+//			log.setExceptionMsg(e.getMessage());
+//			log.setResponseCode("1");
+//			logger.info(log.toString());
 			throw new RuntimeException("EffectiveStatusRequest",e);
         }
-		logger.info(log.toString());
+//		logger.info(log.toString());
         return effectiveStatus;
     }
 }

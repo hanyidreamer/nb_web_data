@@ -13,6 +13,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.CodingErrorAction;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
@@ -32,8 +33,13 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.elong.nb.common.checklist.Constants;
 import com.elong.nb.model.bookingdata.ResponseResult;
+import com.elong.springmvc_enhance.utilities.ActionLogHelper;
 import com.google.gson.Gson;
 /**
  * (类型功能说明描述)
@@ -136,28 +142,43 @@ public class HttpUtil {
 	}
 	protected static CloseableHttpClient client = generateHttpClient();
 	public static String httpPost(String reqUrl, String reqData, String contentType){
-		try{
-		long startTime = System.currentTimeMillis();
-		URI uri = new URI(reqUrl);
-		HttpPost httpPost = new HttpPost(uri);
-		contentType = StringUtils.isEmpty(contentType) ? "application/json" : contentType;
-		httpPost.addHeader("Content-Type", contentType);
-		httpPost.setEntity(new StringEntity(reqData, "UTF-8"));
-		CloseableHttpResponse response = client.execute(httpPost);
-		InputStream is = response.getEntity().getContent();
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		byte[] b = new byte[1024];
-		int len = -1;
-		while ((len = is.read(b)) != -1) {
-			outputStream.write(b, 0, len);
+		RequestAttributes request = RequestContextHolder.getRequestAttributes();
+		Object guid=null;
+		try {
+			guid=request.getAttribute(Constants.ELONG_REQUEST_REQUESTGUID, ServletRequestAttributes.SCOPE_REQUEST);
+		} catch (Exception e) {
+			// TODO: handle exception
 		}
-		is.close();
-		outputStream.close();
-		response.close();
-		long endTime = System.currentTimeMillis();
-		logger.debug("httpPost,cost time: " + (endTime - startTime));
-		return new String(outputStream.toByteArray());
+		if(guid==null){
+			guid=UUID.randomUUID();
+		}
+		String methodName="";
+		String hostName="";
+		try{
+			long startTime = System.currentTimeMillis();
+			URI uri = new URI(reqUrl);
+			methodName=uri.getPath();
+			hostName=uri.getHost();
+			HttpPost httpPost = new HttpPost(uri);
+			contentType = StringUtils.isEmpty(contentType) ? "application/json" : contentType;
+			httpPost.addHeader("Content-Type", contentType);
+			httpPost.setEntity(new StringEntity(reqData, "UTF-8"));
+			CloseableHttpResponse response = client.execute(httpPost);
+			InputStream is = response.getEntity().getContent();
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			byte[] b = new byte[1024];
+			int len = -1;
+			while ((len = is.read(b)) != -1) {
+				outputStream.write(b, 0, len);
+			}
+			is.close();
+			outputStream.close();
+			response.close();
+			long endTime = System.currentTimeMillis();
+			ActionLogHelper.businessLog(guid.toString(), true, methodName, hostName, null, (endTime - startTime), 0, null,null, "");
+			return new String(outputStream.toByteArray());
 		}catch(Exception e){
+			ActionLogHelper.businessLog(guid.toString(), false, methodName, hostName, e ,0, -1, null, null,"");
 			throw new RuntimeException(e);
 		}
 	}

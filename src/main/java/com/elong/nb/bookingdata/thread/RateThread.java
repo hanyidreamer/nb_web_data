@@ -10,7 +10,7 @@ import com.elong.nb.model.bookingdata.BookingDataCondition;
 import com.elong.nb.model.rate.bean.Rate;
 import com.elong.nb.service.impl.RateService;
 
-public class RateThread implements Callable<Object> {
+public class RateThread implements Callable<List<Rate>> {
 	
 	RestRequest<BookingDataCondition> request;
 	RateService rateService;
@@ -22,9 +22,9 @@ public class RateThread implements Callable<Object> {
 	}
 
 	@Override
-	public Object call() throws Exception {
+	public List<Rate> call() throws Exception {
 		
-		Object obj =null;
+		List<Rate> obj =null;
 		try
         {
         	Calendar cd = Calendar.getInstance();

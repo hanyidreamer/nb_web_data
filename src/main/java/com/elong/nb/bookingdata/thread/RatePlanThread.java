@@ -8,7 +8,7 @@ import com.elong.nb.model.bookingdata.BookingDataCondition;
 import com.elong.nb.model.rateplan.HotelRatePlan;
 import com.elong.nb.service.IRatePlansService;
 
-public class RatePlanThread implements Callable<Object>{
+public class RatePlanThread implements Callable<HotelRatePlan>{
 
 	IRatePlansService ratePlanService;
 	RestRequest<BookingDataCondition> request;
@@ -20,7 +20,7 @@ public class RatePlanThread implements Callable<Object>{
 	}
 	
 	@Override
-	public Object call() throws Exception {
+	public HotelRatePlan call() throws Exception {
 		
 		HotelRatePlan item = null;
         List<HotelRatePlan> list = ratePlanService.getRatePlans(
@@ -30,7 +30,7 @@ public class RatePlanThread implements Callable<Object>{
         {
             item = list.get(0);
         }
-        Object obj = item;
+        HotelRatePlan obj = item;
         return obj;
 	}
 

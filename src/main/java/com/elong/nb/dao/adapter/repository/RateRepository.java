@@ -5,14 +5,13 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
 import com.elong.nb.agent.ProductForNBServiceContract.EnumPayMentType;
 import com.elong.nb.agent.ProductForNBServiceContract.GetHotelRoomPriceRequest;
 import com.elong.nb.agent.ProductForNBServiceContract.GetHotelRoomPriceResponse2;
 import com.elong.nb.agent.ProductForNBServiceContract.IProductForNBServiceContract;
+import com.elong.nb.checklist.CheckListUtil;
 import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.data.biglog.BigLog;
 import com.elong.nb.model.bean.enums.EnumPaymentType;
@@ -22,7 +21,7 @@ import com.elong.nb.util.MathUtil;
 public class RateRepository {
 	@Resource
 	private IProductForNBServiceContract productForNBServiceContract;
-	private static Logger logger = LogManager.getLogger("biglog");
+	//private static Logger logger = LogManager.getLogger("biglog");
 	public GetHotelRoomPriceResponse2 getRate(ProxyAccount proxyInfo,
 			String mHotelId, String sHotelId, Date startDate, Date endDate,
 			EnumPaymentType paymentType,String guid) {
@@ -56,10 +55,10 @@ public class RateRepository {
 			log.setException(ex);
 			log.setExceptionMsg(ex.getMessage());
 			log.setResponseCode("1");
-			logger.info(log.toString());
+			CheckListUtil.error(log);
 			throw new RuntimeException("getHotelRoomPrice",ex);
 		}
-		logger.info(log.toString());
+		CheckListUtil.info(log);
 		return response;
 	}
 }

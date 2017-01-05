@@ -5,23 +5,20 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
-import com.alibaba.fastjson.JSON;
 import com.elong.nb.agent.ProductForSearchServiceForRealTimeCheck.ArrayOfPriceDaySimple;
 import com.elong.nb.agent.ProductForSearchServiceForRealTimeCheck.CheckInventoryAndPriceRequest;
 import com.elong.nb.agent.ProductForSearchServiceForRealTimeCheck.CheckInventoryAndPriceResponse;
 import com.elong.nb.agent.ProductForSearchServiceForRealTimeCheck.IProductForSearchServiceContract;
 import com.elong.nb.agent.ProductForSearchServiceForRealTimeCheck.InventoryAndPriceCheckResult;
-import com.elong.nb.common.model.ErrorCode;
+import com.elong.nb.checklist.CheckListUtil;
 import com.elong.nb.data.biglog.BigLog;
 import com.elong.nb.util.DateUtil;
 
 @Repository
 public class ProductForMisServiceRepository {
-	private static Logger logger = LogManager.getLogger("biglog");
+	//private static CheckListUtil logger = LogManager.getLogger("biglog");
 	@Resource(name = "productForSearchService")
 	private IProductForSearchServiceContract ProductForSearchServiceForRealTimeCheck;
 
@@ -79,7 +76,7 @@ public class ProductForMisServiceRepository {
 			} else {
 				log.setBusinessErrorCode("1");
 			}
-			logger.info(log.toString());
+			CheckListUtil.info(log);
 			if (res != null
 					&& res.getResult() != null
 					&& res.getResult().getResponseCode() == 0
@@ -94,7 +91,7 @@ public class ProductForMisServiceRepository {
 			log.setException(ex);
 			log.setExceptionMsg(ex.getMessage());
 			log.setResponseCode("1");
-			logger.info(log.toString());
+			CheckListUtil.error(log);
 			throw new RuntimeException("checkInventoryAndPriceForNB",ex);
 		}
 		return InventoryAndPriceCheckResult.INVENTORY_CLOSE;

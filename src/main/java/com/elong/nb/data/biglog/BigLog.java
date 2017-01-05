@@ -170,7 +170,7 @@ public class BigLog {
 	/**
 	 * 异常的堆栈信息
 	 */
-	private Throwable exception;
+	private Exception exception;
 	/**
 	 * exceptionmsg 异常的说明
 	 */
@@ -319,11 +319,11 @@ public class BigLog {
 		this.hadoopContent = hadoopContent;
 	}
 
-	public Throwable getException() {
+	public Exception getException() {
 		return exception;
 	}
 
-	public void setException(Throwable exception) {
+	public void setException(Exception exception) {
 		this.exception = exception;
 	}
 
