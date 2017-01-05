@@ -28,6 +28,7 @@ import com.elong.nb.common.model.RedisKeyConst;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.common.util.CommonsUtil;
+import com.elong.nb.common.util.LocalHost;
 import com.elong.nb.dao.adapter.repository.EffectiveStatusRepository;
 import com.elong.nb.dao.adapter.repository.ProductForMisServiceRepository;
 import com.elong.nb.dao.adapter.repository.SearchDetailRepository;
@@ -95,7 +96,6 @@ public class BookingDataService implements IBookingDataService {
 			Date now=DateUtil.getDate(new Date());
 			Calendar cdDeparture = Calendar.getInstance();
 			cdDeparture.add(Calendar.DATE, 1);
-			System.out.println(new Date());
 			if (request.getVersion() < 1.13) {
 				errorCode.append(MessageFormat.format(ErrorCode.Common_VersionToLow, 1.13));
 			} else if (request.getRequest().getPaymentType() == EnumPaymentType.All) {
@@ -493,6 +493,7 @@ public class BookingDataService implements IBookingDataService {
 					CheckBookingDataResult(bookingDataResult, checkResult);
 
 					CheckMinitor checkMinitor = new CheckMinitor();
+					checkMinitor.setServerIp(LocalHost.getLocalIP());
 					checkMinitor.setAgentId(request.getProxyInfo().getOrderFrom().toString());
 					checkMinitor.setAgentName(getOrderFromProjectName(request.getProxyInfo().getOrderFrom()));
 					checkMinitor.setOrderCheckTime(DateUtil.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss"));

@@ -128,7 +128,9 @@ public class RatePlansService implements IRatePlansService {
 			}
 		}
 		HashMap<String, HotelRatePlan> hashHotel = new HashMap<String, HotelRatePlan>();
-
+		if(sHotelIds.size()<=0){
+			return result;
+		}
 		MergeHotelRatePlans(
 				result,
 				hashHotel,

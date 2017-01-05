@@ -37,8 +37,13 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.elong.nb.common.checklist.Constants;
 import com.elong.nb.model.bookingdata.ResponseResult;
+import com.elong.nb.model.common.DataRestRequestCommon;
+import com.elong.nb.model.common.DataRestResponseCommon;
+import com.elong.nb.model.rateplan.fornb.SearchHotelRatePlanListResp;
 import com.elong.springmvc_enhance.utilities.ActionLogHelper;
 import com.google.gson.Gson;
 /**
@@ -59,47 +64,6 @@ public class HttpUtil {
 
 	protected static Logger logger = LogManager.getLogger(HttpUtil.class);
 	private static Gson gson=new Gson();
-//	public static String httpPost(String reqUrl,String reqData){
-//		return httpPost(reqUrl,reqData,8 * 1000);
-//	}
-//	public static String httpPost(String reqUrl,String reqData,int timeout){
-//		HttpURLConnection conn = null;
-//		try{
-//			URL url = new URL(reqUrl);
-//			conn = (HttpURLConnection) url.openConnection();
-//			conn.setRequestMethod("POST");
-//			conn.setDoInput(true);// 设置是否从httpUrlConnection读入，默认情况下是true;   
-//			conn.setDoOutput(true);
-//			conn.setUseCaches(false);   // Post 请求不能使用缓存
-//			conn.setConnectTimeout(timeout);
-//			conn.setReadTimeout(30 * 1000);
-//			conn.setInstanceFollowRedirects(true);
-//			conn.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
-//			conn.connect();
-//	        // DataOutputStream.writeBytes将字符串中的16位的unicode字符以8位的字符形式写道流里面
-//			DataOutputStream out = new DataOutputStream(conn.getOutputStream());
-//			out.write(reqData.getBytes("UTF-8")); 
-//			out.flush();
-//	        out.close();
-//			BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(),"UTF-8"));
-//			String lines;
-//			StringBuilder sb = new StringBuilder();
-//			while ((lines = reader.readLine()) != null)
-//				sb.append(lines);
-//			return sb.toString();
-//		}catch(Exception ex){
-//			logger.error("http Error,reqUrl:"+reqUrl+",Exception:"+ex.getMessage());
-//			throw new RuntimeException(ex);
-//			
-//		}finally{
-//			if(null != conn)try{
-//				conn.disconnect();
-//			}catch(Exception ex){
-//				logger.error("method:httpPost,使用finally块来关闭输入流,Exception:"+ex.getMessage());
-//				throw ex;
-//				}
-//		}
-//	}
 	
 	public static String httpPostData(String reqUrl,String reqData){
 		HttpURLConnection conn = null;
@@ -181,6 +145,54 @@ public class HttpUtil {
 			ActionLogHelper.businessLog(guid.toString(), false, methodName, hostName, e ,0, -1, null, null,"");
 			throw new RuntimeException(e);
 		}
+	}
+	public static <T1,T2> DataRestResponseCommon<T1> getDataRestResponse(String reqUrl, String reqData, String contentType,DataRestResponseCommon<T1> type1,TypeReference<T2> type2){
+		RequestAttributes request = RequestContextHolder.getRequestAttributes();
+		Object guid=null;
+		try {
+			guid=request.getAttribute(Constants.ELONG_REQUEST_REQUESTGUID, ServletRequestAttributes.SCOPE_REQUEST);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		if(guid==null){
+			guid=UUID.randomUUID();
+		}
+		String methodName="";
+		String hostName="";
+		try{
+			long startTime = System.currentTimeMillis();
+			URI uri = new URI(reqUrl);
+			methodName=uri.getPath();
+			hostName=uri.getHost();
+			HttpPost httpPost = new HttpPost(uri);
+			contentType = StringUtils.isEmpty(contentType) ? "application/json" : contentType;
+			httpPost.addHeader("Content-Type", contentType);
+			httpPost.setEntity(new StringEntity(reqData, "UTF-8"));
+			CloseableHttpResponse response = client.execute(httpPost);
+			InputStream is = response.getEntity().getContent();
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			byte[] b = new byte[1024];
+			int len = -1;
+			while ((len = is.read(b)) != -1) {
+				outputStream.write(b, 0, len);
+			}
+			is.close();
+			outputStream.close();
+			response.close();
+			long endTime = System.currentTimeMillis();
+			DataRestResponseCommon<T1> result=(DataRestResponseCommon<T1>) JSON.parseObject(new String(outputStream.toByteArray()),type2);
+			if(result.getRealResponse()!=null){
+				int businessCode=((com.elong.nb.model.common.ResponseBase)result.getRealResponse()).getResponseCode();
+				ActionLogHelper.businessLog(guid.toString(), true, methodName, hostName, null, (endTime - startTime), businessCode, null,null, "");
+			}else{
+				ActionLogHelper.businessLog(guid.toString(), false, methodName, hostName, null, (endTime - startTime), 0, result.getExceptionMsg(),null, "");
+			}
+			return result;
+		}catch(Exception e){
+			ActionLogHelper.businessLog(guid.toString(), false, methodName, hostName, e ,0, -1, null, null,"");
+			throw new RuntimeException(e);
+		}
+		
 	}
 	private static CloseableHttpClient generateHttpClient() {
 		Registry<ConnectionSocketFactory> socketFactory = RegistryBuilder.<ConnectionSocketFactory> create()
