@@ -23,6 +23,8 @@ import com.elong.nb.util.HttpUtil;
  */
 @Repository
 public class RatePlanRepository {
+//	private static Logger logger = LogManager.getLogger("biglog");
+//	private static Logger errorLogger = LogManager.getLogger(RatePlanRepository.class);
 	private final static String RPURL=getServerUrl("/rest/com/elong/hotel/product/entity/req/forpartner/nbapi/SearchHotelRatePlanListReq");
 	private static String getServerUrl(String query){
 		    String serverURL=CommonsUtil.CONFIG_PROVIDAR.getProperty("rp.url");
@@ -40,7 +42,15 @@ public class RatePlanRepository {
 		try{
 			String result = HttpUtil.httpPost(requestUrl, "requestJson="+json,"application/x-www-form-urlencoded");
 			ResponseBase<SearchHotelRatePlanListResp> response = JSON.parseObject(result, new TypeReference<ResponseBase<SearchHotelRatePlanListResp>>(){});
-			if(response!=null&&response.getRealResponse()!=null&&response.getResponseCode()==0){
+//<<<<<<< HEAD
+//			if(response!=null&&response.getRealResponse()!=null&&response.getResponseCode()==0){
+//=======
+			if(response!=null&&response.getRealResponse()!=null){
+				if(response.getResponseCode()!=0){
+//					errorLogger.info("requestJson="+json+" res"+result);
+				}
+//				log.setResponseCode(""+response.getResponseCode());
+//				logger.info(log.toString());
 				return response.getRealResponse();
 			}else{
 				throw new RuntimeException("Inner Exception: "+result);
