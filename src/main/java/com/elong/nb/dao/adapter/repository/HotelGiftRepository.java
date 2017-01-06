@@ -27,7 +27,6 @@ import com.elong.nb.util.DateUtil;
 
 @Repository
 public class HotelGiftRepository {
-	//private static Logger logger = LogManager.getLogger("biglog");
 	@Resource(name = "hotelGiftServiceContract")
 	IHotelGiftServiceContract hotelGiftServiceContract;
 
@@ -89,21 +88,14 @@ public class HotelGiftRepository {
 
 					for (HotelGiftRelationDate date : item
 							.getRelationDateList().getHotelGiftRelationDate()) {
-
-						// if (date.BeginDate <= today && date.EndDate >= today)
 						if (date.getBeginDate().toDate().compareTo(today) <= 0
 								&& date.getEndDate().toDate().compareTo(today) >= 0) {
-							// Tools.ParseEnum<HotelGiftDateTypeEnum>(date.DateType.GetHashCode().ToString(),
-							// HotelGiftDateTypeEnum.CheckinDate)
 							HotelGiftDateTypeEnum giftDateType = HotelGiftDateTypeEnum.CheckinDate;
 							if (date.getDateType() == com.elong.nb.agent.HotelGiftService.HotelGiftDateTypeEnum.BOOKING_DATE)
 								giftDateType = HotelGiftDateTypeEnum.BookingDate;
 							dateType = giftDateType;
 
 							weekSet = BitMaskIntToString(date.getBitSum4Week());
-
-							// Tools.ParseEnum<HotelGiftHourTypeEnum>(date.HourType.GetHashCode().ToString(),
-							// HotelGiftHourTypeEnum.Hours24)
 							HotelGiftHourTypeEnum giftHourType = HotelGiftHourTypeEnum.Hours24;
 							if (date.getHourType() == com.elong.nb.agent.HotelGiftService.HotelGiftHourTypeEnum.X_HOUR_AFTER)
 								giftHourType = HotelGiftHourTypeEnum.XHourAfter;
@@ -212,11 +204,6 @@ public class HotelGiftRepository {
 			loopNum /= 2;
 		}
 		String joinStrs = StringUtils.join(list.toArray(), ",");
-		// for(int i : list)
-		// {
-		// joinStrs+= ","+i;
-		// }
-		// joinStrs = joinStrs.substring(1);
 		return joinStrs;
 	}
 

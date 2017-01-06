@@ -11,6 +11,7 @@
 	<context:property-placeholder
 		location="classpath:conf/custom/env/service.properties"
 		ignore-unresolvable="true" />
+	<bean id="customerInterceptor" class="com.elong.nb.util.CustomerInterceptor"></bean>
 	<!--ProductForNBServiceContract -->
 	<jaxws:client id="productForNBServiceContract"
 		serviceClass="com.elong.nb.agent.ProductForNBServiceContract.IProductForNBServiceContract"
@@ -55,6 +56,9 @@
 		<jaxws:properties>
 			<entry key="set-jaxb-validation-event-handler" value="false" />
 		</jaxws:properties>
+		<jaxws:inInterceptors>
+		       <ref bean="customerInterceptor"/>  
+    		</jaxws:inInterceptors>
 	</jaxws:client>
 	<jaxws:client id="productForSearchService"
 		serviceClass="com.elong.nb.agent.ProductForSearchServiceForRealTimeCheck.IProductForSearchServiceContract"
