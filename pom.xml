@@ -3,7 +3,7 @@
   <groupId>com.elong.nbapi</groupId>
   <artifactId>nb_web_data</artifactId>
   <packaging>war</packaging>
-  <version>1.0.0</version>
+  <version>1.0.2-SNAPSHOT</version>
   <name>nb_web_data</name>
   <url>http://maven.apache.org</url>
   <!-- scm git trunk -->
