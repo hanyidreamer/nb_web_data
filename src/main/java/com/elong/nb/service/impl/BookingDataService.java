@@ -142,7 +142,7 @@ public class BookingDataService implements IBookingDataService {
 							request.getRequest().getRoomTypeId(), request.getRequest().getRatePlanId(), request.getRequest()
 									.getArrivalDate(), request.getRequest().getDepartureDate(), errorCode, 1);
 
-					if (errorCode.toString().equals("0") && effectiveStatus != null) {
+					if (effectiveStatus != null) {
 						ObjectEffectiveStatus objectStatus = new ObjectEffectiveStatus();
 						{
 							objectStatus.setHotelIdStatus(effectiveStatus.getMhotelStatus() == 0);
