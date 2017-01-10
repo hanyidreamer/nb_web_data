@@ -1,6 +1,7 @@
 #!/bin/bash
 #####SET_VER#####
-BASEDIR=/home/work/
+BASEDIR=/home/work/NBAPI
+SER_NAME=nb_web_rule
 SER_NAME=nb_web_data
 SHUTDOWN_PORT=7971
 HTTP_PORT=8971
