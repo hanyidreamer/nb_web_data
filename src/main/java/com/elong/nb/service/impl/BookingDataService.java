@@ -144,18 +144,16 @@ public class BookingDataService implements IBookingDataService {
 
 					if (effectiveStatus != null) {
 						ObjectEffectiveStatus objectStatus = new ObjectEffectiveStatus();
-						{
-							objectStatus.setHotelIdStatus(effectiveStatus.getMhotelStatus() == 0);
-							objectStatus.setHotelCodeStatus(effectiveStatus.getShotelStatus() == 0);
-							objectStatus.setRoomTypeStatus(effectiveStatus.getSroomStatus() == 1);
-							objectStatus.setRoomStatus(effectiveStatus.getMroomStatus() == 1);
-							objectStatus.setProductRelation(effectiveStatus.getSroomRatePlanRelation() == 1);
-							objectStatus.setRatePlanStaus(effectiveStatus.getRatePlanStaus() == 1);
-						}
-						if (result.getResult() == null)
+						objectStatus.setHotelIdStatus(effectiveStatus.getMhotelStatus() == 0);
+						objectStatus.setHotelCodeStatus(effectiveStatus.getShotelStatus() == 0);
+						objectStatus.setRoomTypeStatus(effectiveStatus.getSroomStatus() == 1);
+						objectStatus.setRoomStatus(effectiveStatus.getMroomStatus() == 1);
+						objectStatus.setProductRelation(effectiveStatus.getSroomRatePlanRelation() == 1);
+						objectStatus.setRatePlanStaus(effectiveStatus.getRatePlanStaus() == 1);
+						if (result.getResult() == null){
 							result.setResult(new BookingDataResult());
+						}
 						result.getResult().setObjectEffectiveStatus(objectStatus);
-
 						if (effectiveStatus.getMhotelStatus() != 0 || effectiveStatus.getMroomStatus() != 1
 								|| effectiveStatus.getRatePlanStaus() != 1 || effectiveStatus.getShotelStatus() != 0
 								|| effectiveStatus.getSroomStatus() != 1 || effectiveStatus.getSroomRatePlanRelation() != 1) {
