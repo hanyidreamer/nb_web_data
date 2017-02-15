@@ -30,11 +30,11 @@ public class HotelGiftRepository {
 	@Resource(name = "hotelGiftServiceContract")
 	IHotelGiftServiceContract hotelGiftServiceContract;
 
-	// / <summary>
-	// / 使用hotel3接口实现
-	// / </summary>
-	// / <param name="sHotelId"></param>
-	// / <returns></returns>
+	/**
+	 * 使用hotel3接口实现
+	 * @param sHotelId
+	 * @return
+	 */
 	public List<HotelGift> getHotelGiftBySHotelId(String sHotelId) {
 		List<HotelGift> list = new ArrayList<HotelGift>();
 		GetHotelGiftListResponse res = null;
@@ -77,15 +77,12 @@ public class HotelGiftRepository {
 				if (item.getStatus() == 0) {
 					continue;
 				}
-
-				// #region dates
 				HotelGiftDateTypeEnum dateType = HotelGiftDateTypeEnum.CheckinDate;
 				String weekSet = "";
 				HotelGiftHourTypeEnum hourType = HotelGiftHourTypeEnum.Hours24;
 				int hourNumber = -1;
 				List<HotelGiftDate> dates = new ArrayList<HotelGiftDate>();
 				if (item.getRelationDateList() != null) {
-
 					for (HotelGiftRelationDate date : item
 							.getRelationDateList().getHotelGiftRelationDate()) {
 						if (date.getBeginDate().toDate().compareTo(today) <= 0
@@ -112,12 +109,9 @@ public class HotelGiftRepository {
 						}
 					}
 				}
-
 				if (dates.size() == 0) {
 					continue;
 				}
-
-				// #region products
 				List<HotelGiftProductRelation> products = new ArrayList<HotelGiftProductRelation>();
 				if (item.isIsAllProductRelated()) {
 					HotelGiftProductRelation gp = new HotelGiftProductRelation();
@@ -129,8 +123,7 @@ public class HotelGiftRepository {
 				} else {
 					if (item != null
 							&& item.getRelationProductList() != null
-							&& item.getRelationProductList()
-									.getHotelGiftRelationProduct() != null) {
+							&& item.getRelationProductList().getHotelGiftRelationProduct() != null) {
 						for (HotelGiftRelationProduct p : item
 								.getRelationProductList()
 								.getHotelGiftRelationProduct()) {
@@ -143,11 +136,9 @@ public class HotelGiftRepository {
 						}
 					}
 				}
-
 				if (products.size() == 0) {
 					continue;
 				}
-
 				int wayOfGiving = item.getWayOfGiving();
 				if (wayOfGiving == 3) {
 					wayOfGiving = 0;
@@ -167,9 +158,6 @@ public class HotelGiftRepository {
 				hg.setHourNumber(hourNumber);
 				hg.setHourType(hourType);
 				hg.setRelatedProducts(products);
-
-				// Tools.ParseEnum<HotelGiftWayOfGivingEnum>(wayOfGiving.ToString(),
-				// HotelGiftWayOfGivingEnum.EveryRoom)
 				// 送礼方式 每间房送一回礼品EveryRoom(0)，每间房每个晚上送一回礼品EveryRoomPerDay(1),其它
 				// Other(2);
 				HotelGiftWayOfGivingEnum givingEnum = HotelGiftWayOfGivingEnum.EveryRoom;
@@ -184,11 +172,9 @@ public class HotelGiftRepository {
 				hg.setWayOfGivingOther(item.getWayOfGivingOtherCn());
 				hg.setWayOfGivingOtherEn(item.getWayOfGivingOtherEn());
 				hg.setWeekSet(weekSet);
-
 				list.add(hg);
 			}
 		}
-
 		return list;
 	}
 

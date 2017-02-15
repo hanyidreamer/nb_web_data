@@ -17,8 +17,7 @@ public class InventoryThread implements Callable<List<Inventory>> {
 	RestRequest<BookingDataCondition> request;
 	IInventoryService inventoryRepository;
 	boolean isInstantConfirmInSearch;
-	public InventoryThread(RestRequest<BookingDataCondition> request,IInventoryService inventoryRepository,boolean isInstantConfirmInSearch)
-	{
+	public InventoryThread(RestRequest<BookingDataCondition> request,IInventoryService inventoryRepository,boolean isInstantConfirmInSearch){
 		this.request =request;
 		this.inventoryRepository =inventoryRepository;
 		this.isInstantConfirmInSearch = isInstantConfirmInSearch;
@@ -29,9 +28,7 @@ public class InventoryThread implements Callable<List<Inventory>> {
 		
 		List<Inventory> obj = null;
 		
-		try
-        {
-
+		try{
 			Calendar DepartureDate = Calendar.getInstance();
 			DepartureDate.setTime(request.getRequest().getDepartureDate());
 			DepartureDate.add(Calendar.DATE, -1);
@@ -53,14 +50,12 @@ public class InventoryThread implements Callable<List<Inventory>> {
 			
 			RestResponse<InventoryResult> res = inventoryRepository.getInventoriesForBooking(restRequest);
            
-			if(res !=null && res.getResult()!=null && res.getResult().getInventories()!=null)
-			{
+			if(res !=null && res.getResult()!=null && res.getResult().getInventories()!=null){
                obj = res.getResult().getInventories();
 			}
          
         }
-        catch(Exception e)
-        {
+        catch(Exception e){
         	
         }
 		

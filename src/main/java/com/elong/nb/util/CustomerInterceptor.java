@@ -43,16 +43,6 @@ public class CustomerInterceptor extends AbstractPhaseInterceptor<Message>{
 	public CustomerInterceptor(){
 		super(Phase.RECEIVE);
 	}
-
-	/**   
-	 * (构造函数说明)  
-	 *   
-	 * @param phase   
-	 */
-//	public CustomerInterceptor(String phase) {
-//		super(Phase.RECEIVE);
-//	}
-
 	/** 
 	 * (方法说明描述) 
 	 *
@@ -63,11 +53,9 @@ public class CustomerInterceptor extends AbstractPhaseInterceptor<Message>{
 	 */
 	@Override
 	public void handleMessage(Message message) throws Fault {
-		//System.out.println("---------receive--------");
 		InputStream is = message.getContent(InputStream.class);
 		 if(is != null)
              message.setContent(InputStream.class, is);
-		 //StringBuffer out = new StringBuffer();
 		 ByteArrayOutputStream   baos   =   new   ByteArrayOutputStream();   
 	        int   i=-1;   
 	        try {
@@ -83,43 +71,9 @@ public class CustomerInterceptor extends AbstractPhaseInterceptor<Message>{
 				}
 			} catch (IOException e1) {
 				logger.error("method:CustomerInterceptor", e1);
-			}   
-//	     byte[] b = new byte[4096];
-//	     try {
-//			for (int n; (n = is.read(b)) != -1;) {
-//			      out.append(new String(b, 0, n));
-//			 }
-//			//System.out.println(out.toString());
-//			String data=checkXmlChar(out.toString());
-			
-//	 	is=new ByteArrayInputStream(data.getBytes());
-//	 	if(is!=null){
-//	 		message.setContent(InputStream.class, is);
-//	 	}
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-	
+			} 
 	}
 	public static String checkXmlChar(String data) {  
-//        StringBuffer appender = new StringBuffer("");  
-//          
-//        if (StringUtils.isNotBlank(data)) {  
-//            appender = new StringBuffer(data.length());  
-//              
-//            for (int i = 0; i < data.length(); i++) {  
-//                char ch = data.charAt(i);  
-//                if ((ch == 0x9) || (ch == 0xA) || (ch == 0xD)  
-//                        || ((ch >= 0x20) && (ch <= 0xD7FF))  
-//                        || ((ch >= 0xE000) && (ch <= 0xFFFD))  
-//                        || ((ch >= 0x10000) && (ch <= 0x10FFFF)))  
-//                    appender.append(ch);  
-//            }  
-//        }  
-//          
-//        String result = appender.toString();  
-//          
-//        return result.replaceAll("]]>", "");  
 		return data.replace("&#x", "<![CDATA[&#x]]>");
     }  
 

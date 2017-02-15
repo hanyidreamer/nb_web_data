@@ -21,7 +21,6 @@ import com.elong.nb.util.MathUtil;
 public class RateRepository {
 	@Resource
 	private IProductForNBServiceContract productForNBServiceContract;
-	//private static Logger logger = LogManager.getLogger("biglog");
 	public GetHotelRoomPriceResponse2 getRate(ProxyAccount proxyInfo,
 			String mHotelId, String sHotelId, Date startDate, Date endDate,
 			EnumPaymentType paymentType,String guid) {

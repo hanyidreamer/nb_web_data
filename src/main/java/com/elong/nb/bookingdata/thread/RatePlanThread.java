@@ -21,13 +21,9 @@ public class RatePlanThread implements Callable<HotelRatePlan>{
 	
 	@Override
 	public HotelRatePlan call() throws Exception {
-		
 		HotelRatePlan item = null;
-        List<HotelRatePlan> list = ratePlanService.getRatePlans(
-            request.getLocal(), request.getRequest().getHotelId(), request.getRequest().getHotelCode(),
-            request.getRequest().getPaymentType(), request.getProxyInfo(), request.getVersion(), null,request.getGuid());
-        if ( list != null && list.size() > 0 )
-        {
+        List<HotelRatePlan> list = ratePlanService.getRatePlans(request.getLocal(), request.getRequest().getHotelId(), request.getRequest().getHotelCode(),request.getRequest().getPaymentType(), request.getProxyInfo(), request.getVersion(), null,request.getGuid());
+        if ( list != null && list.size() > 0 ){
             item = list.get(0);
         }
         HotelRatePlan obj = item;

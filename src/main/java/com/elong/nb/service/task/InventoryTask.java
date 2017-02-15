@@ -54,7 +54,7 @@ public class InventoryTask extends RecursiveTask<List<Inventory>> {
 						lists.addAll(list);
 					}
 				} catch (Exception ex) {
-					throw new RuntimeException("Inner Exception: InventoryTaskException:"+ex.getMessage());
+					throw new RuntimeException("Inner Exception: InventoryTaskException:"+ex.getMessage(),ex);
 				}
 			}
 		} else {

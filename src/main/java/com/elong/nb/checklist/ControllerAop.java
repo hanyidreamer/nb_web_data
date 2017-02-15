@@ -85,7 +85,7 @@ public class ControllerAop {
 			guid = UUID.randomUUID();
 		Exception e = (Exception) throwing;
 
-		ActionLogHelper.businessLog((String) guid, false, methodName,
+		ActionLogHelper.businessLog(guid.toString(), false, methodName,
 				classFullName, e, useTime, -1, e.getMessage(), null,
 				(String) (request.getAttribute(Constants.ELONG_REQUEST_JSON,
 						ServletRequestAttributes.SCOPE_REQUEST)));

@@ -64,7 +64,7 @@ public class RatePlanTask extends RecursiveTask<List<HotelDetail>> {
 						}
 					}
 				} catch (Exception ex) {
-					throw new RuntimeException("Inner Exception: RatePlanTaskException:"+ex.getMessage());
+					throw new RuntimeException("Inner Exception: RatePlanTaskException:"+ex.getMessage(),ex);
 				}
 		} else {
 			int threadCount=hotelCodes.size()/rpThreadSize;

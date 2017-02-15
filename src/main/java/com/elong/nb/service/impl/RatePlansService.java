@@ -25,6 +25,7 @@ import com.elong.nb.agent.SupplierService.InvoiceMode;
 import com.elong.nb.common.model.EnumAgencyLevel;
 import com.elong.nb.common.model.EnumBookingChannel;
 import com.elong.nb.common.model.EnumLocal;
+import com.elong.nb.common.model.EnumMemberLevel;
 import com.elong.nb.common.model.EnumPrepayLevel;
 import com.elong.nb.common.model.EnumSellChannel;
 import com.elong.nb.common.model.ErrorCode;
@@ -335,7 +336,7 @@ public class RatePlansService implements IRatePlansService {
 		}
 		for (HotelDetail hotel : list) {
 			HotelDetail filterHotel = filterHotel(hotel,
-					proxyInfo.getSellChannel(), proxyInfo.getBookingChannel(),hotelCodeFilterType);
+					proxyInfo.getSellChannel(), proxyInfo.getBookingChannel(),proxyInfo.getMemberLevel(),hotelCodeFilterType);
 			if (filterHotel == null) {
 				continue;
 			}
@@ -356,21 +357,23 @@ public class RatePlansService implements IRatePlansService {
 
 	private HotelDetail filterHotel(HotelDetail hotel,
 			EnumSellChannel enumSellChannel,
-			EnumBookingChannel enumBookingChannel,Map<String,EnumPaymentType> hotelCodeFilterType) {
+			EnumBookingChannel enumBookingChannel,EnumMemberLevel enumMemberLevel,Map<String,EnumPaymentType> hotelCodeFilterType) {
 		HotelDetail hotelNew = null;
 		boolean isHasCanShow = false;
 		List<RoomTypeInfo> roomBaseInfos = new LinkedList<RoomTypeInfo>();
 		for (int i = 0; i < hotel.getRoomBaseInfos().size(); i++) {
 			List<RatePlanBaseInfo> ratePlanList = new LinkedList<RatePlanBaseInfo>();
-			for (int j = 0; j < hotel.getRoomBaseInfos().get(i).getRatePlans()
-					.size(); j++) {
-				int b = hotel.getRoomBaseInfos().get(i).getRatePlans().get(j)
-						.getBookingChannel();
-				int eb = enumBookingChannel.getValue();
-				int s = hotel.getRoomBaseInfos().get(i).getRatePlans().get(j)
-						.getRatePlanSellChannel();
-				int es = enumSellChannel.getValue();
-				boolean isCanShow = ((b & eb) == eb) && ((s & es) == es);
+			for (int j = 0; j < hotel.getRoomBaseInfos().get(i).getRatePlans().size(); j++) {
+				//预订渠道过滤
+				int b = hotel.getRoomBaseInfos().get(i).getRatePlans().get(j).getBookingChannel();
+				int eb = enumBookingChannel!=null?enumBookingChannel.getValue():EnumBookingChannel.OnLine.getValue();
+				//销售渠道过滤
+				int s = hotel.getRoomBaseInfos().get(i).getRatePlans().get(j).getRatePlanSellChannel();
+				int es = enumSellChannel!=null?enumSellChannel.getValue():EnumSellChannel.A.getValue();
+				//会员等级过滤
+				int m= hotel.getRoomBaseInfos().get(i).getRatePlans().get(j).getCustomerLevel();
+				int em=enumMemberLevel!=null?enumMemberLevel.getValue():EnumMemberLevel.Normal.getValue();
+				boolean isCanShow = ((b & eb) == eb) && ((s & es) == es)&&((m&em)==em);
 				if(isCanShow&&hotelCodeFilterType.containsKey(hotel.getHotelBaseInfo().getShotelId())){
 					// 全部，仅用于检索All(0), 前台自付SelfPay(1), 预付Prepay(2);
 					EnumPaymentType payType = EnumPaymentType.Prepay;
