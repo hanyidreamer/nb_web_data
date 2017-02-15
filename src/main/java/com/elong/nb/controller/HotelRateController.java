@@ -1,7 +1,5 @@
 package com.elong.nb.controller;
 
-import java.io.IOException;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 

@@ -372,7 +372,7 @@ public class RatePlansService implements IRatePlansService {
 				int es = enumSellChannel!=null?enumSellChannel.getValue():EnumSellChannel.A.getValue();
 				//会员等级过滤
 				int m= hotel.getRoomBaseInfos().get(i).getRatePlans().get(j).getCustomerLevel();
-				int em=enumMemberLevel!=null?enumMemberLevel.getValue():EnumMemberLevel.Normal.getValue();
+				int em=(int) Math.pow(2d, ((enumMemberLevel!=null?enumMemberLevel.getValue():EnumMemberLevel.Normal.getValue())-1));
 				boolean isCanShow = ((b & eb) == eb) && ((s & es) == es)&&((m&em)==em);
 				if(isCanShow&&hotelCodeFilterType.containsKey(hotel.getHotelBaseInfo().getShotelId())){
 					// 全部，仅用于检索All(0), 前台自付SelfPay(1), 预付Prepay(2);
