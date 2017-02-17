@@ -51,6 +51,8 @@ public class CurrencyRateCache {
 				String rateStr=redis.hashGet(KEY_CURRENCY, currencyCode.toString());
 				if(StringUtils.isNotBlank(rateStr)){
 					rate=new Double(rateStr);
+				}else{
+					rate=new Double(0.0);
 				}
 			}
 		} catch (Exception e) {

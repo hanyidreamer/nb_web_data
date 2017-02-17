@@ -11,6 +11,7 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 
+import com.elong.nb.common.model.ErrorCode;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.dao.adapter.cache.CurrencyRateCache;
@@ -53,8 +54,12 @@ public class CurrencyRateService implements ICurrencyRateService {
 				restRequest.getGuid());
 		ExchangeRateResult result = new ExchangeRateResult();
 		double rate = currencyRateCache.getCurrencyRate(restRequest.getRequest().getCurrencyId());
-		result.setExchangeRate(rate);
-		restResponse.setResult(result);
+		if(rate!=0){
+			result.setExchangeRate(rate);
+			restResponse.setResult(result);
+		}else{
+			restResponse.setCode(ErrorCode.Data_NoCurrencyRate);
+		}
 
 		return restResponse;
 	}
