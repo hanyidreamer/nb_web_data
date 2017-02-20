@@ -16,6 +16,8 @@ import com.elong.nb.model.InventoryBlackListRuleRealRequest;
 import com.elong.nb.model.InventoryBlackListRuleRealResponse;
 import com.elong.nb.model.InventoryRuleHitCheckRealRequest;
 import com.elong.nb.model.InventoryRuleHitCheckRealResponse;
+import com.elong.nb.model.KAOrBuyoutListRealRequest;
+import com.elong.nb.model.KAOrBuyoutListRealResponse;
 import com.elong.nb.model.RequestBase;
 import com.elong.nb.model.ResponseBase;
 import com.elong.nb.model.RuleInventoryRequest;
@@ -135,6 +137,30 @@ public class InventoryRuleRepository {
 //			log.setExceptionMsg(e.getMessage());
 //			log.setResponseCode("1");
 //			logger.info(log.toString());
+		}
+		return null;
+	}
+	/**
+	 * 获取KA、买断房名单及日期
+	 * @param hotelCodes
+	 * @return
+	 */
+	public KAOrBuyoutListRealResponse getBuyoutHotel(List<String> hotelCodes){
+		RequestBase<KAOrBuyoutListRealRequest> request=new RequestBase<KAOrBuyoutListRealRequest>();
+		KAOrBuyoutListRealRequest realRequest=new KAOrBuyoutListRealRequest();
+		realRequest.setHotelCodes(hotelCodes);
+		request.setFrom("NB_Data");
+		request.setRealRequest(realRequest);
+		request.setLogId(UUID.randomUUID().toString());
+		String content=JSON.toJSONString(request);
+		String url=getServerUrl("/api/Hotel/GetBuyoutList");
+		try{
+			String str=HttpUtil.httpPost(url, content,"application/x-www-form-urlencoded");
+			ResponseBase<KAOrBuyoutListRealResponse> response=JSON.parseObject(str,new TypeReference<ResponseBase<KAOrBuyoutListRealResponse>>(){});
+			if("0".equals(response.getResponseCode())){
+				return response.getRealResponse();
+			}
+		}catch(Exception e){
 		}
 		return null;
 	}

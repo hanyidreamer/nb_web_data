@@ -2,8 +2,10 @@ package com.elong.nb.service.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -16,11 +18,15 @@ import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.dao.adapter.cache.M_SRelationCache;
+import com.elong.nb.dao.adapter.repository.InventoryRuleRepository;
 import com.elong.nb.dao.adapter.repository.RateRepository;
+import com.elong.nb.model.KAOrBuyoutList;
+import com.elong.nb.model.KAOrBuyoutListRealResponse;
 import com.elong.nb.model.bean.enums.EnumPaymentType;
 import com.elong.nb.model.rate.RateCondition;
 import com.elong.nb.model.rate.RateResult;
 import com.elong.nb.model.rate.bean.Rate;
+import com.elong.nb.rule.common.SettlementPriceRuleCommon;
 import com.elong.nb.service.IRateService;
 import com.elong.nb.util.DateUtil;
 
@@ -32,7 +38,8 @@ public class RateService implements IRateService {
 	private RateRepository rateRepository;
 	@Resource
 	private M_SRelationCache m_SRelationCache;
-
+	@Resource
+	private InventoryRuleRepository ruleRepository;
 	@Override
 	public RestResponse<RateResult> getRates(RestRequest<RateCondition> request)
 			throws Exception {
@@ -129,6 +136,15 @@ public class RateService implements IRateService {
 			} else {
 				shotelIdsList.add(StringUtils.join(sHotelIdArray, ','));
 			}
+			KAOrBuyoutListRealResponse buyoutList=ruleRepository.getBuyoutHotel(sHotelIdArray);
+			Map<String,KAOrBuyoutList> buyoutMap=new HashMap<String,KAOrBuyoutList>();
+			if(buyoutList.getList()!=null){
+				for(KAOrBuyoutList buyoutData:buyoutList.getList()){
+					if(buyoutData!=null){
+						buyoutMap.put(buyoutData.getHotelCode(), buyoutData);
+					}
+				}
+			}
 			for (String shotelIds : shotelIdsList) {
 				GetHotelRoomPriceResponse2 response = this.rateRepository
 						.getRate(proxyInfo, mHotelIdArray[i], shotelIds,
@@ -170,23 +186,30 @@ public class RateService implements IRateService {
 										proxyInfo.getIntegerPriceType());
 								rate.setMember(member);
 								rate.setEndDate(rateEndDate);
+								rate.setStartDate(item.getStartDate() != null ? item
+										.getStartDate().toDate() : DateUtil
+										.getMinValue());
+								boolean isBuyout=false;
+								if(buyoutMap.containsKey(rate.getHotelCode())){
+									KAOrBuyoutList buyoutData=buyoutMap.get(rate.getHotelCode());
+									if(buyoutData.getEndDate().getTime()>=rate.getStartDate().getTime()||buyoutData.getStartDate().getTime()<=rate.getEndDate().getTime()){
+										isBuyout=true;
+									}
+								}
+								
 								Double membserCose = (paymentType == EnumPaymentType.Prepay || proxyInfo
-										.getEnableReturnAgentcyRateCost()) ? proxyInfo
-										.getSettlementPrice(
-												item.getGenSaleCost() != null ? item
-														.getGenSaleCost()
-														.doubleValue() : -1d,
-												item.getMemberRate() != null ? item
-														.getMemberRate()
-														.doubleValue() : -1d,
-												false)
+										.getEnableReturnAgentcyRateCost()) ? SettlementPriceRuleCommon.getSettlementPrice(item.getGenSaleCost() != null ? item
+												.getGenSaleCost()
+												.doubleValue() : -1d,
+										item.getMemberRate() != null ? item
+												.getMemberRate()
+												.doubleValue() : -1d,
+										false, proxyInfo, isBuyout)
 										: -1d;
 								rate.setMemberCost(membserCose);
 								rate.setRateplanId(item.getRatePlanID());
 								rate.setRoomTypeId(item.getRoomTypeID());
-								rate.setStartDate(item.getStartDate() != null ? item
-										.getStartDate().toDate() : DateUtil
-										.getMinValue());
+								
 								rate.setStatus(item.getIsEffective() != null
 										&& item.getIsEffective() == 1);
 								double weekend = item.getWeekendMemberRate() != null ? item
@@ -196,12 +219,11 @@ public class RateService implements IRateService {
 										proxyInfo.getIntegerPriceType());
 								rate.setWeekend(weekend);
 								double weekendCost = (paymentType == EnumPaymentType.Prepay || proxyInfo
-										.getEnableReturnAgentcyRateCost()) ? proxyInfo
-										.getSettlementPrice(item.getWeekendSaleCost() != null ? item.getWeekendSaleCost()
+										.getEnableReturnAgentcyRateCost()) ? SettlementPriceRuleCommon.getSettlementPrice(item.getWeekendSaleCost() != null ? item.getWeekendSaleCost()
 														.doubleValue() : -1d,
 												item.getWeekendMemberRate() != null ? item.getWeekendMemberRate()
 														.doubleValue() : -1d,
-												false)
+												false,proxyInfo,isBuyout)
 										: -1d;
 								rate.setWeekendCost(weekendCost);
 								rate.setAddBed(item.getAllowAddBed() == 1 ? item

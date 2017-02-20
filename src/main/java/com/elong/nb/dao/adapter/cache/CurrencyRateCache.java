@@ -55,7 +55,7 @@ public class CurrencyRateCache {
 					rate=new Double(0.0);
 				}
 			}
-		} catch (Exception e) {
+		}catch(Exception e){
 			throw e;
 		}
 		return rate;
