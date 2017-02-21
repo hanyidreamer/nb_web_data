@@ -138,7 +138,7 @@ public class RateService implements IRateService {
 			}
 			KAOrBuyoutListRealResponse buyoutList=ruleRepository.getBuyoutHotel(sHotelIdArray);
 			Map<String,KAOrBuyoutList> buyoutMap=new HashMap<String,KAOrBuyoutList>();
-			if(buyoutList.getList()!=null){
+			if(buyoutList!=null&&buyoutList.getList()!=null){
 				for(KAOrBuyoutList buyoutData:buyoutList.getList()){
 					if(buyoutData!=null){
 						buyoutMap.put(buyoutData.getHotelCode(), buyoutData);
