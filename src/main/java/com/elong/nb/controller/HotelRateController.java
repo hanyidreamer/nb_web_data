@@ -41,13 +41,7 @@ public class HotelRateController {
 							.getVersion()).getBytes(), HttpStatus.OK);
 		}
 		RestResponse<RateResult> response = null;
-//		try {
-			response = rateService.getRates(restRequest);
-//		} catch (Exception e) {
-//			response = new RestResponse<RateResult>(restRequest.getGuid());
-//			response.setResult(null);
-//			response.setCode(ErrorCode.Common_UnkownException + e.getMessage());
-//		}
+		response = rateService.getRates(restRequest);
 		return new ResponseEntity<byte[]>(GsonUtil.toJson(response,
 				restRequest.getVersion()).getBytes(), HttpStatus.OK);
 

@@ -53,6 +53,9 @@ public class CurrencyRateService implements ICurrencyRateService {
 		RestResponse<ExchangeRateResult> restResponse = new RestResponse<ExchangeRateResult>(
 				restRequest.getGuid());
 		ExchangeRateResult result = new ExchangeRateResult();
+		if(restRequest.getRequest().getCurrencyId()==null){
+			restResponse.setCode(ErrorCode.Data_CurrencyCodeRequired);
+		}
 		double rate = currencyRateCache.getCurrencyRate(restRequest.getRequest().getCurrencyId());
 		if(rate!=0){
 			result.setExchangeRate(rate);

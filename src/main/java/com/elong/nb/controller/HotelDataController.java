@@ -44,7 +44,7 @@ public class HotelDataController {
 				RatePlanCondition.class, m);
 		String rst = validateRatePlanRequest(restRequest);
 		if (StringUtils.isNotBlank(rst)) {
-			RestResponse<RatePlanCondition> response = new RestResponse<RatePlanCondition>(
+			RestResponse<RatePlanResult> response = new RestResponse<RatePlanResult>(
 					restRequest.getGuid());
 			response.setCode(rst);
 			return new ResponseEntity<byte[]>(GsonUtil.toJson(response,
