@@ -136,7 +136,10 @@ public class RateService implements IRateService {
 			} else {
 				shotelIdsList.add(StringUtils.join(sHotelIdArray, ','));
 			}
-			KAOrBuyoutListRealResponse buyoutList=ruleRepository.getBuyoutHotel(sHotelIdArray);
+			KAOrBuyoutListRealResponse buyoutList=null;
+			if(proxyInfo.getPrepaySettlementRateMode()!=0&&proxyInfo.getPrepaySettlementRateMode()!=1){
+				buyoutList=ruleRepository.getBuyoutHotel(sHotelIdArray);
+			}	
 			Map<String,KAOrBuyoutList> buyoutMap=new HashMap<String,KAOrBuyoutList>();
 			if(buyoutList!=null&&buyoutList.getList()!=null){
 				for(KAOrBuyoutList buyoutData:buyoutList.getList()){
