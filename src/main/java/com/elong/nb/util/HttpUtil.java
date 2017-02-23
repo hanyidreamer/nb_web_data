@@ -252,7 +252,6 @@ public class HttpUtil {
 	        }
 	        return result;
 	    }
-	 
 	 public static String httpGetData(String reqUrl)throws Exception{
 			HttpURLConnection conn = null;
 			logger.info("[HTTPGET]开始访问"+reqUrl);

@@ -12,6 +12,7 @@ import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.fastjson.JSON;
 import com.elong.nb.agent.ProductForNBServiceContract.GetHotelRoomPriceResponse2;
 import com.elong.nb.agent.ProductForNBServiceContract.PriceInfoForNB;
 import com.elong.nb.common.model.ProxyAccount;
@@ -156,6 +157,7 @@ public class RateService implements IRateService {
 						&& response.getResult().getResponseCode() == 0) {
 					if (response.getPriceInfoList() != null) {
 						if (response.getPriceInfoList().getPriceInfoForNB() != null) {
+							System.out.println(JSON.toJSONString(response.getPriceInfoList().getPriceInfoForNB()));
 							Date validDate = DateUtil.addYears(
 									DateUtil.getDate(new Date()), 1);
 							for (PriceInfoForNB item : response

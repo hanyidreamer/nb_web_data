@@ -26,8 +26,6 @@ import com.elong.nb.util.DateUtil;
 
 @Repository
 public class InventoryRepository {
-
-	//private static Logger logger = LogManager.getLogger("biglog");
 	@Resource(name="webProductForPartnerServiceContract")
 	private IProductForPartnerServiceContract webProductForPartnerServiceContract;
 	@Resource(name="orderProductForPartnerServiceContract")

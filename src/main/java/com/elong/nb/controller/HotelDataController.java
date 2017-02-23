@@ -68,7 +68,6 @@ public class HotelDataController {
 	}
 	
 	private String validateRatePlanRequest(RestRequest<RatePlanCondition> restRequest){
-		;
 		StringBuffer sb = new StringBuffer(
 				ValidateUtil.validateRestRequest(restRequest));
 		RatePlanCondition req = restRequest.getRequest();

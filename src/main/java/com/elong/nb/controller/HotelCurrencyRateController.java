@@ -52,18 +52,14 @@ import com.google.gson.TypeAdapter;
  */
 @Controller
 public class HotelCurrencyRateController {
-	//private static Logger logger=LogManager.getLogger(HotelCurrencyRateController.class);
-	private Gson gson=new Gson();
 	@Resource
 	private ICurrencyRateService currencyRateService;
 	@RequestMapping(value="/api/Hotel/GetExchangeRate",method=RequestMethod.POST)
 	public ResponseEntity<byte[]> getExchangeRate(HttpServletRequest request) throws IOException{
-		
-		Map<Class, TypeAdapter> m = new HashMap<Class, TypeAdapter>();
 		RestRequest<ExchangeRateCondition> restRequest=null;
 		RestResponse<ExchangeRateResult>restResponse=null;
 		try {
-			restRequest=GsonUtil.toReq(request, ExchangeRateCondition.class, m);
+			restRequest=GsonUtil.toReq(request, ExchangeRateCondition.class, null);
 			restResponse=new RestResponse<ExchangeRateResult>(restRequest.getGuid());
 			if(restRequest!=null){
 				restResponse=currencyRateService.getCurrencyRate(restRequest);
