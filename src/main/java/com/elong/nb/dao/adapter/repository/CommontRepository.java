@@ -49,9 +49,12 @@ public class CommontRepository {
 		sb.append(hotelIds);
 		sb.append("%22}");
 		try {
+			long startTime=System.currentTimeMillis();
 			String responseStr = HttpUtil.httpGetData(sb.toString());
+			long endTime=System.currentTimeMillis();
 			CommentSumarryResponse response = gsonBuilder.create().fromJson(responseStr,
 					CommentSumarryResponse.class);
+			int businessCode=0;
 			if (response.getStatusCode() == 1 && response.getCommentSummarys() != null) {
 				result.setCommentSummaries(new ArrayList<CommentSummary>());
 				for (CommentSummaryObj c : response.getCommentSummarys()) {
@@ -65,9 +68,12 @@ public class CommontRepository {
 				}
 			} else {
 				message =new StringBuilder(response.getMessage());
+				businessCode=1;
 			}
+			ActionLogHelper.businessLog(UUID.randomUUID().toString(), true, "GetCommentSummarys", COMMENT_URL, null, (endTime - startTime), businessCode, null,null, "");
 		} catch (Exception ex) {
 			message =new StringBuilder(ex.getMessage());
+			ActionLogHelper.businessLog(UUID.randomUUID().toString(), false, "GetCommentSummarys", COMMENT_URL, null, 0, 0, null,null, "");
 		}
 		return result;
 	}
