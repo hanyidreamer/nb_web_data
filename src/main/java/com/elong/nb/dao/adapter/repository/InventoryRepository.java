@@ -113,7 +113,9 @@ public class InventoryRepository {
 			log.setElapsedTime(String.valueOf(end-start));
 			if(response!=null&&response.getResourceInventoryStateList().getResourceInventoryState().size()>0){
 				log.setBusinessErrorCode("0");
-				log.setResponseBody("IP:"+response.getResult().getApplicationServerIP()+"time:"+response.getResult().getUsedMillionSecond());
+				if(response.getResult()!=null){
+					log.setResponseBody("IP:"+response.getResult().getApplicationServerIP()+"time:"+response.getResult().getUsedMillionSecond());
+				}
 				for(ResourceInventoryState item:response.getResourceInventoryStateList().getResourceInventoryState()){
 					Inventory inv=new Inventory();
 					inv.setHotelID(mHotelId);
