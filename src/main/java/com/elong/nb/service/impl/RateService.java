@@ -115,7 +115,10 @@ public class RateService implements IRateService {
 			sHotelIdArrays.add(sHotelId.split(","));
 			hotelCodeList.addAll(Arrays.asList(sHotelId.split(",")));
 		}
-		SettlementPriceRuleCommon settlementCommon=new SettlementPriceRuleCommon(proxyInfo, hotelCodeList, EnumSystem.Data);
+		SettlementPriceRuleCommon settlementCommon=null;
+		if(paymentType==EnumPaymentType.Prepay){
+			settlementCommon=new SettlementPriceRuleCommon(proxyInfo, hotelCodeList, EnumSystem.Data);
+		}
 		for (int i = 0; i < mHotelIdArray.length; i++) {
 			if (sHotelIdArrays == null || sHotelIdArrays.size() <= 0) {
 				break;
