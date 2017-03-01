@@ -60,10 +60,11 @@ public class ControllerAop {
 			guid = UUID.randomUUID().toString();
 		Object businessCode=request.getAttribute(Constants.ELONG_RESPONSE_CODE, ServletRequestAttributes.SCOPE_REQUEST);
 		int code=0;
+		String result = null;
 		if(businessCode!=null&&!businessCode.equals("0")){
 			code=1;
+			result=returnValue!=null?returnValue.toString():"";
 		}
-		String result = null;
 		ActionLogHelper.businessLog((String) guid, true, methodName,
 				classFullName, null, useTime, code, null, result,
 				(String) (request.getAttribute(Constants.ELONG_REQUEST_JSON,
