@@ -10,6 +10,7 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -63,7 +64,13 @@ public class ControllerAop {
 		String result = null;
 		if(businessCode!=null&&!businessCode.equals("0")){
 			code=1;
-			result=returnValue!=null?returnValue.toString():"";
+			if (returnValue instanceof String) {
+				result = (String) returnValue;
+			} else {
+				@SuppressWarnings("unchecked")
+				ResponseEntity<byte[]> resp = (ResponseEntity<byte[]>) returnValue;
+				result = new String(resp.getBody());
+			}
 		}
 		ActionLogHelper.businessLog((String) guid, true, methodName,
 				classFullName, null, useTime, code, null, result,
