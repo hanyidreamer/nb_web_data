@@ -94,7 +94,7 @@ public class ControllerAop {
 		Exception e = (Exception) throwing;
 
 		ActionLogHelper.businessLog(guid.toString(), false, methodName,
-				classFullName, e, useTime, -1, e.getMessage(), null,
+				classFullName, e, useTime, 0, e.getMessage(), null,
 				(String) (request.getAttribute(Constants.ELONG_REQUEST_JSON,
 						ServletRequestAttributes.SCOPE_REQUEST)));
 		logger.info((String) (request.getAttribute(Constants.ELONG_REQUEST_JSON,

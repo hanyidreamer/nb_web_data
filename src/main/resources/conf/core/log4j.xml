@@ -26,7 +26,7 @@
 		class="com.elong.common.util.log.ElongDailyRollingFileAppender">
 		<param name="File"
 			value="${catalina.home}/logs/nb_web_data_actionlogentity.log" />
-		<param name="DatePattern" value="'.'yyyy-MM-dd-HH-mm" />
+		<param name="DatePattern" value="'.'yyyy-MM-dd-HH" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%m%n" />
 		</layout>
