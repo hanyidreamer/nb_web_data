@@ -116,7 +116,7 @@ public class RateService implements IRateService {
 			hotelCodeList.addAll(Arrays.asList(sHotelId.split(",")));
 		}
 		SettlementPriceRuleCommon settlementCommon=null;
-		if(paymentType==EnumPaymentType.Prepay){
+		if(paymentType==EnumPaymentType.Prepay||proxyInfo.getEnableReturnAgentcyRateCost()){
 			settlementCommon=new SettlementPriceRuleCommon(proxyInfo, hotelCodeList, EnumSystem.Data);
 		}
 		for (int i = 0; i < mHotelIdArray.length; i++) {
@@ -181,7 +181,7 @@ public class RateService implements IRateService {
 								
 								double weekend = item.getWeekendMemberRate() != null ? item.getWeekendMemberRate().doubleValue():-1d;
 								weekend = toIntegerPrice(weekend,proxyInfo.getIntegerPriceType());
-								if(paymentType == EnumPaymentType.Prepay){
+								if(paymentType == EnumPaymentType.Prepay||proxyInfo.getEnableReturnAgentcyRateCost()){
 									double costPrice=item.getGenSaleCost() != null ? item.getGenSaleCost().doubleValue() : -1d;
 									List<RateWithRule> memberRateList=settlementCommon.getSettlementPrice(costPrice, member, item.getHotelID(), rateStartDate, rateEndDate);
 									double weekendCost=item.getWeekendSaleCost() != null ? item.getWeekendSaleCost().doubleValue() : -1d;
