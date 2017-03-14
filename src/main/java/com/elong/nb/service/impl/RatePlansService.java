@@ -33,6 +33,7 @@ import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.common.util.CommonsUtil;
+import com.elong.nb.common.util.ProductTypeUtils;
 import com.elong.nb.dao.adapter.cache.M_SRelationCache;
 import com.elong.nb.dao.adapter.repository.HotelGiftRepository;
 import com.elong.nb.dao.adapter.repository.InventoryRuleRepository;
@@ -487,13 +488,10 @@ public class RatePlansService implements IRatePlansService {
 					rp.setCustomerType(gtype);
 
 					rp.setIsLimitTimeSale(oldrp.getIsLimitTimeSale() == 1);
-
-					rp.setProductTypes(ParseProductType(oldrp.getProductType(),
-							oldrp.getBookingChannel(),
-							isHourPayRoom(oldrp.getCNRatePlanName())));
+					boolean isHourPayRoom=ProductTypeUtils.isHourPayRoom(oldrp.getCNRatePlanName());
+					rp.setProductTypes(ParseProductType(oldrp.getProductType(),oldrp.getBookingChannel(),isHourPayRoom));
 					if (oldrp.getStartTime() != null)
-						rp.setStartTime(DateUtil.getTimeString(oldrp
-								.getStartTime()));
+						rp.setStartTime(DateUtil.getTimeString(oldrp.getStartTime()));
 					if (oldrp.getEndTime() != null)
 						rp.setEndTime(DateUtil.getTimeString(oldrp.getEndTime()));
 					rp.setMinAdvHours(oldrp.getMinAdvanceBookingDays());
@@ -856,40 +854,43 @@ public class RatePlansService implements IRatePlansService {
 
 		return false;
 	}
-
-	// / <summary>
-	// /
-	// / 3---限时抢购
-	// / 4--钟点房
-	// /
-	// / </summary>
-	// / <param name="strProductType">16---限时抢购,32--钟点房</param>
-	// / <returns></returns>
+	/**
+	 * 3---限时抢购
+	 * 4--钟点房
+	 * @param strProductType 16---限时抢购,32--钟点房
+	 * @param bookingchanel
+	 * @param isHourPayRoom
+	 * @return
+	 */
 	public String ParseProductType(String strProductType, int bookingchanel,
 			boolean isHourPayRoom) {
 		String productTypes = "";
+		List<String> productTypeList=new LinkedList<String>();
 		int pt = Integer.parseInt("0" + strProductType);
 		if ((pt & 16) == 16)
-			productTypes += "3,";
+			productTypeList.add("3");
+			//productTypes += "3,";
 		if (isHourPayRoom || (pt & 32) == 32)
-			productTypes += "4,";
+			productTypeList.add("4");
 		if ((bookingchanel & 2) == 0 && (bookingchanel & 16) == 16)
-			productTypes += "5,";
+			productTypeList.add("5");
 		// 买一送一 productType值是2的14次方
 		if ((pt & 16384) == 16384) {
-			productTypes = "101";
+			productTypeList.add("101");
 		}
-		if (productTypes.equals("")) {
-			productTypes = null;
+		if (productTypeList.size()>0) {
+			productTypes = StringUtils.join(productTypeList, ",");
 		} else {
-			// productTypes = productTypes.TrimEnd(new char[] { ',' }); //123,
-			if (productTypes.contains(","))
-				productTypes = productTypes.substring(0,
-						productTypes.lastIndexOf(","));
+			productTypes=null;
 		}
 		return productTypes;
 	}
-
+	/**
+	 * 担保规则转换
+	 * @param oldrp
+	 * @param language
+	 * @return
+	 */
 	private List<com.elong.nb.model.bean.base.BaseGuaranteeRule> getGuaranteeRules(
 			RatePlanBaseInfo oldrp, EnumLocal language) {
 		List<com.elong.nb.model.bean.base.BaseGuaranteeRule> result = new LinkedList<com.elong.nb.model.bean.base.BaseGuaranteeRule>();
@@ -1009,8 +1010,6 @@ public class RatePlansService implements IRatePlansService {
 				prepayrule = EnumPrepayChangeRule.PrepayNeedSomeDay;
 			basePrepay.setChangeRule(prepayrule);
 
-			// Tools.ParseEnum<com.elong.api.hotel.model.rest.enums.EnumDateType>(rule.DateType.GetHashCode().ToString(),
-			// model.rest.enums.EnumDateType.CheckInDay)
 			EnumDateType dateType = EnumDateType.CheckInDay;
 			if (rule.getDateType() != 0) {
 				dateType = EnumDateType.forValue(rule.getDateType());
@@ -1222,12 +1221,8 @@ public class RatePlansService implements IRatePlansService {
 
 				if (addValue.getSinglePriceDefaultOption() == 1) {
 					if (language == EnumLocal.zh_CN) {
-						// addValue.getSinglePrice().ToString("0.00").TrimEnd('0').TrimEnd('.')
-						// + " 元,"
 						sb2.append(" " + addValue.getSinglePrice() + " 元,");
 					} else {
-						// addValue.SinglePrice.ToString("0.00").TrimEnd('0').TrimEnd('.')
-						// + " ,"
 						sb2.append(" RMB " + addValue.getSinglePrice() + " ,");
 					}
 
@@ -1348,7 +1343,12 @@ public class RatePlansService implements IRatePlansService {
 
 		return result;
 	}
-
+	/**
+	 * 预订规则
+	 * @param hotel
+	 * @param language
+	 * @return
+	 */
 	private List<com.elong.nb.model.bean.base.BaseBookingRule> getBookingRules(
 			HotelDetail hotel, EnumLocal language) {
 		HashMap<Long, HotelBookingRule> dict = new HashMap<Long, HotelBookingRule>();
@@ -1428,7 +1428,11 @@ public class RatePlansService implements IRatePlansService {
 		}
 		return result;
 	}
-
+	/**
+	 * 发票模式
+	 * @param SupplierID
+	 * @return
+	 */
 	private EnumInvoiceMode getInvoiceMode(int SupplierID) {
 		try {
 			GetSupplierInfoBySupplierIDRequest req = new GetSupplierInfoBySupplierIDRequest();
