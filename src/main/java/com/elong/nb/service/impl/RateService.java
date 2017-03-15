@@ -22,9 +22,9 @@ import com.elong.nb.model.bean.enums.EnumPaymentType;
 import com.elong.nb.model.rate.RateCondition;
 import com.elong.nb.model.rate.RateResult;
 import com.elong.nb.model.rate.bean.Rate;
-import com.elong.nb.rule.common.SettlementPriceRuleCommon;
-import com.elong.nb.rule.common.enums.EnumSystem;
-import com.elong.nb.rule.common.model.RateWithRule;
+import com.elong.nb.rule.agent.SettlementPriceRuleCommon;
+import com.elong.nb.rule.agent.enums.EnumSystem;
+import com.elong.nb.rule.agent.model.RateWithRule;
 import com.elong.nb.service.IRateService;
 import com.elong.nb.util.DateUtil;
 
@@ -116,6 +116,7 @@ public class RateService implements IRateService {
 			hotelCodeList.addAll(Arrays.asList(sHotelId.split(",")));
 		}
 		SettlementPriceRuleCommon settlementCommon=null;
+		//预付及现付需要返回底价的价格数据
 		if(paymentType==EnumPaymentType.Prepay||proxyInfo.getEnableReturnAgentcyRateCost()){
 			settlementCommon=new SettlementPriceRuleCommon(proxyInfo, hotelCodeList, EnumSystem.Data);
 		}
@@ -123,8 +124,7 @@ public class RateService implements IRateService {
 			if (sHotelIdArrays == null || sHotelIdArrays.size() <= 0) {
 				break;
 			}
-			List<String> sHotelIdArray = sHotelIdArrays.get(i) != null ? Arrays
-					.asList(sHotelIdArrays.get(i)) : null;
+			List<String> sHotelIdArray = sHotelIdArrays.get(i) != null ? Arrays.asList(sHotelIdArrays.get(i)) : null;
 			if (sHotelIdArray == null || sHotelIdArray.size() <= 0) {
 				continue;
 			}
@@ -181,6 +181,7 @@ public class RateService implements IRateService {
 								
 								double weekend = item.getWeekendMemberRate() != null ? item.getWeekendMemberRate().doubleValue():-1d;
 								weekend = toIntegerPrice(weekend,proxyInfo.getIntegerPriceType());
+								//预付及现付需要返回结算价
 								if(paymentType == EnumPaymentType.Prepay||proxyInfo.getEnableReturnAgentcyRateCost()){
 									double costPrice=item.getGenSaleCost() != null ? item.getGenSaleCost().doubleValue() : -1d;
 									List<RateWithRule> memberRateList=settlementCommon.getSettlementPrice(costPrice, member, item.getHotelID(), rateStartDate, rateEndDate);
@@ -222,8 +223,7 @@ public class RateService implements IRateService {
 									rate.setStatus(item.getIsEffective() != null&& item.getIsEffective() == 1);
 									rate.setWeekend(weekend);
 									rate.setWeekendCost(-1d);
-									rate.setAddBed(item.getAllowAddBed() == 1 ? item
-											.getAddBedRate().doubleValue() : -1d);
+									rate.setAddBed(item.getAllowAddBed() == 1 ? item.getAddBedRate().doubleValue() : -1d);
 									rate.setPriceID(item.getPriceID());
 									rate.setCurrencyCode(item.getCurrencyCode());
 									result.add(rate);
