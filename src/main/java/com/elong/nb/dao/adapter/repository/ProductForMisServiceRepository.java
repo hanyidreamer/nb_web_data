@@ -40,7 +40,7 @@ public class ProductForMisServiceRepository {
 		CheckInventoryAndPriceRequest req = new CheckInventoryAndPriceRequest();
 		BigLog log = new BigLog();
 		log.setUserLogType(guid);
-		log.setAppName("data_wcf");
+		log.setAppName("IProductForSearchServiceContract ");
 		log.setTraceId(UUID.randomUUID().toString());
 		log.setSpan("1.1");
 		req.setArriveDate(DateUtil.toDateTime(arrivalDate));
@@ -63,7 +63,7 @@ public class ProductForMisServiceRepository {
 		ArrayOfPriceDaySimple arrayPrice = new ArrayOfPriceDaySimple();
 		req.setPriceList(arrayPrice);
 		req.setDynamicId("");
-		log.setServiceName("IProductForSearchServiceContract.checkInventoryAndPriceForNB");
+		log.setServiceName("checkInventoryAndPriceForNB");
 		long start = System.currentTimeMillis();
 		try {
 			CheckInventoryAndPriceResponse res = ProductForSearchServiceForRealTimeCheck

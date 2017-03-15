@@ -28,7 +28,7 @@ public class RateRepository {
 		GetHotelRoomPriceResponse2 response=null;
 
 		log.setUserLogType(guid);
-		log.setAppName("data_wcf");
+		log.setAppName("IProductForNBServiceContract");
 		log.setTraceId(UUID.randomUUID().toString());
 		log.setSpan("1.1");
 		
@@ -43,7 +43,7 @@ public class RateRepository {
 		req.setHotelID(sHotelId);
 		req.setStartDate(DateUtil.toDateTime(startDate));
 		req.setEndDate(DateUtil.toDateTime(endDate));
-		log.setServiceName("IProductForNBServiceContract.getHotelRoomPrice");
+		log.setServiceName("getHotelRoomPrice");
 		log.setRequestBody("-");
 		long start = System.currentTimeMillis();
 		try{

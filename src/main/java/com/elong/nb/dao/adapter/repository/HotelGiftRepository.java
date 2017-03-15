@@ -40,10 +40,10 @@ public class HotelGiftRepository {
 		GetHotelGiftListResponse res = null;
 		BigLog log = new BigLog();
 		try {
-			log.setAppName("data_wcf");
+			log.setAppName("IHotelGiftServiceContract");
 			log.setTraceId(UUID.randomUUID().toString());
 			log.setSpan("1.1");
-			log.setServiceName("IHotelGiftServiceContract.getHotelGiftListByHotelID");
+			log.setServiceName("getHotelGiftListByHotelID");
 			log.setRequestBody(sHotelId);
 			long start = System.currentTimeMillis();
 			res = hotelGiftServiceContract.getHotelGiftListByHotelID(sHotelId);
