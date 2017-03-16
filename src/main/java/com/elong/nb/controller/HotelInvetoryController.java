@@ -80,6 +80,10 @@ public class HotelInvetoryController {
 	 */
 	private String validateInventoryRequest(RestRequest<InventoryCondition> restRequest) {
 		StringBuffer sb = new StringBuffer(ValidateUtil.validateRestRequest(restRequest));
+		if(StringUtils.isBlank(restRequest.getRequest().getHotelIds())||restRequest.getRequest().getHotelIds().split(",").length>10){
+			sb.append(ErrorCode.Common_NumberIdsFormatErrorAndLessThanTen);
+			return sb.toString();
+		}
 		if (restRequest.getRequest().getStartDate() == null) {
 			sb.append(ErrorCode.Common_StartDateRequired);
 			return sb.toString();
@@ -92,9 +96,18 @@ public class HotelInvetoryController {
 			sb.append(ErrorCode.Common_StartDateLessThanEndDate);
 			return sb.toString();
 		}
-		if (StringUtils.isBlank(restRequest.getRequest().getHotelCodes())&& StringUtils.isBlank(restRequest.getRequest().getHotelIds())) {
-			sb.append(ErrorCode.Common_NumberIdsFormatErrorAndLessThanTen);
-			return sb.toString();
+//		if (StringUtils.isBlank(restRequest.getRequest().getHotelCodes())&& StringUtils.isBlank(restRequest.getRequest().getHotelIds())) {
+//			sb.append(ErrorCode.Common_NumberIdsFormatErrorAndLessThanTen);
+//			return sb.toString();
+//		}
+		if(!StringUtils.isBlank(restRequest.getRequest().getHotelCodes())){
+			if(restRequest.getRequest().getHotelIds().contains(",")){
+				sb.append(ErrorCode.Common_HotelIdRequiredOnlyOne);
+				return sb.toString();
+			}else if(restRequest.getRequest().getHotelCodes().split(",").length>10){
+				sb.append(ErrorCode.Common_NumberCodesFormatErrorAndLessThanTen);
+				return sb.toString();
+			}
 		}
 		return sb.toString();
 	}

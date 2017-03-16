@@ -52,8 +52,21 @@ public class HotelRateController {
 		StringBuffer sb = new StringBuffer(
 				ValidateUtil.validateRestRequest(restRequest));
 		RateCondition req = restRequest.getRequest();
-		if(StringUtils.isNoneBlank(restRequest.getRequest().getHotelIds())&&restRequest.getRequest().getHotelIds().split(",").length>10){
+		if(StringUtils.isBlank(restRequest.getRequest().getHotelIds())||restRequest.getRequest().getHotelIds().split(",").length>10){
 			sb.append(ErrorCode.Common_NumberIdsFormatErrorAndLessThanTen);
+			return sb.toString();
+		}
+		if(!StringUtils.isBlank(restRequest.getRequest().getHotelCodes())){
+			if(restRequest.getRequest().getHotelIds().contains(",")){
+				sb.append(ErrorCode.Common_HotelIdRequiredOnlyOne);
+				return sb.toString();
+			}else if(restRequest.getRequest().getHotelCodes().split(",").length>10){
+				sb.append(ErrorCode.Common_NumberCodesFormatErrorAndLessThanTen);
+				return sb.toString();
+			}
+		}
+		if(restRequest.getRequest().getPaymentType()==null){
+			sb.append(ErrorCode.Common_PaymentTypeRequired);
 			return sb.toString();
 		}
 		if(restRequest.getRequest().getStartDate()==null){
@@ -68,10 +81,10 @@ public class HotelRateController {
 			sb.append(ErrorCode.Common_StartDateLessThanEndDate);
 			return sb.toString();
 		}
-		if(restRequest.getRequest().getPaymentType()==null){
-			sb.append(ErrorCode.Common_PaymentTypeRequired);
-			return sb.toString();
-		}
+//		if(restRequest.getRequest().getPaymentType()==null){
+//			sb.append(ErrorCode.Common_PaymentTypeRequired);
+//			return sb.toString();
+//		}
 		/**
 		 * 如果没有预付权限还查询，则返回错误信息
 		 */

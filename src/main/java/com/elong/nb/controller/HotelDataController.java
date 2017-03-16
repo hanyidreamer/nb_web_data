@@ -71,12 +71,20 @@ public class HotelDataController {
 		/**
 		 * 付款类型不能为空
 		 */
-		if (req.getPaymentType() == null || req.getPaymentType().getValue() < 0) {
-			sb.append(ErrorCode.Common_PaymentTypeRequired);
-		}
-		if (StringUtils.isEmpty(req.getHotelIds())
-				&& StringUtils.isEmpty(sb.toString())) {
+		/**
+		 * 代理不传的时候默认为All 不需要判断空
+		 */
+//		if (req.getPaymentType() == null || req.getPaymentType().getValue() < 0) {
+//			sb.append(ErrorCode.Common_PaymentTypeRequired);
+//			return sb.toString();
+//		}
+		if (StringUtils.isBlank(req.getHotelIds())) {
 			sb.append(ErrorCode.Common_HotelIdRequired);
+			return sb.toString();
+		}
+		if(req.getHotelIds().split(",").length>10){
+			sb.append(ErrorCode.Common_NumberIdsFormatErrorAndLessThanTen);
+			return sb.toString();
 		}
 		return sb.toString();
 	}

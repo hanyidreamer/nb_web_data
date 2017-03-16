@@ -80,11 +80,6 @@ public class HttpUtil {
 			conn.setInstanceFollowRedirects(true);
 			conn.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
 			conn.connect();
-	        // DataOutputStream.writeBytes将字符串中的16位的unicode字符以8位的字符形式写道流里面
-			//DataOutputStream out = new DataOutputStream(conn.getOutputStream());
-			//out.write(reqData.getBytes("UTF-8")); 
-			//out.flush();
-	        //out.close();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(),"UTF-8"));
 			String lines;
 			StringBuilder sb = new StringBuilder();

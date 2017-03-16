@@ -46,7 +46,7 @@ public class InventoryRepository {
 		BigLog log = new BigLog();
 		try{
 		log.setUserLogType(guid);
-		log.setAppName("data_wcf");
+		log.setAppName("IProductForPartnerServiceContract");
 		log.setTraceId(UUID.randomUUID().toString());
 		log.setSpan("1.1");
 		//需要即时确认的库存
@@ -60,7 +60,7 @@ public class InventoryRepository {
 			}
 			request.setOperatorTime(new DateTime());
 			request.setIsNeedInstantConfirm(!isForBooking);
-			log.setServiceName("IProductForPartnerServiceContract.getInventoryChangeDetailAndInstantConfirm");
+			log.setServiceName("getInventoryChangeDetailAndInstantConfirm");
 			//log.setRequestBody(JSON.toJSONString(request));
 			long start = System.currentTimeMillis();
 			GetInvChangeAndInstantConfirmResponse response=null;
@@ -105,7 +105,7 @@ public class InventoryRepository {
 				request.setRoomTypeIDs(roomTypeId);
 			}
 			request.setOperatorTime(new DateTime());
-			log.setServiceName("IProductForPartnerServiceContract.getInventoryChangeDetail");
+			log.setServiceName("getInventoryChangeDetail");
 			//log.setRequestBody(JSON.toJSONString(request));
 			long start = System.currentTimeMillis();
 			GetInventoryChangeDetailResponse response=this.webProductForPartnerServiceContract.getInventoryChangeDetail(request);
