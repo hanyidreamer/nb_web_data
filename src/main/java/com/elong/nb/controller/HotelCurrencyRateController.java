@@ -40,36 +40,38 @@ import com.google.gson.TypeAdapter;
  * (类型功能说明描述)
  *
  * <p>
- * 修改历史:											<br>  
- * 修改日期    		修改人员   	版本	 		修改内容<br>  
- * -------------------------------------------------<br>  
- * 2016年10月14日 下午4:56:12   user     1.0    	初始化创建<br>
- * </p> 
+ * 修改历史: <br>
+ * 修改日期 修改人员 版本 修改内容<br>
+ * -------------------------------------------------<br>
+ * 2016年10月14日 下午4:56:12 user 1.0 初始化创建<br>
+ * </p>
  *
- * @author		zhangyang.zhu  
- * @version		1.0  
- * @since		JDK1.7
+ * @author zhangyang.zhu
+ * @version 1.0
+ * @since JDK1.7
  */
 @Controller
 public class HotelCurrencyRateController {
 	@Resource
 	private ICurrencyRateService currencyRateService;
-	@RequestMapping(value="/api/Hotel/GetExchangeRate",method=RequestMethod.POST)
-	public ResponseEntity<byte[]> getExchangeRate(HttpServletRequest request) throws IOException{
-		RestRequest<ExchangeRateCondition> restRequest=null;
-		RestResponse<ExchangeRateResult>restResponse=null;
-		try {
-			restRequest=GsonUtil.toReq(request, ExchangeRateCondition.class, null);
-			restResponse=new RestResponse<ExchangeRateResult>(restRequest.getGuid());
-			if(restRequest!=null){
-				restResponse=currencyRateService.getCurrencyRate(restRequest);
-			}
-			
-		} catch (Exception e) {
-			restResponse.setResult(null);
-			restResponse.setCode("获取汇率接口异常"+e);
+
+	@RequestMapping(value = "/api/Hotel/GetExchangeRate", method = RequestMethod.POST)
+	public ResponseEntity<byte[]> getExchangeRate(HttpServletRequest request)
+			throws Exception {
+		RestRequest<ExchangeRateCondition> restRequest = null;
+		RestResponse<ExchangeRateResult> restResponse = null;
+		// try {
+		restRequest = GsonUtil.toReq(request, ExchangeRateCondition.class, null);
+		restResponse = new RestResponse<ExchangeRateResult>(restRequest.getGuid());
+		if (restRequest != null) {
+			restResponse = currencyRateService.getCurrencyRate(restRequest);
 		}
-		return new ResponseEntity(GsonUtil.toJson(restResponse,
-				restRequest.getVersion() == null ? 0d : restRequest.getVersion()).getBytes(), HttpStatus.OK);
+
+		// } catch (Exception e) {
+		// restResponse.setResult(null);
+		// restResponse.setCode("获取汇率接口异常"+e);
+		// }
+		return new ResponseEntity(GsonUtil.toJson(restResponse,restRequest.getVersion() == null ? 0d : restRequest
+						.getVersion()).getBytes(), HttpStatus.OK);
 	}
 }

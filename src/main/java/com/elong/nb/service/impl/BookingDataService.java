@@ -96,7 +96,7 @@ public class BookingDataService implements IBookingDataService {
 			Date now=DateUtil.getDate(new Date());
 			Calendar cdDeparture = Calendar.getInstance();
 			cdDeparture.add(Calendar.DATE, 1);
-			if (request.getVersion() < 1.13) {
+			if (request.getVersion() < 1.13)  {
 				errorCode.append(MessageFormat.format(ErrorCode.Common_VersionToLow, 1.13));
 			} else if (request.getRequest().getPaymentType() == EnumPaymentType.All) {
 				errorCode.append(ErrorCode.Common_PaymentTypeRequired);
@@ -118,8 +118,12 @@ public class BookingDataService implements IBookingDataService {
 			ListRatePlan rpOfSearch = null;
 			RestResponse<HotelListResponse> detailres = searchDetailRepository.getHotelDetail(request.getGuid(), request.getLocal(), request.getProxyInfo(), request.getRequest().getArrivalDate(), request.getRequest().getDepartureDate(), request.getRequest().getHotelId(), request.getRequest().getRoomTypeId(), request.getRequest().getRatePlanId(),request.getRequest().getPaymentType());
 			if (detailres == null || !detailres.getCode().equals("0")) {
-				if (detailres != null)
+				if (detailres != null){
 					result.setCode(detailres.getCode());
+				}
+				else{
+					result.setCode(ErrorCode.Common_UnkownException+"搜索接口异常");
+				}
 				result.setResult(null);
 				return result;
 			} else {
@@ -195,44 +199,60 @@ public class BookingDataService implements IBookingDataService {
 			List<Exception> exceptions = new LinkedList<Exception>();
 			taskFactory.shutdown();
 			if (rateTask != null) {
-				List<Rate> obj = rateTask.get();
-				if (obj != null)
-					result.getResult().setRates(obj);
+				try{
+					List<Rate> obj = rateTask.get();
+					if (obj != null)
+						result.getResult().setRates(obj);
+				}catch(Exception ex){
+					exceptions.add(ex); 
+				}
 			}
 			if (invTask != null) {
-				List<Inventory> obj = invTask.get();
-				if (obj != null){
-					List<Inventory> invList=obj;
-					result.getResult().setInventories(invList);
+				try{
+					List<Inventory> obj = invTask.get();
+					if (obj != null){
+						List<Inventory> invList=obj;
+						result.getResult().setInventories(invList);
+					}
+				}catch(Exception ex){
+					exceptions.add(ex); 
 				}
 			}
 			if (invRealTimeTask != null) {
-				Object obj = invRealTimeTask.get();
-				if (obj != null)
-					realtimeInvAvailable = (boolean) obj;
+				try{
+					Object obj = invRealTimeTask.get();
+					if (obj != null)
+						realtimeInvAvailable = (boolean) obj;
+				}catch(Exception ex){
+					exceptions.add(ex); 
+				}
 			}
 
 			if (rateplanTask != null) {
-				HotelRatePlan obj = rateplanTask.get();
-				if (obj != null) {
-					HotelRatePlan hotel =obj;
-					if (hotel != null && hotel.getRatePlans() != null && hotel.getRatePlans().size() > 0) {
-						try {
-							for (RatePlan x : hotel.getRatePlans()) {
-								if (x.getRatePlanId() == request.getRequest().getRatePlanId()) {
-									result.getResult().setRatePlan(x);
+				try{
+					HotelRatePlan obj = rateplanTask.get();
+					if (obj != null) {
+						HotelRatePlan hotel =obj;
+						if (hotel != null && hotel.getRatePlans() != null && hotel.getRatePlans().size() > 0) {
+							try {
+								for (RatePlan x : hotel.getRatePlans()) {
+									if (x.getRatePlanId() == request.getRequest().getRatePlanId()) {
+										result.getResult().setRatePlan(x);
+									}
 								}
+	
+								if (result.getResult().getRatePlan() != null && hotel.getSuppliers() != null && hotel.getSuppliers().size() > 0) {
+									result.getResult().setBookingRules(hotel.getSuppliers().get(0).getBookingRules());
+									result.getResult().setWeekendStart(hotel.getSuppliers().get(0).getWeekendStart());
+									result.getResult().setWeekendEnd(hotel.getSuppliers().get(0).getWeekendEnd());
+								}
+							} catch (Exception ex) {
+								logger.error(ex.getMessage());
 							}
-
-							if (result.getResult().getRatePlan() != null && hotel.getSuppliers() != null && hotel.getSuppliers().size() > 0) {
-								result.getResult().setBookingRules(hotel.getSuppliers().get(0).getBookingRules());
-								result.getResult().setWeekendStart(hotel.getSuppliers().get(0).getWeekendStart());
-								result.getResult().setWeekendEnd(hotel.getSuppliers().get(0).getWeekendEnd());
-							}
-						} catch (Exception ex) {
-							logger.error(ex.getMessage());
 						}
 					}
+				}catch(Exception ex){
+					exceptions.add(ex); 
 				}
 			}
 

@@ -70,7 +70,7 @@ public class InventoryRepository {
 				response=this.webProductForPartnerServiceContract.getInventoryChangeDetailAndInstantConfirm(request);
 			}
 			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
-			if(response!=null&&response.getResourceInvAndInstantConfirmStateList()!=null&&response.getResourceInvAndInstantConfirmStateList().getResourceInvAndInstantConfirmState().size()>0){
+			if(response!=null&&response.getResourceInvAndInstantConfirmStateList()!=null&&response.getResourceInvAndInstantConfirmStateList().getResourceInvAndInstantConfirmState()!=null&&response.getResourceInvAndInstantConfirmStateList().getResourceInvAndInstantConfirmState().size()>0){
 				log.setBusinessErrorCode("0");
 				log.setResponseBody("IP:"+response.getResult().getApplicationServerIP()+"time:"+response.getResult().getUsedMillionSecond());
 				for(ResourceInvAndInstantConfirmState item:response.getResourceInvAndInstantConfirmStateList().getResourceInvAndInstantConfirmState()){
@@ -111,7 +111,7 @@ public class InventoryRepository {
 			GetInventoryChangeDetailResponse response=this.webProductForPartnerServiceContract.getInventoryChangeDetail(request);
 			long end=System.currentTimeMillis();
 			log.setElapsedTime(String.valueOf(end-start));
-			if(response!=null&&response.getResourceInventoryStateList().getResourceInventoryState().size()>0){
+			if(response!=null&&response.getResourceInventoryStateList()!=null&&response.getResourceInventoryStateList().getResourceInventoryState()!=null&&response.getResourceInventoryStateList().getResourceInventoryState().size()>0){
 				log.setBusinessErrorCode("0");
 				if(response.getResult()!=null){
 					log.setResponseBody("IP:"+response.getResult().getApplicationServerIP()+"time:"+response.getResult().getUsedMillionSecond());
