@@ -17,22 +17,24 @@
            http://code.alibabatech.com/schema/dubbo
        	   http://code.alibabatech.com/schema/dubbo/dubbo.xsd">	
 		   
-		   
+	<context:component-scan base-package="com.elong.nb.**"></context:component-scan>
+	<import resource="service-agent.xml"/>	   
+	<aop:aspectj-autoproxy proxy-target-class="true"/>
 	<!-- 以下一行配置为JavaDoc站点，必须保留！！！切记！！！如果更改或servlet.xml，请务必保留下行 -->
 	<mvc:annotation-driven/>
     <mvc:resources mapping="/apidocs/**" location="/apidocs/" />
     <mvc:resources mapping="/hc/**" location="/hc/" />
 	
 	<!-- HttpAPI日志拦截器，完成对@ResponseBody注解的Http请求 -->
-	<bean id="serviceAspect" class="com.elong.springmvc_enhance.core.ServiceAspect" >
+	<!-- <bean id="serviceAspect" class="com.elong.springmvc_enhance.core.ServiceAspect" >
 	</bean>
 	<aop:config>
 		<aop:pointcut id="si" expression="@annotation(org.springframework.web.bind.annotation.ResponseBody)" />
        	<aop:advisor pointcut-ref="si" advice-ref="serviceAspect"/>
-    </aop:config>
+    </aop:config> -->
 	
 	<!-- 页面全局异常处理  -->	
-	<bean id="exceptionResolver" class="com.elong.springmvc_enhance.core.HotelHandlerExceptionResolver">
+	<bean id="exceptionResolver" class="com.elong.nb.common.exception.NBHandlerExceptionResolver">
 	</bean>
 	
 	<bean id="velocityConfig" class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
