@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Resource;
@@ -19,7 +20,18 @@ import com.elong.nb.agent.ProductForPartnerServiceContract.GetInventoryChangeDet
 import com.elong.nb.agent.ProductForPartnerServiceContract.IProductForPartnerServiceContract;
 import com.elong.nb.agent.ProductForPartnerServiceContract.ResourceInvAndInstantConfirmState;
 import com.elong.nb.agent.ProductForPartnerServiceContract.ResourceInventoryState;
+import com.elong.nb.agent.thrift.model.GetInvAndInstantConfirmRequest;
+import com.elong.nb.agent.thrift.model.GetInvAndInstantConfirmResponse;
+import com.elong.nb.agent.thrift.model.InvDetail;
+import com.elong.nb.agent.thrift.model.MhotelAttr;
+import com.elong.nb.agent.thrift.model.MhotelDetail;
+import com.elong.nb.agent.thrift.model.ShotelAttr;
+import com.elong.nb.agent.thrift.model.ShotelDetail;
+import com.elong.nb.agent.thrift.model.SroomDetail;
+import com.elong.nb.agent.thrift.utils.ThriftUtils;
 import com.elong.nb.checklist.CheckListUtil;
+import com.elong.nb.common.util.CommonsUtil;
+import com.elong.nb.common.util.SafeConvertUtils;
 import com.elong.nb.data.biglog.BigLog;
 import com.elong.nb.model.bean.Inventory;
 import com.elong.nb.util.DateUtil;
@@ -30,6 +42,9 @@ public class InventoryRepository {
 	private IProductForPartnerServiceContract webProductForPartnerServiceContract;
 	@Resource(name="orderProductForPartnerServiceContract")
 	private IProductForPartnerServiceContract orderProductForPartnerServiceContract;
+	private static final String server_ip=CommonsUtil.CONFIG_PROVIDAR.getProperty("inv.server_ip");
+	private static final String server_port=CommonsUtil.CONFIG_PROVIDAR.getProperty("inv.server_port");
+	private static final String server_timeout=CommonsUtil.CONFIG_PROVIDAR.getProperty("inv.server_timeout");
 	/**
 	 * 获取库存
 	 * @param mHotelId
@@ -139,9 +154,116 @@ public class InventoryRepository {
 		}catch(Exception ex){
 			log.setException(ex);
 			log.setExceptionMsg(ex.getMessage());
-			log.setResponseCode("1");
 			CheckListUtil.error(log);
 			throw new RuntimeException("Inventory",ex);
+		}
+		CheckListUtil.info(log);
+		return inventorys;
+	}
+	/**
+	 * 获取库存接口(商品库)
+	 * @param hotelIdMap
+	 * @param roomTypeIds
+	 * @param startDate
+	 * @param endDate
+	 * @param isNeedInstantConfirm
+	 * @param orderFrom
+	 * @param guid
+	 * @return
+	 */
+	public List<Inventory> getInventorys(Map<String,List<String>> hotelIdMap ,List<String> roomTypeIds,Date startDate,Date endDate,boolean isNeedInstantConfirm,int orderFrom,String guid){
+		BigLog log = new BigLog();
+		log.setUserLogType(guid);
+		log.setAppName("InventoryRepository");
+		log.setTraceId(UUID.randomUUID().toString());
+		log.setSpan("1.1");
+		log.setServiceName("getInventorys");
+		List<Inventory> inventorys=new LinkedList<Inventory>();
+		GetInvAndInstantConfirmRequest request=new GetInvAndInstantConfirmRequest();
+		request.setStart_date(startDate.getTime());
+//		//商品库时间需要逻辑结束时间+1天(商品库逻辑已修改)
+//		request.setEnd_date(DateUtil.addDays(endDate, 1).getTime());
+		request.setEnd_date(endDate.getTime());
+		request.setNeed_instant_confirm(isNeedInstantConfirm);
+		request.setOrder_from(orderFrom);
+		request.setSearch_from(3);//3：NBAPI
+		List<MhotelAttr> mhotel_attr=new ArrayList<MhotelAttr>();
+		for(String hotelId:hotelIdMap.keySet()){
+			MhotelAttr mhotel=new MhotelAttr();
+			mhotel.setMhotel_id(Integer.valueOf(hotelId));
+			if(hotelIdMap.get(hotelId)!=null){
+				List<ShotelAttr> shotels=new LinkedList<ShotelAttr>();
+				for(String hotelCode:hotelIdMap.get(hotelId)){
+					ShotelAttr shotel=new ShotelAttr();
+					shotel.setShotel_id(Integer.valueOf(hotelCode));
+					if(roomTypeIds!=null&&roomTypeIds.size()>0){
+						List<Integer> sroomIds=new LinkedList<Integer>();
+						for(String roomTypeId:roomTypeIds){
+							sroomIds.add(Integer.valueOf(roomTypeId));
+						}
+						shotel.setSroom_ids(sroomIds);
+					}
+					shotels.add(shotel);
+				}
+				mhotel.setShotel_attr(shotels);
+			}
+			mhotel_attr.add(mhotel);
+		}
+		request.setMhotel_attr(mhotel_attr);
+		try {
+			long start = System.currentTimeMillis();
+			GetInvAndInstantConfirmResponse response=ThriftUtils.getInventory(request,server_ip,Integer.valueOf(server_port),Integer.valueOf(server_timeout));
+			long end=System.currentTimeMillis();
+			log.setElapsedTime(String.valueOf(end-start));
+			if(response!=null){
+				if(response.getReturn_code()==0){
+					log.setBusinessErrorCode("0");
+					if(response.getMhotel_detail()!=null&&response.getMhotel_detail().size()>0){
+						for(MhotelDetail mhotel:response.getMhotel_detail()){
+							if(mhotel!=null&&mhotel.getShotel_detail()!=null&&mhotel.getShotel_detail().size()>0){
+								for(ShotelDetail shotel:mhotel.getShotel_detail()){
+									if(shotel!=null&&shotel.getSroom_detail()!=null&&shotel.getSroom_detail().size()>0){
+										for(SroomDetail sroom:shotel.getSroom_detail()){
+											if(sroom!=null&&sroom.getInv_detail()!=null&&sroom.getInv_detail().size()>0){
+												for(InvDetail item:sroom.getInv_detail()){
+													Inventory inv=new Inventory();
+													inv.setHotelID(SafeConvertUtils.ToHotelId(mhotel.getMhotel_id()));
+													inv.setStartDate(new Date(item.getBegin_date()));
+													inv.setEndDate(new Date(item.getEnd_date()));
+													inv.setStartTime(item.getBegin_time());
+													inv.setEndTime(item.getEnd_time());
+													inv.setAvailableAmount(item.getAvailable_amount());
+													inv.setAvailableDate(new Date(item.getAvailable_date()));
+													inv.setRoomTypeID(SafeConvertUtils.ToRoomId(sroom.sroom_id));
+													inv.setStatus(item.getStatus()==0);//0:有效 
+													inv.setOverBooking(item.getIs_over_booking());//0:可超售 1:不可超售
+													inv.setHotelCode(SafeConvertUtils.ToHotelId(shotel.shotel_id));
+													if(isNeedInstantConfirm){
+														inv.setIsInstantConfirm(item.instant_confirm);
+														inv.setIC_BeginTime(item.getIc_begin_time());
+														inv.setIC_EndTime(item.getIc_end_time());
+													}
+													convertInventory(inv);
+													inventorys.add(inv);
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}else{
+					throw new RuntimeException(response.getReturn_msg());
+				}
+			}else{
+				throw new RuntimeException("获取商品库库存信息异常");
+			}
+		} catch (Exception ex) {
+			log.setException(ex);
+			log.setExceptionMsg(ex.getMessage());
+			CheckListUtil.error(log);
+			throw new RuntimeException("Inventory:"+ex.getMessage(),ex);
 		}
 		CheckListUtil.info(log);
 		return inventorys;
