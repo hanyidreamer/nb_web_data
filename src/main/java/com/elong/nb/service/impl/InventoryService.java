@@ -78,7 +78,7 @@ public class InventoryService implements IInventoryService{
 		RestResponse<InventoryResult> response = new RestResponse<InventoryResult>(
 				restRequest.getGuid());
 		InventoryResult result = new InventoryResult();
-		List<Inventory> list= getInentory(restRequest.getProxyInfo(),restRequest.getRequest().getHotelIds(),restRequest.getRequest().getHotelCodes(),restRequest.getRequest().getRoomTypeId(),restRequest.getRequest().getStartDate(),restRequest.getRequest().getEndDate(),
+		List<Inventory> list= getInentory(restRequest.getProxyInfo(),restRequest.getRequest().getHotelIds().trim(),restRequest.getRequest().getHotelCodes(),restRequest.getRequest().getRoomTypeId(),restRequest.getRequest().getStartDate(),restRequest.getRequest().getEndDate(),
 				restRequest.getRequest().isIsNeedInstantConfirm(),restRequest.getProxyInfo().getOrderFrom(),false,restRequest.getGuid());
 		result.setInventories(list);
 		response.setResult(result);
@@ -161,7 +161,7 @@ public class InventoryService implements IInventoryService{
 		if (StringUtils.isNotBlank(hotelCodeString)) {
 			mHotelIdArray = new String[] { hotelId };
 			sHotelIdArrays = new ArrayList<String[]>();
-			String[] hotelCodes=hotelCodeString.split(",");
+			String[] hotelCodes=hotelCodeString.trim().split(",");
 			sHotelIdArrays.add(hotelCodes);
 		} else{
 			List<String> hotelIdList=ComparableUtil.convertDistinctList(Arrays.asList(hotelId.split(",")));
