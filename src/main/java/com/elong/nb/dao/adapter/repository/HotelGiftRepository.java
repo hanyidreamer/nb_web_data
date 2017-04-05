@@ -35,7 +35,7 @@ public class HotelGiftRepository {
 	 * @param sHotelId
 	 * @return
 	 */
-	public List<HotelGift> getHotelGiftBySHotelId(String sHotelId) {
+	public List<HotelGift> getHotelGiftBySHotelId(String shotelId) {
 		List<HotelGift> list = new ArrayList<HotelGift>();
 		GetHotelGiftListResponse res = null;
 		BigLog log = new BigLog();
@@ -44,9 +44,9 @@ public class HotelGiftRepository {
 			log.setTraceId(UUID.randomUUID().toString());
 			log.setSpan("1.1");
 			log.setServiceName("getHotelGiftListByHotelID");
-			log.setRequestBody(sHotelId);
+			log.setRequestBody(shotelId);
 			long start = System.currentTimeMillis();
-			res = hotelGiftServiceContract.getHotelGiftListByHotelID(sHotelId);
+			res = hotelGiftServiceContract.getHotelGiftListByHotelID(shotelId);
 			log.setElapsedTime(String.valueOf(System.currentTimeMillis()
 					- start));
 			//log.setRequestBody(res != null ? JSON.toJSONString(res) : "");
@@ -63,7 +63,7 @@ public class HotelGiftRepository {
 			log.setExceptionMsg(ex.getMessage());
 			log.setResponseCode("1");
 			CheckListUtil.error(log);
-			throw new RuntimeException(ex);
+			throw new RuntimeException(ex.getMessage()+"|shotelId:"+shotelId,ex);
 		}
 		CheckListUtil.info(log);
 		if (res != null && res.getResult() != null
@@ -153,7 +153,7 @@ public class HotelGiftRepository {
 				hg.setGiftContent(item.getGiftContentCn());
 				hg.setGiftContentEn(item.getGiftContentEn());
 				hg.setGiftTypes(BitMaskIntToString(item.getGiftTypes()));
-				hg.setHotelCode(sHotelId);
+				hg.setHotelCode(shotelId);
 				hg.setHotelGiftId(item.getGiftID());
 				hg.setHourNumber(hourNumber);
 				hg.setHourType(hourType);

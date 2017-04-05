@@ -40,8 +40,13 @@ public class ValidateInventoryService implements IValidateInventoryService {
 		validateInventoryResult.setIsOK(true);
 		result.setResult(validateInventoryResult);
 		Date start = restRequest.getRequest().getArrivalDate();
-		Date end = DateUtil.addDays(
-				restRequest.getRequest().getDepartureDate(), -1);
+		Date end = null;
+		//如果离店日期大于到店日期 库存校验结束日期为离店日期的前一天的库存
+		if(start.getTime()==restRequest.getRequest().getDepartureDate().getTime()){
+			end=restRequest.getRequest().getDepartureDate();
+		}else{
+			end=DateUtil.addDays(restRequest.getRequest().getDepartureDate(), -1);
+		}
 		// Date now = new Date();
 		Calendar now = Calendar.getInstance();
 		now.setTime(new Date());
@@ -91,9 +96,9 @@ public class ValidateInventoryService implements IValidateInventoryService {
 						result.getResult().setIsOK(false);
 						return result;
 					}
-					// 库存可使用的日期
-					if (inv.getStartTime().length() == 8
-							|| inv.getEndTime().length() == 8) {
+					// 库存可使用的日期(只验证当日的预订时间)
+					if (inv.getAvailableDate().getTime()==DateUtil.getDate(now.getTime()).getTime()&&(inv.getStartTime().length() == 8
+							|| inv.getEndTime().length() == 8)) {
 						String startTimeStr = inv.getStartTime().replace(":", "");
 						if (MathUtil.isNumeric(startTimeStr)) {
 							int t = Integer.parseInt(startTimeStr);
@@ -114,8 +119,6 @@ public class ValidateInventoryService implements IValidateInventoryService {
 				}
 			}
 		}
-		
-
 		return result;
 	}
 

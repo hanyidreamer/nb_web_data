@@ -163,7 +163,7 @@ public class InventoryService implements IInventoryService{
 		if (StringUtils.isNotBlank(hotelCodeString)) {
 			mHotelIdArray = new String[] { hotelId };
 			sHotelIdArrays = new ArrayList<String[]>();
-			String[] hotelCodes=hotelCodeString.split(",");
+			String[] hotelCodes=hotelCodeString.trim().split(",");
 			sHotelIdArrays.add(hotelCodes);
 		} else{
 			List<String> hotelIdList=ComparableUtil.convertDistinctList(Arrays.asList(hotelId.split(",")));

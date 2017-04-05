@@ -58,20 +58,20 @@ public class RateService implements IRateService {
 		List<Rate> rates = new ArrayList<Rate>();
 		if (request.getRequest().getPaymentType() == EnumPaymentType.All) {
 			rates.addAll(getRate(request.getProxyInfo(), request.getRequest()
-					.getHotelIds(), request.getRequest().getHotelCodes(),
+					.getHotelIds().trim(), request.getRequest().getHotelCodes(),
 					request.getRequest().getStartDate(), request.getRequest()
 							.getEndDate(), EnumPaymentType.SelfPay, request
 							.getProxyInfo().getLowestProfitPercent(), request
 							.getGuid()));
 			rates.addAll(getRate(request.getProxyInfo(), request.getRequest()
-					.getHotelIds(), request.getRequest().getHotelCodes(),
+					.getHotelIds().trim(), request.getRequest().getHotelCodes(),
 					request.getRequest().getStartDate(), request.getRequest()
 							.getEndDate(), EnumPaymentType.Prepay, request
 							.getProxyInfo().getLowestProfitPercent(), request
 							.getGuid()));
 		} else {
 			rates.addAll(getRate(request.getProxyInfo(), request.getRequest()
-					.getHotelIds(), request.getRequest().getHotelCodes(),
+					.getHotelIds().trim(), request.getRequest().getHotelCodes(),
 					request.getRequest().getStartDate(), request.getRequest()
 							.getEndDate(), request.getRequest()
 							.getPaymentType(), request.getProxyInfo()
@@ -112,8 +112,8 @@ public class RateService implements IRateService {
 		} else {
 			mHotelIdArray = new String[] { mHotelId };
 			sHotelIdArrays = new ArrayList<String[]>();
-			sHotelIdArrays.add(sHotelId.split(","));
-			hotelCodeList.addAll(Arrays.asList(sHotelId.split(",")));
+			sHotelIdArrays.add(sHotelId.trim().split(","));
+			hotelCodeList.addAll(Arrays.asList(sHotelId.trim().split(",")));
 		}
 		SettlementPriceRuleCommon settlementCommon=null;
 		//预付及现付需要返回底价的价格数据

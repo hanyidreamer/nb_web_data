@@ -108,7 +108,7 @@ public class RatePlansService implements IRatePlansService {
 				request.getRequest().setPaymentType(EnumPaymentType.SelfPay);
 			}
 		}
-		String[] mHotelArrays = request.getRequest().getHotelIds().split(",");
+		String[] mHotelArrays = request.getRequest().getHotelIds().trim().split(",");
 		List<String[]> sHotelIdArrays = m_SRelationCache.getSHotelIds(mHotelArrays);
 		List<String> sHotelIds = new ArrayList<String>();
 		for (String[] ids : sHotelIdArrays) {
