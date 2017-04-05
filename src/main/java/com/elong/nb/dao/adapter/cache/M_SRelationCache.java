@@ -80,7 +80,7 @@ public class M_SRelationCache {
 	public int getCooperationTypeBySupplierID(int supplierID) {
 		String hotelKey = String.format(RedisKeyConst.KEY_SupplierCooType, supplierID);
 		ICacheKey cacheKey = RedisManager.getCacheKey(hotelKey, 24 * 3600);// 24小时=86400秒
-		// 1为直签，2为非直签，0为未知
+		// 1为直签，2为非直签
 		int type = 1;
 		try {
 			String cooType = redis.get(cacheKey);
@@ -90,7 +90,13 @@ public class M_SRelationCache {
 				GetSupplierInfoBySupplierIDResponse response = supplierServiceContract.getSupplierInfoBySupplierID(req);
 				if (response != null && response.getResult() != null && response.getResult().getResponseCode() == 0
 						&& response.getSupplierBaseInfo() != null) {
-					type = response.getSupplierBaseInfo().getCooperationType();
+					int cooperationType=response.getSupplierBaseInfo().getCooperationType();
+					//cooperationType=1、3，为艺龙直签酒店
+					if(cooperationType==1||cooperationType==3){
+						type = 1;
+					}else{
+						type = 2;
+					}
 				}
 				redis.put(cacheKey, type + "");
 			} else {

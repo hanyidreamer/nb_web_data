@@ -96,22 +96,23 @@ public class ValidateInventoryService implements IValidateInventoryService {
 						result.getResult().setIsOK(false);
 						return result;
 					}
-					// 库存可使用的日期(只验证当日的预订时间)
-					if (inv.getAvailableDate().getTime()==DateUtil.getDate(now.getTime()).getTime()&&(inv.getStartTime().length() == 8
-							|| inv.getEndTime().length() == 8)) {
-						String startTimeStr = inv.getStartTime().replace(":", "");
-						if (MathUtil.isNumeric(startTimeStr)) {
-							int t = Integer.parseInt(startTimeStr);
-							if (t > time) {
-								result.getResult().setIsOK(false);
-								return result;
-							}
-							String endTimeStr = inv.getEndTime().replace(":", "");
-							if (MathUtil.isNumeric(endTimeStr)) {
-								t = Integer.parseInt(endTimeStr);
-								if (t < time) {
+					// 库存可使用的日期(只验证当日(当凌晨后预订也验证前一天)的预订时间)
+					if (inv.getAvailableDate().getTime()==DateUtil.getDate(new Date()).getTime()||inv.getAvailableDate().getTime()==DateUtil.getDate(DateUtil.addDays(new Date(), -1)).getTime()) {
+						if(inv.getStartTime().length() == 8||inv.getEndTime().length() == 8){
+							String startTimeStr = inv.getStartTime().replace(":", "");
+							if (MathUtil.isNumeric(startTimeStr)) {
+								int t = Integer.parseInt(startTimeStr);
+								if (t > time) {
 									result.getResult().setIsOK(false);
 									return result;
+								}
+								String endTimeStr = inv.getEndTime().replace(":", "");
+								if (MathUtil.isNumeric(endTimeStr)) {
+									t = Integer.parseInt(endTimeStr);
+									if (t < time) {
+										result.getResult().setIsOK(false);
+										return result;
+									}
 								}
 							}
 						}

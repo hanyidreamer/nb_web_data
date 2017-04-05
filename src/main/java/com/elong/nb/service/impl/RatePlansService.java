@@ -420,24 +420,20 @@ public class RatePlansService implements IRatePlansService {
 		List<RatePlan> result = new LinkedList<RatePlan>();
 
 		List<Integer> levels = new LinkedList<Integer>();
-		int CooperationType = 0;
+		int cooperationType = 0;
 		if (requestVersion >= 1.27) {
 			if (proxyInfo.isIsOnlyStraight()) {
-				CooperationType = 1;
+				cooperationType = 1;
 			} else {
 				if (hotel != null && hotel.getHotelBaseInfo() != null
 						&& hotel.getHotelBaseInfo().getShotelId() != null
 						&& !hotel.getHotelBaseInfo().getShotelId().isEmpty()) {
 					// 获取合作类型，是艺龙直签还是其它供应商
-					MSHotelRelation hotelRelation = m_SRelationCache
-							.getHotelRelation(hotel.getHotelBaseInfo()
-									.getShotelId());
+					MSHotelRelation hotelRelation = m_SRelationCache.getHotelRelation(hotel.getHotelBaseInfo().getShotelId());
 					if (hotelRelation != null) {
-						int type = m_SRelationCache
-								.getCooperationTypeBySupplierID(hotelRelation
-										.getSupplierId());
+						int type = m_SRelationCache.getCooperationTypeBySupplierID(hotelRelation.getSupplierId());
+						cooperationType=type;
 						// CooperationType=1为直签，2为非直签，0为未知
-						CooperationType = type;
 					}
 				}
 			}
@@ -505,11 +501,8 @@ public class RatePlansService implements IRatePlansService {
 							oldrp, language) : null);
 					rp.setPrepayRules((payType == EnumPaymentType.Prepay) ? getPrepayRules(
 							oldrp, language) : null);
-					// Promotions = GetPromotionRules(oldrp, language),
 					rp.setValueAdds(getValueAddRules(oldrp, language));
-					rp.setCooperationType(CooperationType);
-					// Coupon = coupon,
-					// Gifts = requestVersion >= 1.11 ? null : null,
+					rp.setCooperationType(cooperationType);
 				}
 				;
 
