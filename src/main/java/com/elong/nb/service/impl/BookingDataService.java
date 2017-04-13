@@ -200,7 +200,7 @@ public class BookingDataService implements IBookingDataService {
 			taskFactory.shutdown();
 			if (rateTask != null) {
 				try{
-					List<Rate> obj = rateTask.get();
+					List<Rate> obj = rateTask.get(5, TimeUnit.SECONDS);
 					if (obj != null)
 						result.getResult().setRates(obj);
 				}catch(Exception ex){
@@ -220,7 +220,7 @@ public class BookingDataService implements IBookingDataService {
 			}
 			if (invRealTimeTask != null) {
 				try{
-					Object obj = invRealTimeTask.get();
+					Object obj = invRealTimeTask.get(5, TimeUnit.SECONDS);
 					if (obj != null)
 						realtimeInvAvailable = (boolean) obj;
 				}catch(Exception ex){

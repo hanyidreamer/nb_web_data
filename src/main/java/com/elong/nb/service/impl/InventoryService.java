@@ -251,7 +251,7 @@ public class InventoryService implements IInventoryService{
 		}
 		return result;
 	}
-	//获取库存
+	//获取库存 商品库
 	private List<Inventory> getInentory(ProxyAccount proxyInfo,String hotelId,String hotelCodeString,String roomTypeId,Date startDate,Date endDate,boolean isNeedInstantConfirm,String guid) throws Exception{
 			List<Inventory> result=new ArrayList<Inventory>();
 			// 仅提供昨天和近90天的房态数据
