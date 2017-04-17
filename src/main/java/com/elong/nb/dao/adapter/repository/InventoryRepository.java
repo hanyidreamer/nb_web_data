@@ -175,7 +175,7 @@ public class InventoryRepository {
 		BigLog log = new BigLog();
 		log.setUserLogType(guid);
 		log.setAppName("InventoryRepository");
-		log.setTraceId(UUID.randomUUID().toString());
+		log.setTraceId(guid);
 		log.setSpan("1.1");
 		log.setServiceName("getInventorys");
 		List<Inventory> inventorys=new LinkedList<Inventory>();
