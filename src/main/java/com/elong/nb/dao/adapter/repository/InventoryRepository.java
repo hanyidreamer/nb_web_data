@@ -240,8 +240,28 @@ public class InventoryRepository {
 													inv.setHotelCode(SafeConvertUtils.ToHotelId(shotel.shotel_id));
 													if(isNeedInstantConfirm){
 														inv.setIsInstantConfirm(item.instant_confirm);
-														inv.setIC_BeginTime(item.getIc_begin_time());
-														inv.setIC_EndTime(item.getIc_end_time());
+														String icBeginTime=item.getIc_begin_time();
+														String icEndTime=item.getIc_end_time();
+														//不是立即确认情况下的兼容
+														if(!item.instant_confirm){
+															if(inv.isStatus()){
+																if(StringUtils.isEmpty(icBeginTime)){
+																	icBeginTime="00:00";
+																}
+																if(StringUtils.isEmpty(icEndTime)){
+																	icEndTime="23:59";
+																}
+															}else{
+																if(StringUtils.isEmpty(icBeginTime)){
+																	icBeginTime="23:59";
+																}
+																if(StringUtils.isEmpty(icEndTime)){
+																	icEndTime="00:00";
+																}
+															}
+														}
+														inv.setIC_BeginTime(icBeginTime);
+														inv.setIC_EndTime(icEndTime);
 													}
 													convertInventory(inv);
 													inventorys.add(inv);
