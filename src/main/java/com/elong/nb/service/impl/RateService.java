@@ -98,6 +98,9 @@ public class RateService implements IRateService {
 		}
 		String[] mHotelIdArray = null;
 		List<String[]> sHotelIdArrays = null;
+		if(StringUtils.isNotEmpty(mHotelId)){
+			mHotelId=mHotelId.replaceAll(" ", "");
+		}
 		List<String> hotelCodeList=new LinkedList<String>();
 		if (StringUtils.isBlank(sHotelId)) {
 			mHotelIdArray = mHotelId.split(",");
@@ -113,7 +116,7 @@ public class RateService implements IRateService {
 			mHotelIdArray = new String[] { mHotelId };
 			sHotelIdArrays = new ArrayList<String[]>();
 			sHotelIdArrays.add(sHotelId.trim().split(","));
-			hotelCodeList.addAll(Arrays.asList(sHotelId.trim().split(",")));
+			hotelCodeList.addAll(Arrays.asList(sHotelId.replaceAll(" ", "").split(",")));
 		}
 		SettlementPriceRuleCommon settlementCommon=null;
 		//预付及现付需要返回底价的价格数据

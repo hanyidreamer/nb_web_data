@@ -271,9 +271,13 @@ public class InventoryService implements IInventoryService{
 					shotelIdsUnderSupplier=tmp.split(",");
 				}
 			}
+			if(StringUtils.isNotEmpty(hotelId)){
+				hotelId=hotelId.replaceAll(" ", "");
+			}
 			String[] mHotelIdArray = null;
 			List<String[]> sHotelIdArrays = null;
 			if (StringUtils.isNotBlank(hotelCodeString)) {
+				hotelCodeString=hotelCodeString.replaceAll(" ", "");
 				mHotelIdArray = new String[] { hotelId };
 				sHotelIdArrays = new ArrayList<String[]>();
 				String[] hotelCodes=hotelCodeString.split(",");
