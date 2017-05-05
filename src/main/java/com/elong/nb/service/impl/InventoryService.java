@@ -65,6 +65,7 @@ public class InventoryService implements IInventoryService{
 	private InventoryRuleRepository inventoryRuleRepository;
 	
 	private static final int invThreadSize=Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("inv.thread.size"));
+	private static final int invFrom=Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("inv.from"));
 	/** 
 	 * (方法说明描述)获得库存接口 
 	 *
@@ -78,10 +79,14 @@ public class InventoryService implements IInventoryService{
 		RestResponse<InventoryResult> response = new RestResponse<InventoryResult>(
 				restRequest.getGuid());
 		InventoryResult result = new InventoryResult();
-		List<Inventory> list= getInentory(restRequest.getProxyInfo(),restRequest.getRequest().getHotelIds(),restRequest.getRequest().getHotelCodes(),restRequest.getRequest().getRoomTypeId(),restRequest.getRequest().getStartDate(),restRequest.getRequest().getEndDate(),
+		List<Inventory> list=null;
+		if(invFrom==1){
+			list= getInentory(restRequest.getProxyInfo(),restRequest.getRequest().getHotelIds(),restRequest.getRequest().getHotelCodes(),restRequest.getRequest().getRoomTypeId(),restRequest.getRequest().getStartDate(),restRequest.getRequest().getEndDate(),
 				restRequest.getRequest().isIsNeedInstantConfirm(),restRequest.getGuid());
-//		List<Inventory> list= getInentory(restRequest.getProxyInfo(),restRequest.getRequest().getHotelIds(),restRequest.getRequest().getHotelCodes(),restRequest.getRequest().getRoomTypeId(),restRequest.getRequest().getStartDate(),restRequest.getRequest().getEndDate(),
-//				restRequest.getRequest().isIsNeedInstantConfirm(),restRequest.getProxyInfo().getOrderFrom(),false,restRequest.getGuid());
+		}else{
+		    list= getInentory(restRequest.getProxyInfo(),restRequest.getRequest().getHotelIds(),restRequest.getRequest().getHotelCodes(),restRequest.getRequest().getRoomTypeId(),restRequest.getRequest().getStartDate(),restRequest.getRequest().getEndDate(),
+				restRequest.getRequest().isIsNeedInstantConfirm(),restRequest.getProxyInfo().getOrderFrom(),false,restRequest.getGuid());
+		}
 		result.setInventories(list);
 		response.setResult(result);
 		return response;
@@ -138,7 +143,21 @@ public class InventoryService implements IInventoryService{
 		}
 		
 	}
-	//获取库存
+	/**
+	 * 获取产品组库存
+	 * @param proxyInfo
+	 * @param hotelId
+	 * @param hotelCodeString
+	 * @param roomTypeId
+	 * @param startDate
+	 * @param endDate
+	 * @param isNeedInstantConfirm
+	 * @param orderFrom
+	 * @param isForBooking
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
 	private List<Inventory> getInentory(ProxyAccount proxyInfo,String hotelId,String hotelCodeString,String roomTypeId,Date startDate,Date endDate,boolean isNeedInstantConfirm,int orderFrom,boolean isForBooking,String guid) throws Exception{
 		List<Inventory> result=new ArrayList<Inventory>();
 		// 仅提供昨天和近90天的房态数据
@@ -251,7 +270,19 @@ public class InventoryService implements IInventoryService{
 		}
 		return result;
 	}
-	//获取库存 商品库
+	/**
+	 * 获取库存 商品库
+	 * @param proxyInfo
+	 * @param hotelId
+	 * @param hotelCodeString
+	 * @param roomTypeId
+	 * @param startDate
+	 * @param endDate
+	 * @param isNeedInstantConfirm
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
 	private List<Inventory> getInentory(ProxyAccount proxyInfo,String hotelId,String hotelCodeString,String roomTypeId,Date startDate,Date endDate,boolean isNeedInstantConfirm,String guid) throws Exception{
 			List<Inventory> result=new ArrayList<Inventory>();
 			// 仅提供昨天和近90天的房态数据
