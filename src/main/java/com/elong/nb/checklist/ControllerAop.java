@@ -71,6 +71,14 @@ public class ControllerAop {
 				ResponseEntity<byte[]> resp = (ResponseEntity<byte[]>) returnValue;
 				result = new String(resp.getBody());
 			}
+		}else if("getBookingData".equals(methodName)){
+			if (returnValue instanceof String) {
+				result = (String) returnValue;
+			} else {
+				@SuppressWarnings("unchecked")
+				ResponseEntity<byte[]> resp = (ResponseEntity<byte[]>) returnValue;
+				result = new String(resp.getBody());
+			}
 		}
 		ActionLogHelper.businessLog((String) guid, true, methodName,
 				classFullName, null, useTime, code, null, result,
