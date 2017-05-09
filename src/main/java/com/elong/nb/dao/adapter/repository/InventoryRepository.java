@@ -12,6 +12,7 @@ import javax.annotation.Resource;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Repository;
 
+import com.alibaba.fastjson.JSON;
 import com.elong.common.util.StringUtils;
 import com.elong.nb.agent.ProductForPartnerServiceContract.GetInvChangeAndInstantConfirmRequest;
 import com.elong.nb.agent.ProductForPartnerServiceContract.GetInvChangeAndInstantConfirmResponse;
@@ -35,6 +36,7 @@ import com.elong.nb.common.util.SafeConvertUtils;
 import com.elong.nb.data.biglog.BigLog;
 import com.elong.nb.model.bean.Inventory;
 import com.elong.nb.util.DateUtil;
+import com.google.gson.Gson;
 
 @Repository
 public class InventoryRepository {
@@ -273,13 +275,20 @@ public class InventoryRepository {
 							}
 						}
 					}
-				}else{
+				}else if(response.getReturn_code()<0){//系统异常
 					throw new RuntimeException(response.getReturn_msg());
+				}else{
+					Gson gson=new Gson();
+					log.setRequestBody(gson.toJson(request));
+					log.setBusinessErrorCode(String.valueOf(response.return_code));
+					log.setExceptionMsg(response.getReturn_msg());
 				}
 			}else{
 				throw new RuntimeException("获取商品库库存信息异常");
 			}
 		} catch (Exception ex) {
+			Gson gson=new Gson();
+			log.setRequestBody(gson.toJson(request));
 			log.setException(ex);
 			log.setExceptionMsg(ex.getMessage());
 			CheckListUtil.error(log);
