@@ -15,9 +15,11 @@ import com.elong.nb.agent.ProductForNBServiceContract.PriceInfoForNB;
 import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
+import com.elong.nb.common.util.CommonsUtil;
 import com.elong.nb.dao.adapter.cache.M_SRelationCache;
 import com.elong.nb.dao.adapter.repository.InventoryRuleRepository;
 import com.elong.nb.dao.adapter.repository.RateRepository;
+import com.elong.nb.model.HotelIdAttr;
 import com.elong.nb.model.bean.enums.EnumPaymentType;
 import com.elong.nb.model.rate.RateCondition;
 import com.elong.nb.model.rate.RateResult;
@@ -38,6 +40,8 @@ public class RateService implements IRateService {
 	private M_SRelationCache m_SRelationCache;
 	@Resource
 	private InventoryRuleRepository ruleRepository;
+	
+	private static final int rateFrom=Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("rate.from"));
 	@Override
 	public RestResponse<RateResult> getRates(RestRequest<RateCondition> request)
 			throws Exception {
@@ -54,28 +58,36 @@ public class RateService implements IRateService {
 				request.getRequest().setPaymentType(EnumPaymentType.SelfPay);
 			}
 		}
-
 		List<Rate> rates = new ArrayList<Rate>();
-		if (request.getRequest().getPaymentType() == EnumPaymentType.All) {
-			rates.addAll(getRate(request.getProxyInfo(), request.getRequest()
-					.getHotelIds().trim(), request.getRequest().getHotelCodes(),
+		if(rateFrom==1){
+			rates=getGoodsRate(request.getProxyInfo(), request.getRequest()
+					.getHotelIds(), request.getRequest().getHotelCodes(), 
 					request.getRequest().getStartDate(), request.getRequest()
-							.getEndDate(), EnumPaymentType.SelfPay, request
+							.getEndDate(),request.getRequest().getPaymentType(), request
 							.getProxyInfo().getLowestProfitPercent(), request
-							.getGuid()));
-			rates.addAll(getRate(request.getProxyInfo(), request.getRequest()
-					.getHotelIds().trim(), request.getRequest().getHotelCodes(),
-					request.getRequest().getStartDate(), request.getRequest()
-							.getEndDate(), EnumPaymentType.Prepay, request
-							.getProxyInfo().getLowestProfitPercent(), request
-							.getGuid()));
-		} else {
-			rates.addAll(getRate(request.getProxyInfo(), request.getRequest()
-					.getHotelIds().trim(), request.getRequest().getHotelCodes(),
-					request.getRequest().getStartDate(), request.getRequest()
-							.getEndDate(), request.getRequest()
-							.getPaymentType(), request.getProxyInfo()
-							.getLowestProfitPercent(), request.getGuid()));
+							.getGuid());
+		}else{
+			if (request.getRequest().getPaymentType() == EnumPaymentType.All) {
+				rates.addAll(getRate(request.getProxyInfo(), request.getRequest()
+						.getHotelIds().trim(), request.getRequest().getHotelCodes(),
+						request.getRequest().getStartDate(), request.getRequest()
+								.getEndDate(), EnumPaymentType.SelfPay, request
+								.getProxyInfo().getLowestProfitPercent(), request
+								.getGuid()));
+				rates.addAll(getRate(request.getProxyInfo(), request.getRequest()
+						.getHotelIds().trim(), request.getRequest().getHotelCodes(),
+						request.getRequest().getStartDate(), request.getRequest()
+								.getEndDate(), EnumPaymentType.Prepay, request
+								.getProxyInfo().getLowestProfitPercent(), request
+								.getGuid()));
+			} else {
+				rates.addAll(getRate(request.getProxyInfo(), request.getRequest()
+						.getHotelIds().trim(), request.getRequest().getHotelCodes(),
+						request.getRequest().getStartDate(), request.getRequest()
+								.getEndDate(), request.getRequest()
+								.getPaymentType(), request.getProxyInfo()
+								.getLowestProfitPercent(), request.getGuid()));
+			}
 		}
 		result.setRates(rates);
 		response.setResult(result);
@@ -241,7 +253,141 @@ public class RateService implements IRateService {
 		}
 		return result;
 	}
-
+	/**
+	 * 商品库获取价格
+	 * @param proxyInfo
+	 * @param mhotelId
+	 * @param shotelId
+	 * @param startDate
+	 * @param endDate
+	 * @param paymentType
+	 * @param lowestProfitPercent
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
+	public List<Rate> getGoodsRate(ProxyAccount proxyInfo, String mhotelId,
+			String shotelId, Date startDate, Date endDate,
+			EnumPaymentType paymentType, double lowestProfitPercent, String guid)
+			throws Exception {
+		List<Rate> result = new ArrayList<Rate>();
+		// 仅提供昨天和近180天的房态数据
+		int days = proxyInfo.getMaxDays() != null ? proxyInfo.getMaxDays() : 90;
+		Date date = DateUtil.addDays(new Date(), -1);
+		if (startDate.getTime() < date.getTime()) {
+			startDate = DateUtil.addDays(new Date(), -1);
+		}
+		if (endDate.getTime() > DateUtil.addDays(new Date(), days).getTime()) {
+			endDate = DateUtil.addDays(new Date(), days);
+		}
+		String[] mHotelIdArray = null;
+		List<String[]> sHotelIdArrays = null;
+		if(StringUtils.isNotEmpty(mhotelId)){
+			mhotelId=mhotelId.replaceAll(" ", "");
+		}
+		List<String> hotelCodeList=new LinkedList<String>();
+		List<HotelIdAttr> hotelIdAttrs = new LinkedList<HotelIdAttr>();
+		if (StringUtils.isBlank(shotelId)) {
+			mHotelIdArray = mhotelId.split(",");
+			sHotelIdArrays = m_SRelationCache.getSHotelIds(mHotelIdArray);
+			if(sHotelIdArrays!=null){
+				int arraySize=sHotelIdArrays.size();
+				for(int i=0;i<arraySize;i++){
+					if(sHotelIdArrays.get(i)!=null){
+						HotelIdAttr hotelIdAttr=new HotelIdAttr();
+						hotelIdAttr.setHotelId(mHotelIdArray[i]);
+						List<String> list=Arrays.asList(sHotelIdArrays.get(i));
+						//商品库限制问题 暂不传入
+//						hotelIdAttr.setHotelCodes(list);
+						hotelCodeList.addAll(list);
+						hotelIdAttrs.add(hotelIdAttr);
+					}
+				}
+			}
+		} else {
+			HotelIdAttr hotelIdAttr=new HotelIdAttr();
+			hotelIdAttr.setHotelId(mhotelId);
+			List<String> list=Arrays.asList(shotelId.replaceAll(" ", "").split(","));
+			hotelIdAttr.setHotelCodes(list);
+			hotelCodeList.addAll(list);
+			hotelIdAttrs.add(hotelIdAttr);
+		}
+		SettlementPriceRuleCommon settlementCommon=null;
+		//预付及现付需要返回底价的价格数据
+		if(paymentType==EnumPaymentType.All||paymentType==EnumPaymentType.Prepay||proxyInfo.getEnableReturnAgentcyRateCost()){
+			settlementCommon=new SettlementPriceRuleCommon(proxyInfo, hotelCodeList, EnumSystem.Data);
+		}
+		List<Rate> response = this.rateRepository.getRates(proxyInfo, hotelIdAttrs, startDate, endDate, paymentType, guid);
+		Date validDate = DateUtil.addYears(DateUtil.getDate(new Date()), 1);
+		for (Rate item : response) {
+			Date rateEndDate = item.getEndDate();
+			if (rateEndDate.getTime() > validDate.getTime()) {
+				rateEndDate = validDate;
+			}
+			if (item.getMember() <=0) {
+				continue;
+			}
+			if (lowestProfitPercent > 0) {
+				double profitPercent = (item.getMember() - item.getMemberCost())/ item.getMember();
+				if (profitPercent * 100 < lowestProfitPercent) {
+					continue;
+				}
+			}
+			Date rateStartDate=item.getStartDate();
+			double member = item.getMember();
+			member = toIntegerPrice(member,proxyInfo.getIntegerPriceType());
+			
+			double weekend = item.getWeekend(); 
+			weekend = toIntegerPrice(weekend,proxyInfo.getIntegerPriceType());
+			//预付及现付需要返回结算价
+			if(paymentType == EnumPaymentType.All||paymentType == EnumPaymentType.Prepay||proxyInfo.getEnableReturnAgentcyRateCost()){
+				double costPrice=item.getMemberCost();
+				List<RateWithRule> memberRateList=settlementCommon.getSettlementPrice(costPrice, member, item.getHotelID(), rateStartDate, rateEndDate);
+				double weekendCost=item.getWeekendCost();
+				List<RateWithRule> weekendRateList=settlementCommon.getSettlementPrice(weekendCost, weekend, item.getHotelID(), rateStartDate, rateEndDate);
+				if(memberRateList!=null&&weekendRateList!=null&&memberRateList.size()==weekendRateList.size()){
+					for(int j=0;j<memberRateList.size();j++){
+						Rate rate = new Rate();
+						rate.setHotelID(item.getHotelID());
+						rate.setHotelCode(item.getHotelCode());
+						rate.setMember(member);
+						rate.setEndDate(memberRateList.get(j).getEndDate());
+						rate.setStartDate(memberRateList.get(j).getStartDate());
+						rate.setMemberCost(memberRateList.get(j).getCost());
+						rate.setRateplanId(item.getRateplanId());
+						rate.setRoomTypeId(item.getRoomTypeId());
+						
+						rate.setStatus(item.getStatus());
+						rate.setWeekend(weekend);
+						rate.setWeekendCost(weekendRateList.get(j).getCost());
+						rate.setAddBed(item.getAddBed());
+						rate.setPriceID(item.getPriceID());
+						rate.setCurrencyCode(item.getCurrencyCode());
+						result.add(rate);
+					}
+				}
+			}else{
+				Rate rate = new Rate();
+				rate.setHotelID(item.getHotelID());
+				rate.setHotelCode(item.getHotelCode());
+				rate.setMember(member);
+				rate.setEndDate(rateEndDate);
+				rate.setStartDate(item.getStartDate());
+				rate.setMemberCost(-1d);
+				rate.setRateplanId(item.getRateplanId());
+				rate.setRoomTypeId(item.getRoomTypeId());
+				
+				rate.setStatus(item.getStatus());
+				rate.setWeekend(weekend);
+				rate.setWeekendCost(-1d);
+				rate.setAddBed(item.getAddBed());
+				rate.setPriceID(item.getPriceID());
+				rate.setCurrencyCode(item.getCurrencyCode());
+				result.add(rate);
+			}
+		}
+		return result;
+	}
 	// 0=不处理,1=Round,2=Ceil
 	private double toIntegerPrice(double price, int convertType) {
 		if (convertType == 1)
