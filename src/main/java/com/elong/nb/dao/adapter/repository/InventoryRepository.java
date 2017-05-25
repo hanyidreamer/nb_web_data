@@ -12,8 +12,15 @@ import javax.annotation.Resource;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Repository;
 
-import com.alibaba.fastjson.JSON;
 import com.elong.common.util.StringUtils;
+import com.elong.hotel.searchagent.thrift.dss.GetInvAndInstantConfirmRequest;
+import com.elong.hotel.searchagent.thrift.dss.GetInvAndInstantConfirmResponse;
+import com.elong.hotel.searchagent.thrift.dss.InvDetail;
+import com.elong.hotel.searchagent.thrift.dss.MhotelAttr;
+import com.elong.hotel.searchagent.thrift.dss.MhotelDetail;
+import com.elong.hotel.searchagent.thrift.dss.ShotelAttr;
+import com.elong.hotel.searchagent.thrift.dss.ShotelDetail;
+import com.elong.hotel.searchagent.thrift.dss.SroomDetail;
 import com.elong.nb.agent.ProductForPartnerServiceContract.GetInvChangeAndInstantConfirmRequest;
 import com.elong.nb.agent.ProductForPartnerServiceContract.GetInvChangeAndInstantConfirmResponse;
 import com.elong.nb.agent.ProductForPartnerServiceContract.GetInventoryChangeDetailRequest;
@@ -21,14 +28,6 @@ import com.elong.nb.agent.ProductForPartnerServiceContract.GetInventoryChangeDet
 import com.elong.nb.agent.ProductForPartnerServiceContract.IProductForPartnerServiceContract;
 import com.elong.nb.agent.ProductForPartnerServiceContract.ResourceInvAndInstantConfirmState;
 import com.elong.nb.agent.ProductForPartnerServiceContract.ResourceInventoryState;
-import com.elong.nb.agent.thrift.model.GetInvAndInstantConfirmRequest;
-import com.elong.nb.agent.thrift.model.GetInvAndInstantConfirmResponse;
-import com.elong.nb.agent.thrift.model.InvDetail;
-import com.elong.nb.agent.thrift.model.MhotelAttr;
-import com.elong.nb.agent.thrift.model.MhotelDetail;
-import com.elong.nb.agent.thrift.model.ShotelAttr;
-import com.elong.nb.agent.thrift.model.ShotelDetail;
-import com.elong.nb.agent.thrift.model.SroomDetail;
 import com.elong.nb.agent.thrift.utils.ThriftUtils;
 import com.elong.nb.checklist.CheckListUtil;
 import com.elong.nb.common.util.CommonsUtil;
@@ -44,9 +43,9 @@ public class InventoryRepository {
 	private IProductForPartnerServiceContract webProductForPartnerServiceContract;
 	@Resource(name="orderProductForPartnerServiceContract")
 	private IProductForPartnerServiceContract orderProductForPartnerServiceContract;
-	private static final String server_ip=CommonsUtil.CONFIG_PROVIDAR.getProperty("inv.server_ip");
-	private static final String server_port=CommonsUtil.CONFIG_PROVIDAR.getProperty("inv.server_port");
-	private static final String server_timeout=CommonsUtil.CONFIG_PROVIDAR.getProperty("inv.server_timeout");
+	private static final String server_ip=CommonsUtil.CONFIG_PROVIDAR.getProperty("goods.server_ip");
+	private static final int server_port=Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("goods.server_port"));
+	private static final int server_timeout=Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("goods.server_timeout"));
 	/**
 	 * 获取库存
 	 * @param mHotelId
@@ -214,7 +213,7 @@ public class InventoryRepository {
 		request.setMhotel_attr(mhotel_attr);
 		try {
 			long start = System.currentTimeMillis();
-			GetInvAndInstantConfirmResponse response=ThriftUtils.getInventory(request,server_ip,Integer.valueOf(server_port),Integer.valueOf(server_timeout));
+			GetInvAndInstantConfirmResponse response=ThriftUtils.getInventory(request,server_ip,server_port,server_timeout);
 			long end=System.currentTimeMillis();
 			log.setElapsedTime(String.valueOf(end-start));
 			if(response!=null){

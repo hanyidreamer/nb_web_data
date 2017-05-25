@@ -10,44 +10,32 @@ import java.io.InputStreamReader;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.servlet.http.HttpServletRequest;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.elong.nb.common.biglog.Constants;
 import com.elong.nb.common.gson.DateTypeAdapter;
 import com.elong.nb.common.gson.EnumTypeAdapter;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.model.bean.Inventory;
-import com.elong.nb.model.inventory.InventoryCondition;
 import com.elong.nb.model.inventory.InventoryResult;
-import com.elong.nb.rule.agent.utils.DateUtil;
 import com.elong.nb.util.HttpUtil;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 
-import junit.framework.TestCase;
-
-public class DataTestCase extends TestCase {
+public class DataTestBookingCase {
 	private static SimpleDateFormat sdf = new SimpleDateFormat(
 			"yyyy-MM-dd HH:mm:ss");
-	private static String url1 = "http://10.88.25.65:8971/OpenApiWeb/api/Hotel/GetInventories";
-	private static String url2 = "http://10.39.21.167:8971/OpenApiWeb/api/Hotel/GetInventories";
+	private static String url1 = "http://10.88.25.65:8971/OpenApiWeb/api/Hotel/GetBookingData";
+	private static String url2 = "http://10.39.21.82:8971/OpenApiWeb/api/Hotel/GetBookingData";
 	public static void main(String[] args) {
 //		readText();
 		readHtml();
