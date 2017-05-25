@@ -275,10 +275,10 @@ public class RateService implements IRateService {
 		int days = proxyInfo.getMaxDays() != null ? proxyInfo.getMaxDays() : 90;
 		Date date = DateUtil.addDays(new Date(), -1);
 		if (startDate.getTime() < date.getTime()) {
-			startDate = DateUtil.addDays(new Date(), -1);
+			startDate = DateUtil.getDate(DateUtil.addDays(new Date(), -1));
 		}
 		if (endDate.getTime() > DateUtil.addDays(new Date(), days).getTime()) {
-			endDate = DateUtil.addDays(new Date(), days);
+			endDate = DateUtil.getDate(DateUtil.addDays(new Date(), days));
 		}
 		String[] mHotelIdArray = null;
 		List<String[]> sHotelIdArrays = null;
