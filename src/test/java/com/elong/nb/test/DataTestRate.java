@@ -23,9 +23,10 @@ import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.model.bean.Inventory;
 import com.elong.nb.model.inventory.InventoryResult;
+import com.elong.nb.model.rate.RateCondition;
 import com.elong.nb.model.rate.RateResult;
 import com.elong.nb.model.rate.bean.Rate;
-import com.elong.nb.rule.agent.utils.DateUtil;
+import com.elong.nb.util.DateUtil;
 import com.elong.nb.util.HttpUtil;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
@@ -33,7 +34,9 @@ import com.google.gson.TypeAdapter;
 public class DataTestRate {
 	private static SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	public static void main(String[] args) {
-		String json=HttpUtil.httpPost("http://10.39.128.39:8080/nbapi-2017.04.26/%25%7brole%7d/_search", "{\"size\":2000,\"query\":{\"query_string\":{\"query\":\"methodName:getRates\",\"use_dis_max\":true}}}",null);
+		Date maxDate=DateUtil.getDate(DateUtil.addDays(new Date(), 14));
+		SimpleDateFormat sdff=new SimpleDateFormat("yyyy.MM.dd");
+		String json=HttpUtil.httpPost("http://10.39.128.39:8080/nbapi-"+sdff.format(new Date())+"/%25%7brole%7d/_search", "{\"size\":2000,\"query\":{\"query_string\":{\"query\":\"methodName:getRates\",\"use_dis_max\":true}}}",null);
 		JSONObject jsonObject = JSONObject.fromObject(json);
 		String str1=jsonObject.get("hits").toString();
 //		System.out.println(str1);
@@ -42,6 +45,7 @@ public class DataTestRate {
 //		System.out.println(str2);
 		JSONArray jArray=JSONArray.fromObject(str2);
 		for(int i=0;i<jArray.size();i++){
+			Date minDate=null;
 			String str3=jArray.get(i).toString();
 //			System.out.println(str3);
 			JSONObject jsonObject3 = JSONObject.fromObject(str3);
@@ -57,45 +61,57 @@ public class DataTestRate {
 			String str=param.replace('[', ' ').replace(']', ' ').trim().replace("\\","");;
 			int length=str.lastIndexOf("\"");
 			str=str.substring(1, length);
+			try{
+				str="{\"Version\":3.0,\"Local\":\"zh_CN\",\"Request\":{\"HotelIds\":\"02301095,02201622,91762083,02004046,91620462,92101575,90035418,02003290,10601006,02040014\",\"StartDate\":\"2017-05-26T08:27:34+08:00\",\"EndDate\":\"2017-06-09T00:00:00+08:00\",\"PaymentType\":\"Prepay\"},\"ProxyInfo\":{\"AgencyCommisionLevel\":\"LOW\",\"PrepayCommisionLevel\":\"LOW\",\"UserName\":\"d3821ed05dd3193d9dcbc7beadba3476\",\"AppKey\":\"a1b03f2d\",\"UserGroup\":0,\"ProxyId\":\"AP0049496\",\"CardNo\":2000000004630496355,\"OrderFrom\":6137,\"MemberLevel\":\"Normal\",\"SellChannel\":\"B\",\"BookingChannel\":\"OnLine\",\"SearchOrderType\":\"OrderFrom\",\"OrderContactType\":\"NoNeed\",\"IsFilterSEMHotel\":false,\"EnabledPrepayProducts\":true,\"EnabledPrepaySettlment\":true,\"PrepaySettlementRate\":0.05,\"PrepaySettlementRateMode\":2,\"EnabledVirtualCardForPrepay\":true,\"EnabledVirtualCardForGuarantee\":false,\"EnabledSpecialRate\":false,\"EnabledInstantConfirm\":false,\"EnabledInvoiceRole\":false,\"EnabledElongNoteReadRole\":false,\"EnabledCouponReadRole\":false,\"EnabledCouponRole\":false,\"Supplier\":\"\",\"EnableForcedGuaranteeOrder\":false,\"EnableIgnoreCheckingDuplicatedOrder\":false,\"EnableReturnAgentcyRateCost\":false,\"EnableGroupCoupon\":false,\"EnabledVirtualCardForGroup\":false,\"IgnoreCheckGuestName\":false,\"EnabledCommentReadRole\":false,\"CommentUserKey\":\"\",\"MaxDays\":180,\"IntegerPriceType\":0,\"IsOnlyStraight\":false,\"LowestProfitPercent\":0.0,\"IsCustomerPriceIntoSalePrice\":false},\"Guid\":\"7f4b2001-e8f6-4275-bf74-5b37df82c7ed\"}";
+				RestRequest<RateCondition> req=toReq(str, RateCondition.class, null);
+				if(req.getRequest().getEndDate().after(maxDate)){
+					req.getRequest().setEndDate(maxDate);
+				}
+				minDate=req.getRequest().getStartDate();
+				req.setVersion(3.0);
+				str=toJsonReq(req);
+			}catch(Exception e){
+				
+			}
 			String data1=HttpUtil.httpPost(url1,str,null);
 			String data2=HttpUtil.httpPost(url2,str,null);
 			try {
 //				RestRequest<InventoryCondition> restRequest = toReq(str,
 //						InventoryCondition.class, null);
-				if(!data1.equals(data2)){
-					System.out.println("<--------------");
-					System.out.println(str);
-					System.out.println(data1);
-					System.out.println(data2);
-					System.out.println("-------------->");
-					File file =new File("javaio-appendfile.txt");
-
-				      //if file doesnt exists, then create it
-				      if(!file.exists()){
-				       file.createNewFile();
-				      }
-
-				      //true = append file
-				      FileWriter fileWritter = new FileWriter(file.getName(),true);
-				             BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
-				             bufferWritter.write(data1);
-				             bufferWritter.close();
-
-				}
-				Thread.sleep(500);
-//				RestResponse<RateResult> response1=toResponse(data1, RateResult.class, null);
-//				RestResponse<RateResult> response2=toResponse(data2, RateResult.class, null);
-//				Map<String,Rate> map1=getMap(response1);
-//				Map<String,Rate> map2=getMap(response2);
+//				if(!data1.equals(data2)){
+//					System.out.println("<--------------");
+//					System.out.println(str);
+//					System.out.println(data1);
+//					System.out.println(data2);
+//					System.out.println("-------------->");
+//					File file =new File("javaio-appendfile.txt");
+//
+//				      //if file doesnt exists, then create it
+//				      if(!file.exists()){
+//				       file.createNewFile();
+//				      }
+//
+//				      //true = append file
+//				      FileWriter fileWritter = new FileWriter(file.getName(),true);
+//				             BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
+//				             bufferWritter.write(data1);
+//				             bufferWritter.close();
+//
+//				}
+//				Thread.sleep(500);
+				RestResponse<RateResult> response1=toResponse(data1, RateResult.class, null);
+				RestResponse<RateResult> response2=toResponse(data2, RateResult.class, null);
+				Map<String,Rate> map1=getMap(response1,minDate,maxDate);
+				Map<String,Rate> map2=getMap(response2,minDate,maxDate);
 ////				System.out.println(str);
 ////				System.out.println("<----------------");
 ////				System.out.println(url1+"|...............|"+url2);
 ////				System.out.println("---------------->");
-//				boolean is=compare(map1,map2,false);
-//				is=compare(map2,map1,true);
-//				if(!is){
-//					System.out.println(str);
-//				}
+				boolean is=compare(map1,map2,false);
+				is=is&&compare(map2,map1,true);
+				if(!is){
+					System.out.println(str);
+				}
 //				System.out.println("<----------------");
 //				System.out.println(url2+"|...............|"+url1);
 //				System.out.println("---------------->");
@@ -109,13 +125,15 @@ public class DataTestRate {
 		System.out.println("");
 		System.out.println("task is over"); 
 	}
-	static Map<String,Rate> getMap(RestResponse<RateResult> response1){
+	static Map<String,Rate> getMap(RestResponse<RateResult> response1,Date minDate,Date maxDate){
 		Map<String,Rate> map1=new HashMap<String, Rate>();
+		SimpleDateFormat sd=new SimpleDateFormat("yyyy-MM-dd");
 		if(response1!=null&&response1.getResult()!=null&&response1.getResult().getRates()!=null){
 			for(Rate rate:response1.getResult().getRates()){
-				Date start=rate.getStartDate();
-				while(start.getTime()<rate.getEndDate().getTime()){
-					map1.put(rate.getHotelID()+"|"+rate.getHotelCode()+"|"+rate.getRoomTypeId()+"|"+rate.getRateplanId()+"|"+sdf.format(start), rate);
+				Date start=minDate.after(rate.getStartDate())?minDate:rate.getStartDate();
+				Date end=maxDate.after(rate.getEndDate())?rate.getEndDate():maxDate;
+				while(start.getTime()<end.getTime()){
+					map1.put(rate.getHotelID()+"|"+rate.getHotelCode()+"|"+rate.getRoomTypeId()+"|"+rate.getRateplanId()+"|"+sd.format(start), rate);
 					start=DateUtil.addDays(start, 1);
 				}
 			}
@@ -174,12 +192,12 @@ public class DataTestRate {
 					record.append("\t");
 					//System.out.print("key"+key+"MemberCost"+" url1:"+inv1.getMemberCost()+" url2:"+inv2.getMemberCost()+" v:"+log);
 				}
-				if(!(inv2.getPriceID().equals(inv1.getPriceID()))){
-					result=false;
-					record.append("PriceID"+" url1:"+inv1.getPriceID()+" url2:"+inv2.getPriceID());
-					record.append("\t");
-					//System.out.print("key"+key+"PriceID"+" url1:"+inv1.getPriceID()+" url2:"+inv2.getPriceID()+" v:"+log);
-				}
+//				if(!(inv2.getPriceID().equals(inv1.getPriceID()))){
+//					result=false;
+//					record.append("PriceID"+" url1:"+inv1.getPriceID()+" url2:"+inv2.getPriceID());
+//					record.append("\t");
+//					//System.out.print("key"+key+"PriceID"+" url1:"+inv1.getPriceID()+" url2:"+inv2.getPriceID()+" v:"+log);
+//				}
 				if(!(inv2.getWeekend().equals(inv1.getWeekend()))){
 					result=false;
 					record.append("Weekend"+" 1:"+inv1.getWeekend()+" url2:"+inv2.getWeekend());
@@ -273,6 +291,13 @@ public class DataTestRate {
 		if (version > 0)
 			gsonBuilder.setVersion(version);
 		String json = gsonBuilder.create().toJson(resp, RestResponse.class);
+		return json;
+	}
+	@SuppressWarnings("rawtypes")
+	public static String toJsonReq(RestRequest resp) {
+		GsonBuilder gsonBuilder = new GsonBuilder();
+		gsonBuilder.registerTypeAdapter(Date.class, new DateTypeAdapter());
+		String json = gsonBuilder.create().toJson(resp, RestRequest.class);
 		return json;
 	}
 	static ParameterizedType type(final Class raw, final Type... args) {

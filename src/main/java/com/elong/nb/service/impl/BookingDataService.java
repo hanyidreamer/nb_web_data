@@ -1,6 +1,7 @@
 package com.elong.nb.service.impl;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
@@ -301,9 +302,16 @@ public class BookingDataService implements IBookingDataService {
 				if (rpOfSearch.getPaymentType() == EnumPaymentType.SelfPay) {
 					if (rpOfSearch.getGuaranteeRuleIds() != null && !rpOfSearch.getGuaranteeRuleIds().isEmpty()) {
 						GuaranteeRule g = null;
+						List ids=new ArrayList();
+						String[] guaranteeRuleIds=rpOfSearch.getGuaranteeRuleIds().split(",");
+						for(String id:guaranteeRuleIds){
+							ids.add(Integer.valueOf(id));
+						}
 						for (GuaranteeRule ru : hotelInfoFromSearch.getGuaranteeRules()) {
-							if (ru.getGuranteeRuleId() == Integer.parseInt(rpOfSearch.getGuaranteeRuleIds()))
+							if (ids.contains(ru.getGuranteeRuleId())){
 								g = ru;
+								break;
+							}
 						}
 						if (g != null) {
 							rp.getGuaranteeRules().add(g);
@@ -312,9 +320,16 @@ public class BookingDataService implements IBookingDataService {
 				} else if (rpOfSearch.getPrepayRuleIds() != null && !rpOfSearch.getPrepayRuleIds().isEmpty()) // PrepayRules
 				{
 					PrepayRule g = null;
+					String[] prepayRuleIds=rpOfSearch.getPrepayRuleIds().split(",");
+					List ids=new ArrayList();
+					for(String id:prepayRuleIds){
+						ids.add(Integer.valueOf(id));
+					}
 					for (PrepayRule pr : hotelInfoFromSearch.getPrepayRules()) {
-						if (pr.getPrepayRuleId() == Integer.parseInt(rpOfSearch.getPrepayRuleIds()))
+						if (ids.contains(pr.getPrepayRuleId())){
 							g = pr;
+							break;
+						}
 					}
 					if (g != null) {
 						rp.getPrepayRules().add(g);
