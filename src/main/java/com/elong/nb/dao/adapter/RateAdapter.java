@@ -45,20 +45,20 @@ public class RateAdapter extends AbstractGoodsAdapter<Rate, GetBasePrice4NbRespo
 													for(int m=0;m<baseSize;m++){
 														BasePrice basePrice=rpBasePrice.getBase_price().get(m);
 														Rate rate=new Rate();
-														rate.setAddBed(basePrice.allow_add_bed?new Double(basePrice.add_bed_price/1000.0):-1d);
+														rate.setAddBed(basePrice.allow_add_bed?dealPrice(basePrice.add_bed_price):-1d);
 														rate.setCurrencyCode(basePrice.getCurrency_code());
 														rate.setEndDate(new Date(1000*(long)basePrice.getEnd_date()));
 														rate.setHotelCode(hotelCode);
 														rate.setHotelID(hotelId);
-														rate.setMember(new Double(basePrice.getGeneral_price_origin())/1000);
-														rate.setMemberCost(new Double(basePrice.getGeneral_cost_origin())/1000);
+														rate.setMember(dealPrice(basePrice.getGeneral_price_origin()));
+														rate.setMemberCost(dealPrice(basePrice.getGeneral_cost_origin()));
 														rate.setPriceID(basePrice.getPrice_id());
 														rate.setRateplanId(ratePlanId);
 														rate.setRoomTypeId(roomTypeId);
 														rate.setStartDate(new Date(1000*(long)basePrice.getStart_date()));
 														rate.setStatus(basePrice.getStatus()==1);
-														rate.setWeekend(new Double(basePrice.getWeekend_price_origin())/1000);
-														rate.setWeekendCost(new Double(basePrice.getWeekend_cost_origin())/1000);
+														rate.setWeekend(dealPrice(basePrice.getWeekend_price_origin()));
+														rate.setWeekendCost(dealPrice(basePrice.getWeekend_cost_origin()));
 														rates.add(rate);
 													}
 												}
@@ -77,5 +77,7 @@ public class RateAdapter extends AbstractGoodsAdapter<Rate, GetBasePrice4NbRespo
 		}
 		return null;
 	}
-	
+	private double dealPrice(long sourcePrice){
+		return new Double(Math.round(new Double(sourcePrice)/10))/100;
+	}
 }
