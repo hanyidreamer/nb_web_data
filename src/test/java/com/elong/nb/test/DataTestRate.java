@@ -212,9 +212,9 @@ public class DataTestRate {
 					//System.out.print("key"+key+"WeekendCost"+" url1:"+inv1.getWeekendCost()+" url2:"+inv2.getWeekendCost());
 				}
 			}else{
-				result=false;
-				record.append("not contain the key");
-				record.append("\t");
+//				result=false;
+//				record.append("not contain the key");
+//				record.append("\t");
 				//System.out.print("not contain the key");
 			}
 			if(StringUtils.isNotEmpty(record)){
