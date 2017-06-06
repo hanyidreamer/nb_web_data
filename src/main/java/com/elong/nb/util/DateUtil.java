@@ -4,13 +4,10 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.TimeZone;
 
 import org.joda.time.DateTime;
 
 public class DateUtil {
-	private static  Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
-	
 	public static DateTime toDateTime(Date date) {
 		try {
 			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
@@ -68,14 +65,14 @@ public class DateUtil {
 		calendar.set(Calendar.MILLISECOND, 0);
 		return calendar.getTime();
 	}
-	public static String getTimeString(Date date) {
-		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-		return sdf.format(date);
-	}
 
+	private static SimpleDateFormat sdfTime = new SimpleDateFormat("HH:mm:ss");
+	public static String getTimeString(Date date) {
+		return sdfTime.format(date);
+	}
+	private static SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
 	public static String getDateString(Date date) {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		return sdf.format(date);
+		return sdfDate.format(date);
 	}
 	public static String formatDate(Date date,String format) {
 		SimpleDateFormat sdf = new SimpleDateFormat(format);

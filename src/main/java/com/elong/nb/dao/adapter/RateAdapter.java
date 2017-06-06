@@ -3,6 +3,7 @@ package com.elong.nb.dao.adapter;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import com.elong.hotel.goods.ds.thrift.BasePrice;
 import com.elong.hotel.goods.ds.thrift.GetBasePrice4NbResponse;
@@ -11,6 +12,7 @@ import com.elong.hotel.goods.ds.thrift.RatePlanBasePrice;
 import com.elong.hotel.goods.ds.thrift.SHotelBasePrice;
 import com.elong.hotel.goods.ds.thrift.SRoomBasePrice;
 import com.elong.nb.common.util.SafeConvertUtils;
+import com.elong.nb.model.bean.enums.EnumPaymentType;
 import com.elong.nb.model.rate.bean.Rate;
 
 public class RateAdapter extends AbstractGoodsAdapter<Rate, GetBasePrice4NbResponse>{
@@ -80,4 +82,11 @@ public class RateAdapter extends AbstractGoodsAdapter<Rate, GetBasePrice4NbRespo
 	private double dealPrice(long sourcePrice){
 		return new Double(Math.round(new Double(sourcePrice)/10))/100;
 	}
+	@Override
+	public void setFilter(Map<String, EnumPaymentType> hotelCodeFilterType,
+			Map<String, Integer> shotelCooperationTypeMap, boolean isCn) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 }

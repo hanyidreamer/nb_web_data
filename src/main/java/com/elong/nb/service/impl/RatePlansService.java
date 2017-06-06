@@ -1,6 +1,7 @@
 package com.elong.nb.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -41,6 +42,7 @@ import com.elong.nb.dao.adapter.repository.ProductForNBServiceRepository;
 import com.elong.nb.dao.adapter.repository.RatePlanRepository;
 import com.elong.nb.dao.adapter.repository.SupplierServiceRepository;
 import com.elong.nb.model.HotelCodeRuleRealResponse;
+import com.elong.nb.model.HotelIdAttr;
 import com.elong.nb.model.bean.enums.EnumBookingRule;
 import com.elong.nb.model.bean.enums.EnumDateType;
 import com.elong.nb.model.bean.enums.EnumDrrFeeType;
@@ -79,6 +81,7 @@ import com.elong.nb.service.task.RatePlanTask;
 import com.elong.nb.util.DateUtil;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
+import edu.emory.mathcs.backport.java.util.Collections;
 
 @Service
 public class RatePlansService implements IRatePlansService {
@@ -97,6 +100,7 @@ public class RatePlansService implements IRatePlansService {
 	private SupplierServiceRepository supplierServiceRepository;
 	@Resource
 	HotelGiftRepository hotelGiftRepository;
+	private static final int rpFrom=Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("rp.from"));
 	private static final int rpThreadSize=Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("inv.thread.size"));
 	public List<HotelRatePlan> getRatePlans(
 			RestRequest<RatePlanCondition> request) {
@@ -110,45 +114,50 @@ public class RatePlansService implements IRatePlansService {
 		}
 		String[] mHotelArrays = request.getRequest().getHotelIds().replaceAll(" ", "").split(",");
 		List<String[]> sHotelIdArrays = m_SRelationCache.getSHotelIds(mHotelArrays);
-		List<String> sHotelIds = new ArrayList<String>();
-		for (String[] ids : sHotelIdArrays) {
-			if (ids == null || ids.length <= 0 || ids[0] == null)
-				continue;
-			for (String shotelId : ids) {
-				if (request.getProxyInfo().isIsOnlyStraight()) {
-					// 只保留艺龙直签，其他供应商的rp都过滤
-					MSHotelRelation hotelRelation = m_SRelationCache.getHotelRelation(shotelId);
-					if (hotelRelation != null) {
-						int type = m_SRelationCache.getCooperationTypeBySupplierID(hotelRelation.getSupplierId());
-						// CooperationType=1为直签，2为非直签，0为未知
-						if (type == 2) {
-							continue;
+	
+		if(rpFrom==1){
+//			ratePlanRepository.
+		}else{
+			List<String> sHotelIds = new ArrayList<String>();
+			for (String[] ids : sHotelIdArrays) {
+				if (ids == null || ids.length <= 0 || ids[0] == null)
+					continue;
+				for (String shotelId : ids) {
+					if (request.getProxyInfo().isIsOnlyStraight()) {
+						// 只保留艺龙直签，其他供应商的rp都过滤
+						MSHotelRelation hotelRelation = m_SRelationCache.getHotelRelation(shotelId);
+						if (hotelRelation != null) {
+							int type = m_SRelationCache.getCooperationTypeBySupplierID(hotelRelation.getSupplierId());
+							// CooperationType=1为直签，2为非直签，0为未知
+							if (type == 2) {
+								continue;
+							}
 						}
 					}
+					sHotelIds.add(shotelId);
 				}
-				sHotelIds.add(shotelId);
 			}
-		}
-		HashMap<String, HotelRatePlan> hashHotel = new HashMap<String, HotelRatePlan>();
-		if(sHotelIds.size()<=0){
-			return result;
-		}
-		MergeHotelRatePlans(
-				result,
-				hashHotel,
-				getRatePlans(request.getLocal(), null, StringUtils.join(
-						sHotelIds, ','), request.getRequest().getPaymentType(),
-						request.getProxyInfo(), request.getVersion(), request
-								.getRequest().getOptions(), request.getGuid()));
-		if (request.getVersion() > 1.10) {
-			// 获取礼品相关信息
-			for (HotelRatePlan hotel : result) {
-				hotel.setGifts(new LinkedList<HotelGift>());
-				for (SupplierRatePlan s : hotel.getSuppliers()) {
-					List<HotelGift> list = hotelGiftRepository
-							.getHotelGiftBySHotelId(s.getHotelCode());
-					if (list != null && list.size() > 0)
-						hotel.getGifts().addAll(list);
+			HashMap<String, HotelRatePlan> hashHotel = new HashMap<String, HotelRatePlan>();
+			if(sHotelIds.size()<=0){
+				return result;
+			}
+			MergeHotelRatePlans(
+					result,
+					hashHotel,
+					getRatePlans(request.getLocal(), null, StringUtils.join(
+							sHotelIds, ','), request.getRequest().getPaymentType(),
+							request.getProxyInfo(), request.getVersion(), request
+									.getRequest().getOptions(), request.getGuid()));
+			if (request.getVersion() > 1.10) {
+				// 获取礼品相关信息
+				for (HotelRatePlan hotel : result) {
+					hotel.setGifts(new LinkedList<HotelGift>());
+					for (SupplierRatePlan s : hotel.getSuppliers()) {
+						List<HotelGift> list = hotelGiftRepository
+								.getHotelGiftBySHotelId(s.getHotelCode());
+						if (list != null && list.size() > 0)
+							hotel.getGifts().addAll(list);
+					}
 				}
 			}
 		}
@@ -221,6 +230,95 @@ public class RatePlansService implements IRatePlansService {
 					mhotel.getRatePlans().addAll(shotel.getRatePlans());
 				}
 			}
+		}
+	}
+	
+	public List<HotelRatePlan> getRatePlansFromGoods(EnumLocal language,
+			List<String> mHotelIds, List<String[]> shotelIdArrs, EnumPaymentType paymentType,
+			ProxyAccount proxyInfo, double requestVersion, String options,
+			String guid){
+		List<String> hotelCodes=new LinkedList<String>();
+		Map<String,EnumPaymentType> hotelCodeFilterType=new HashMap<String, EnumPaymentType>();
+		Map<String, String> hotelCodeRule=new HashMap<String, String>();
+		Map<String,Integer> shotelCooperationTypeMap=new HashMap<String, Integer>();
+		if(shotelIdArrs!=null){
+			for(String[] shotelArr:shotelIdArrs){
+				if(shotelArr!=null){
+					hotelCodes.addAll(Arrays.asList(shotelArr));
+				}
+			}
+		}
+		if(proxyInfo.getAgencyCommisionLevel()!=null&&proxyInfo.getAgencyCommisionLevel()!=EnumAgencyLevel.NOLIMIT){
+			hotelCodeRule.put("AgencyCommisionLevel", String.valueOf(proxyInfo.getAgencyCommisionLevel().getValue()));
+		}
+		if(proxyInfo.getPrepayCommisionLevel()!=null&&proxyInfo.getPrepayCommisionLevel()!=EnumPrepayLevel.NOLIMIT){
+			hotelCodeRule.put("PrepayCommisionLevel", String.valueOf(proxyInfo.getPrepayCommisionLevel().getValue()));
+		}
+		HotelCodeRuleRealResponse rule= null;
+		if(hotelCodeRule.size()>0){
+			rule= inventoryRuleRepository.getCodeRuleInfo(hotelCodeRule, proxyInfo.getOrderFrom(), hotelCodes, paymentType.getValue());
+		}
+		List<HotelIdAttr> hotelIdAttrs=new LinkedList<HotelIdAttr>();
+		for(int i=0;i<mHotelIds.size();i++){
+			List<String> showHotelCode=new LinkedList<String>(); 
+			for(String hotelCode:shotelIdArrs.get(i)){
+				int type =0;
+				MSHotelRelation hotelRelation = m_SRelationCache.getHotelRelation(hotelCode);
+				if (hotelRelation != null) {
+					type = m_SRelationCache.getCooperationTypeBySupplierID(hotelRelation.getSupplierId());
+				}
+				if (proxyInfo.isIsOnlyStraight()) {
+					// 只保留艺龙直签，其他供应商的rp都过滤
+					// CooperationType=1为直签，2为非直签，0为未知
+					if (type == 2) {
+						continue;
+					}
+					
+				}
+				shotelCooperationTypeMap.put(hotelCode, type);
+				if(rule!=null&&rule.getResultMap()!=null){
+					boolean canShowPrepay=true;
+					boolean canShowSelfpay=true;
+					if(rule.getResultMap().containsKey(hotelCode)){
+						if(rule.getResultMap().get(hotelCode).size()>0){
+							for(String ruleValue:rule.getResultMap().get(hotelCode)){
+								if(ruleValue.equals("PrepayCommisionLevel")){
+									canShowPrepay=false;
+								}else if(ruleValue.equals("AgencyCommisionLevel")){
+									canShowSelfpay=false;
+								}
+							}
+							if(!canShowPrepay&&!canShowSelfpay){
+								continue;
+							}else if(!canShowPrepay&&paymentType==EnumPaymentType.Prepay){
+								continue;
+							}else if(!canShowSelfpay&&paymentType==EnumPaymentType.SelfPay){
+								continue;
+							}else{
+								if(!canShowPrepay){
+									hotelCodeFilterType.put(hotelCode, EnumPaymentType.Prepay);
+								}else if(!canShowSelfpay){
+									hotelCodeFilterType.put(hotelCode, EnumPaymentType.SelfPay);
+								}
+								showHotelCode.add(hotelCode);
+							}
+						}
+					}else{
+						showHotelCode.add(hotelCode);
+					}
+				}
+			}
+			if(showHotelCode!=null&&showHotelCode.size()>0){
+				HotelIdAttr hotelIdAttr=new HotelIdAttr();
+				hotelIdAttr.setHotelId(mHotelIds.get(i));
+				hotelIdAttr.setHotelCodes(showHotelCode);
+				hotelIdAttrs.add(hotelIdAttr);
+			}
+		}
+		if(hotelIdAttrs!=null&&hotelIdAttrs.size()>0){
+			return this.ratePlanRepository.getRatePlans(proxyInfo, hotelIdAttrs, paymentType,hotelCodeFilterType,shotelCooperationTypeMap,guid);
+		}else{
+			return new LinkedList<HotelRatePlan>();
 		}
 	}
 	public List<HotelRatePlan> getRatePlans(EnumLocal language,
