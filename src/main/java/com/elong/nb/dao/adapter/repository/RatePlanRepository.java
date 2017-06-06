@@ -61,7 +61,7 @@ public class RatePlanRepository {
 		return response.getRealResponse();
 	}
 	public List<HotelRatePlan> getRatePlans(ProxyAccount proxyInfo,
-			List<HotelIdAttr> hotelIdAttrs,EnumPaymentType paymentType,Map<String, EnumPaymentType> hotelCodeFilterType, Map<String, Integer> shotelCooperationTypeMap, String guid) {
+			List<HotelIdAttr> hotelIdAttrs,EnumPaymentType paymentType,Map<String, EnumPaymentType> hotelCodeFilterType, Map<String, Integer> shotelCooperationTypeMap, boolean isCn,String guid) {
 		List<HotelRatePlan> ratePlans=null;
 		BigLog log = new BigLog();
 		log.setUserLogType(guid);
@@ -98,12 +98,14 @@ public class RatePlanRepository {
 			GetBaseRatePlanDRRGiftResponse response=ThriftUtils.getMetaRatePlanDrrGift(request, server_ip, server_port, server_timeout);
 			long end=System.currentTimeMillis();
 			log.setElapsedTime(String.valueOf(end-start));
+			Gson gson=new Gson();
+			System.out.println(gson.toJson(response));
 			if(response!=null&&response.return_code==0){
 				AbstractGoodsAdapter<HotelRatePlan, GetBaseRatePlanDRRGiftResponse> adapter=new RatePlanAdapter();
-				adapter.setFilter(hotelCodeFilterType,shotelCooperationTypeMap, false);
+				adapter.setFilter(hotelCodeFilterType,shotelCooperationTypeMap, isCn);
 				ratePlans=adapter.toNBObject(response);
 			}else if(response.return_code>0){
-				Gson gson=new Gson();
+//				Gson gson=new Gson();
 				log.setRequestBody(gson.toJson(request));
 				log.setBusinessErrorCode(String.valueOf(response.return_code));
 				log.setExceptionMsg(response.getReturn_msg());

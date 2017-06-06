@@ -101,7 +101,7 @@ public class RatePlansService implements IRatePlansService {
 	@Resource
 	HotelGiftRepository hotelGiftRepository;
 	private static final int rpFrom=Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("rp.from"));
-	private static final int rpThreadSize=Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("inv.thread.size"));
+	private static final int rpThreadSize=100;
 	public List<HotelRatePlan> getRatePlans(
 			RestRequest<RatePlanCondition> request) {
 		List<HotelRatePlan> result = new LinkedList<HotelRatePlan>();
@@ -116,7 +116,10 @@ public class RatePlansService implements IRatePlansService {
 		List<String[]> sHotelIdArrays = m_SRelationCache.getSHotelIds(mHotelArrays);
 	
 		if(rpFrom==1){
-//			ratePlanRepository.
+			result=getRatePlansFromGoods(request.getLocal(),
+					Arrays.asList(mHotelArrays), sHotelIdArrays, request.getRequest().getPaymentType(),
+					request.getProxyInfo(), request.getVersion(), request.getRequest().getOptions(),
+					request.getGuid());
 		}else{
 			List<String> sHotelIds = new ArrayList<String>();
 			for (String[] ids : sHotelIdArrays) {
@@ -316,7 +319,28 @@ public class RatePlansService implements IRatePlansService {
 			}
 		}
 		if(hotelIdAttrs!=null&&hotelIdAttrs.size()>0){
-			return this.ratePlanRepository.getRatePlans(proxyInfo, hotelIdAttrs, paymentType,hotelCodeFilterType,shotelCooperationTypeMap,guid);
+			List<HotelRatePlan> ratePlans=this.ratePlanRepository.getRatePlans(proxyInfo, hotelIdAttrs, paymentType,hotelCodeFilterType,shotelCooperationTypeMap,language==EnumLocal.zh_CN,guid);
+			for(int i=0;i<ratePlans.size();i++){
+				for(int j=0;j<ratePlans.get(i).getSuppliers().size();j++){
+					EnumInvoiceMode InvoiceMode = EnumInvoiceMode.Hotel;
+					MSHotelRelation hotelRelation = m_SRelationCache
+							.getHotelRelation(ratePlans.get(i).getSuppliers().get(j).getHotelCode());
+					if (hotelRelation != null) {
+						InvoiceMode = getInvoiceMode(hotelRelation.getSupplierId());
+					}
+
+					List<MSRoomRelation> msList = m_SRelationCache
+							.getMSRoomRelation(ratePlans.get(i).getSuppliers().get(j).getHotelCode());
+					ratePlans.get(i).getSuppliers().get(j).setRooms(msList);
+					ratePlans.get(i).getSuppliers().get(j).setInvoiceMode(InvoiceMode);
+				}
+				if(StringUtils.isEmpty(options)||!options.contains("1")){
+					for(int j=0;j<ratePlans.get(i).getRatePlans().size();j++){
+						ratePlans.get(i).getRatePlans().get(j).setBookingChannels(null);
+					}
+				}
+			}
+			return ratePlans;
 		}else{
 			return new LinkedList<HotelRatePlan>();
 		}

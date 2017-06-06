@@ -25,6 +25,7 @@ import com.elong.hotel.goods.ds.thrift.MetaRoomTypeInfo;
 import com.elong.hotel.goods.ds.thrift.MetaSHotelBaseRpDrrGift;
 import com.elong.hotel.goods.ds.thrift.MetaVouchInfo;
 import com.elong.nb.common.util.SafeConvertUtils;
+import com.elong.nb.dao.adapter.cache.M_SRelationCache;
 import com.elong.nb.model.bean.base.BaseBookingRule;
 import com.elong.nb.model.bean.base.BaseDrrRule;
 import com.elong.nb.model.bean.base.BaseGuaranteeRule;
@@ -49,6 +50,7 @@ import com.elong.nb.model.rateplan.HotelGift;
 import com.elong.nb.model.rateplan.HotelGiftDate;
 import com.elong.nb.model.rateplan.HotelGiftProductRelation;
 import com.elong.nb.model.rateplan.HotelRatePlan;
+import com.elong.nb.model.rateplan.MSRoomRelation;
 import com.elong.nb.model.rateplan.RatePlan;
 import com.elong.nb.model.rateplan.SupplierRatePlan;
 import com.elong.nb.model.rateplan.fornb.EnumPrepayRule;
@@ -59,12 +61,14 @@ public class RatePlanAdapter extends
 		AbstractGoodsAdapter<HotelRatePlan, GetBaseRatePlanDRRGiftResponse> {
 	private Map<String, EnumPaymentType> hotelCodeFilterType;
 	private Map<String, Integer> shotelCooperationTypeMap;
+//	private static M_SRelationCache m_SRelationCache=new M_SRelationCache();
 	private boolean isCn;
 
 	@Override
 	public List<HotelRatePlan> toNBObject(
 			GetBaseRatePlanDRRGiftResponse goodsObject) {
 		if (goodsObject.getReturn_code() == 0) {
+			List<HotelRatePlan> HotelRatePlans=new LinkedList<HotelRatePlan>();
 			if (goodsObject.getMhotel_detail() != null) {
 				for (MetaMHotelBaseRpDrrGift metaMhotel : goodsObject
 						.getMhotel_detail()) {
@@ -163,10 +167,9 @@ public class RatePlanAdapter extends
 										}
 									}
 									if(hotelCodeFilterType.containsKey(hotelCode)){
-										if(metaRatePlanBaseInfo.getSettlement_type().equals("Prepay")&&hotelCodeFilterType.get(hotelCode)==EnumPaymentType.Prepay){
-											continue;
-										}
-										if(metaRatePlanBaseInfo.getSettlement_type().equals("SelfPay")&&hotelCodeFilterType.get(hotelCode)==EnumPaymentType.SelfPay){
+										EnumPaymentType paymentType=EnumPaymentType.forValue(Integer.valueOf(metaRatePlanBaseInfo
+												.getSettlement_type()));
+										if(paymentType==hotelCodeFilterType.get(hotelCode)){
 											continue;
 										}
 									}
@@ -176,7 +179,9 @@ public class RatePlanAdapter extends
 							}
 						}
 					}
+					HotelRatePlans.add(hotelRatePlan);
 				}
+				return HotelRatePlans;
 			}
 		}
 		return null;
@@ -194,6 +199,9 @@ public class RatePlanAdapter extends
 		SupplierRatePlan supplier = new SupplierRatePlan();
 		supplier.setHotelCode(SafeConvertUtils.ToHotelId(hotelInfo
 				.getShotel_id()));
+//		List<MSRoomRelation> msList = m_SRelationCache
+//				.getMSRoomRelation(supplier.getHotelCode());
+//		supplier.setRooms(msList);
 		supplier.setWeekendEnd(hotelInfo.getWeek_end_end());
 		supplier.setWeekendStart(hotelInfo.getWeek_end_start());
 		supplier.setBookingRules(toBaseBookingRule(
@@ -286,8 +294,8 @@ public class RatePlanAdapter extends
 				.getMin_advance_booking_days());
 		ratePlan.setMinAmount(metaRatePlanBaseInfo.getMin_checkin_rooms());
 		ratePlan.setMinDays(metaRatePlanBaseInfo.getMin_stay_days());
-		ratePlan.setPaymentType(EnumPaymentType.valueOf(metaRatePlanBaseInfo
-				.getSettlement_type()));
+		ratePlan.setPaymentType(EnumPaymentType.forValue(Integer.valueOf(metaRatePlanBaseInfo
+				.getSettlement_type())));
 		if (ratePlan.getPaymentType() == EnumPaymentType.Prepay) {
 			ratePlan.setPrepayRules(toPrepayRule(metaRatePlanBaseInfo
 					.getRate_plan_pre_pay_rule_list()));
@@ -361,7 +369,7 @@ public class RatePlanAdapter extends
 		// ratePlan.setGifts(metaRatePlanBaseInfo.);
 		//
 		ratePlan.setHotelCode(hotelCode);
-		return null;
+		return ratePlan;
 
 	}
 
