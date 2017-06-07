@@ -31,11 +31,11 @@ import com.elong.nb.util.HttpUtil;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 
-public class DataTestBookingCase {
+public class DataTestRatePlanCase {
 	private static SimpleDateFormat sdf = new SimpleDateFormat(
 			"yyyy-MM-dd HH:mm:ss");
-	private static String url1 = "http://10.88.25.65:8971/OpenApiWeb/api/Hotel/GetBookingData";
-	private static String url2 = "http://10.39.21.82:8971/OpenApiWeb/api/Hotel/GetBookingData";
+	private static String url1 = "http://10.88.25.65:8971/OpenApiWeb/api/Hotel/GetRatePlans";
+	private static String url2 = "http://10.39.21.82:8971/OpenApiWeb/api/Hotel/GetRatePlans";
 	public static void main(String[] args) {
 //		readText();
 		readHtml();
@@ -46,7 +46,7 @@ public class DataTestBookingCase {
 		String json = HttpUtil
 				.httpPost(
 						"http://10.39.128.39:8080/nbapi-"+sdff.format(new Date())+"/%25%7brole%7d/_search",
-						"{\"size\":2000,\"query\":{\"query_string\":{\"query\":\"methodName:getBookingData\",\"use_dis_max\":true}}}",
+						"{\"size\":200,\"query\":{\"query_string\":{\"query\":\"methodName:getRatePlans\",\"use_dis_max\":true}}}",
 						null);
 		JSONObject jsonObject = JSONObject.fromObject(json);
 		String str1 = jsonObject.get("hits").toString();
@@ -90,7 +90,7 @@ public class DataTestBookingCase {
 				boolean is = data1.equals(data2);//compare(map1, map2, " 商品库:", " 产品组:");
 				if (!is) {
 					errorCount++;
-					File file = new File("booking_result.txt");
+					File file = new File("rateplan_result.txt");
 
 					// if file doesnt exists, then create it
 					if (!file.exists()) {

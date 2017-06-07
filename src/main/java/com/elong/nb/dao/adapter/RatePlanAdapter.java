@@ -50,7 +50,6 @@ import com.elong.nb.model.rateplan.HotelGift;
 import com.elong.nb.model.rateplan.HotelGiftDate;
 import com.elong.nb.model.rateplan.HotelGiftProductRelation;
 import com.elong.nb.model.rateplan.HotelRatePlan;
-import com.elong.nb.model.rateplan.MSRoomRelation;
 import com.elong.nb.model.rateplan.RatePlan;
 import com.elong.nb.model.rateplan.SupplierRatePlan;
 import com.elong.nb.model.rateplan.fornb.EnumPrepayRule;
@@ -95,6 +94,7 @@ public class RatePlanAdapter extends
 									.getDrrs());
 							Map<Integer, List<Integer>> drrIdsMap = new HashMap<Integer, List<Integer>>();
 							Map<Integer, List<GiftRelation>> giftRelationMap = new HashMap<Integer, List<GiftRelation>>();
+							Map<Integer, List<String>> roomTypesrpRelation=new HashMap<Integer, List<String>>();
 							if (metaSHotelBaseRpDrrGift.getRoom_base_infos() != null) {
 								for (MetaRoomTypeInfo metaRoomTypeInfo : metaSHotelBaseRpDrrGift
 										.getRoom_base_infos()) {
@@ -103,6 +103,13 @@ public class RatePlanAdapter extends
 													.getRoom_type_id());
 									for (MetaProductInfo metaProductInfo : metaRoomTypeInfo
 											.getProducts()) {
+										if(roomTypesrpRelation.containsKey(metaProductInfo.getRate_plan_id())){
+											roomTypesrpRelation.get(metaProductInfo.getRate_plan_id()).add(roomTypeId);
+										}else{
+											List<String> roomTypeIds=new LinkedList<String>();
+											roomTypeIds.add(roomTypeId);
+											roomTypesrpRelation.put(metaProductInfo.getRate_plan_id(), roomTypeIds);
+										}
 										if (metaProductInfo.getDrr_ids() != null) {
 											if (drrIdsMap
 													.containsKey(metaProductInfo
@@ -173,8 +180,12 @@ public class RatePlanAdapter extends
 											continue;
 										}
 									}
+									String roomTypeIds="";
+									if(roomTypesrpRelation.containsKey(metaRatePlanBaseInfo.getRate_plan_id())){
+										roomTypeIds=StringUtils.join(roomTypesrpRelation.get(metaRatePlanBaseInfo.getRate_plan_id()),",");
+									}
 									hotelRatePlan.getRatePlans().add(toRatePlan(metaRatePlanBaseInfo,
-													hotelCode, drrRuleList));
+													hotelCode, drrRuleList,roomTypeIds));
 								}
 							}
 						}
@@ -277,13 +288,14 @@ public class RatePlanAdapter extends
 
 	/**
 	 * 转换rp
-	 * @param metaRatePlanBaseInfo
+	 * @param metaRatePlanBaseInfo 
+	 * @param hotelCode
 	 * @param drrRuleList
-	 * @param isCn
+	 * @param roomTypeIds
 	 * @return
 	 */
 	private RatePlan toRatePlan(MetaRatePlanBaseInfo metaRatePlanBaseInfo,
-			String hotelCode, List<BaseDrrRule> drrRuleList) {
+			String hotelCode, List<BaseDrrRule> drrRuleList, String roomTypeIds) {
 		RatePlan ratePlan = new RatePlan();
 		ratePlan.setIsLimitTimeSale(metaRatePlanBaseInfo
 				.getIs_limit_time_sale() == 1);
@@ -308,8 +320,7 @@ public class RatePlanAdapter extends
 		ratePlan.setRatePlanName(isCn ? metaRatePlanBaseInfo
 				.getCn_rate_plan_name() : metaRatePlanBaseInfo
 				.getEn_rate_plan_name());
-		ratePlan.setRoomTypeIds(metaRatePlanBaseInfo
-				.getRate_plan_room_type_id());
+		ratePlan.setRoomTypeIds(roomTypeIds);
 		ratePlan.setStartTime(DateUtil.getTimeString(new Date(
 				metaRatePlanBaseInfo.getStart_time())));
 		 ratePlan.setValueAdds(toValueAdd(metaRatePlanBaseInfo.getAdd_value_policy_list(), metaRatePlanBaseInfo.getRateplan_relation_add_value()));

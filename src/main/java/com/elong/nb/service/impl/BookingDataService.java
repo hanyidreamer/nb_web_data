@@ -542,6 +542,7 @@ public class BookingDataService implements IBookingDataService {
 			}
 			// #endregion 产品、库存和价格的结果处理
 		} catch (Exception ex) {
+			System.out.println(ex);
 			result.setCode(ErrorCode.Common_SystemException + ": "
 					+ ex.getMessage());
 		} finally {

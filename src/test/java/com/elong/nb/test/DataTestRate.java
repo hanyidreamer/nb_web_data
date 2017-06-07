@@ -61,43 +61,43 @@ public class DataTestRate {
 			String str=param.replace('[', ' ').replace(']', ' ').trim().replace("\\","");;
 			int length=str.lastIndexOf("\"");
 			str=str.substring(1, length);
-			try{
-				str="{\"Version\":3.0,\"Local\":\"zh_CN\",\"Request\":{\"HotelIds\":\"02301095,02201622,91762083,02004046,91620462,92101575,90035418,02003290,10601006,02040014\",\"StartDate\":\"2017-05-26T08:27:34+08:00\",\"EndDate\":\"2017-06-09T00:00:00+08:00\",\"PaymentType\":\"Prepay\"},\"ProxyInfo\":{\"AgencyCommisionLevel\":\"LOW\",\"PrepayCommisionLevel\":\"LOW\",\"UserName\":\"d3821ed05dd3193d9dcbc7beadba3476\",\"AppKey\":\"a1b03f2d\",\"UserGroup\":0,\"ProxyId\":\"AP0049496\",\"CardNo\":2000000004630496355,\"OrderFrom\":6137,\"MemberLevel\":\"Normal\",\"SellChannel\":\"B\",\"BookingChannel\":\"OnLine\",\"SearchOrderType\":\"OrderFrom\",\"OrderContactType\":\"NoNeed\",\"IsFilterSEMHotel\":false,\"EnabledPrepayProducts\":true,\"EnabledPrepaySettlment\":true,\"PrepaySettlementRate\":0.05,\"PrepaySettlementRateMode\":2,\"EnabledVirtualCardForPrepay\":true,\"EnabledVirtualCardForGuarantee\":false,\"EnabledSpecialRate\":false,\"EnabledInstantConfirm\":false,\"EnabledInvoiceRole\":false,\"EnabledElongNoteReadRole\":false,\"EnabledCouponReadRole\":false,\"EnabledCouponRole\":false,\"Supplier\":\"\",\"EnableForcedGuaranteeOrder\":false,\"EnableIgnoreCheckingDuplicatedOrder\":false,\"EnableReturnAgentcyRateCost\":false,\"EnableGroupCoupon\":false,\"EnabledVirtualCardForGroup\":false,\"IgnoreCheckGuestName\":false,\"EnabledCommentReadRole\":false,\"CommentUserKey\":\"\",\"MaxDays\":180,\"IntegerPriceType\":0,\"IsOnlyStraight\":false,\"LowestProfitPercent\":0.0,\"IsCustomerPriceIntoSalePrice\":false},\"Guid\":\"7f4b2001-e8f6-4275-bf74-5b37df82c7ed\"}";
-				RestRequest<RateCondition> req=toReq(str, RateCondition.class, null);
-				if(req.getRequest().getEndDate().after(maxDate)){
-					req.getRequest().setEndDate(maxDate);
-				}
-				minDate=req.getRequest().getStartDate();
-				req.setVersion(3.0);
-				str=toJsonReq(req);
-			}catch(Exception e){
-				
-			}
+//			try{
+//				str="{\"Version\":3.0,\"Local\":\"zh_CN\",\"Request\":{\"HotelIds\":\"02301095,02201622,91762083,02004046,91620462,92101575,90035418,02003290,10601006,02040014\",\"StartDate\":\"2017-05-26T08:27:34+08:00\",\"EndDate\":\"2017-06-09T00:00:00+08:00\",\"PaymentType\":\"Prepay\"},\"ProxyInfo\":{\"AgencyCommisionLevel\":\"LOW\",\"PrepayCommisionLevel\":\"LOW\",\"UserName\":\"d3821ed05dd3193d9dcbc7beadba3476\",\"AppKey\":\"a1b03f2d\",\"UserGroup\":0,\"ProxyId\":\"AP0049496\",\"CardNo\":2000000004630496355,\"OrderFrom\":6137,\"MemberLevel\":\"Normal\",\"SellChannel\":\"B\",\"BookingChannel\":\"OnLine\",\"SearchOrderType\":\"OrderFrom\",\"OrderContactType\":\"NoNeed\",\"IsFilterSEMHotel\":false,\"EnabledPrepayProducts\":true,\"EnabledPrepaySettlment\":true,\"PrepaySettlementRate\":0.05,\"PrepaySettlementRateMode\":2,\"EnabledVirtualCardForPrepay\":true,\"EnabledVirtualCardForGuarantee\":false,\"EnabledSpecialRate\":false,\"EnabledInstantConfirm\":false,\"EnabledInvoiceRole\":false,\"EnabledElongNoteReadRole\":false,\"EnabledCouponReadRole\":false,\"EnabledCouponRole\":false,\"Supplier\":\"\",\"EnableForcedGuaranteeOrder\":false,\"EnableIgnoreCheckingDuplicatedOrder\":false,\"EnableReturnAgentcyRateCost\":false,\"EnableGroupCoupon\":false,\"EnabledVirtualCardForGroup\":false,\"IgnoreCheckGuestName\":false,\"EnabledCommentReadRole\":false,\"CommentUserKey\":\"\",\"MaxDays\":180,\"IntegerPriceType\":0,\"IsOnlyStraight\":false,\"LowestProfitPercent\":0.0,\"IsCustomerPriceIntoSalePrice\":false},\"Guid\":\"7f4b2001-e8f6-4275-bf74-5b37df82c7ed\"}";
+//				RestRequest<RateCondition> req=toReq(str, RateCondition.class, null);
+//				if(req.getRequest().getEndDate().after(maxDate)){
+//					req.getRequest().setEndDate(maxDate);
+//				}
+//				minDate=req.getRequest().getStartDate();
+//				req.setVersion(3.0);
+//				str=toJsonReq(req);
+//			}catch(Exception e){
+//				
+//			}
 			String data1=HttpUtil.httpPost(url1,str,null);
 			String data2=HttpUtil.httpPost(url2,str,null);
 			try {
 //				RestRequest<InventoryCondition> restRequest = toReq(str,
 //						InventoryCondition.class, null);
-//				if(!data1.equals(data2)){
-//					System.out.println("<--------------");
-//					System.out.println(str);
-//					System.out.println(data1);
-//					System.out.println(data2);
-//					System.out.println("-------------->");
-//					File file =new File("javaio-appendfile.txt");
-//
-//				      //if file doesnt exists, then create it
-//				      if(!file.exists()){
-//				       file.createNewFile();
-//				      }
-//
-//				      //true = append file
-//				      FileWriter fileWritter = new FileWriter(file.getName(),true);
-//				             BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
-//				             bufferWritter.write(data1);
-//				             bufferWritter.close();
-//
-//				}
+				if(!data1.equals(data2)){
+					System.out.println("<--------------");
+					System.out.println(str);
+					System.out.println(data1);
+					System.out.println(data2);
+					System.out.println("-------------->");
+					File file =new File("javaio-appendfile.txt");
+
+				      //if file doesnt exists, then create it
+				      if(!file.exists()){
+				       file.createNewFile();
+				      }
+
+				      //true = append file
+				      FileWriter fileWritter = new FileWriter(file.getName(),true);
+				             BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
+				             bufferWritter.write(data1);
+				             bufferWritter.close();
+
+				}
 //				Thread.sleep(500);
 				RestResponse<RateResult> response1=toResponse(data1, RateResult.class, null);
 				RestResponse<RateResult> response2=toResponse(data2, RateResult.class, null);
