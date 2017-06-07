@@ -1,5 +1,6 @@
 package com.elong.nb.dao.adapter;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,6 +13,7 @@ import com.elong.hotel.goods.ds.thrift.MetaPrePayInfo;
 import com.elong.hotel.goods.ds.thrift.MetaVouchInfo;
 
 public class DescriptionHelper {
+	private static final SimpleDateFormat sdf=new SimpleDateFormat("yy.MM.dd");
 	private static String getWeekSet(long timeSet){
 		List<Integer> set=new LinkedList<Integer>();
 		for(int i=1;i<=7;i++){
@@ -43,7 +45,7 @@ public class DescriptionHelper {
 					else if(metaDRRInfo.getDate_type() == 3){
 						dateType = "预定日期";
 					}
-					res.append(dateType).append("在").append(DateUtil.formatDate(new Date(metaDRRInfo.getStart_date()),"yyyy.MM.dd")).append("-").append(DateUtil.formatDate(new Date(metaDRRInfo.getEnd_date()),"yyyy.MM.dd")).append(", ")
+					res.append(dateType).append("在").append(sdf.format(new Date(metaDRRInfo.getStart_date()))).append("-").append(sdf.format(new Date(metaDRRInfo.getEnd_date()))).append(", ")
 					.append("提前").append(metaDRRInfo.getRuleValues().get("DayNum")).append("天预订，每间晚优惠");
 					if("1".equals(metaDRRInfo.getRuleValues().get("CashScale"))){
 						res.append(metaDRRInfo.getRuleValues().get("DeductNum")).append("元");
@@ -75,7 +77,7 @@ public class DescriptionHelper {
 					else if(metaDRRInfo.getDate_type() == 3){
 						dateType = "预定日期";
 					}
-					res.append(dateType).append("在").append(DateUtil.formatDate(new Date(metaDRRInfo.getStart_date()),"yyyy.MM.dd")).append("-").append(DateUtil.formatDate(new Date(metaDRRInfo.getEnd_date()),"yyyy.MM.dd")).append(", ")
+					res.append(dateType).append("在").append(sdf.format(new Date(metaDRRInfo.getStart_date()))).append("-").append(sdf.format(new Date(metaDRRInfo.getEnd_date()))).append(", ")
 					.append("连住").append(metaDRRInfo.getRuleValues().get("CheckInNum")).append("晚起，每间晚优惠");
 					if("1".equals(metaDRRInfo.getRuleValues().get("CashScale"))){
 						res.append(metaDRRInfo.getRuleValues().get("DeductNum")).append("元");
@@ -107,7 +109,7 @@ public class DescriptionHelper {
 					else if(metaDRRInfo.getDate_type() == 3){
 						dateType = "预定日期";
 					}
-					res.append(dateType).append("在").append(DateUtil.formatDate(new Date(metaDRRInfo.getStart_date()),"yyyy.MM.dd")).append("-").append(DateUtil.formatDate(new Date(metaDRRInfo.getEnd_date()),"yyyy.MM.dd")).append(", ")
+					res.append(dateType).append("在").append(sdf.format(new Date(metaDRRInfo.getStart_date()))).append("-").append(sdf.format(new Date(metaDRRInfo.getEnd_date()))).append(", ")
 					.append("连住").append(metaDRRInfo.getRuleValues().get("CheckInNum")).append("晚起，最后").append(metaDRRInfo.getRuleValues().get("LastDayNum")).append("晚优惠");
 					if("1".equals(metaDRRInfo.getRuleValues().get("CashScale"))){
 						res.append(metaDRRInfo.getRuleValues().get("DeductNum")).append("元");
@@ -140,7 +142,7 @@ public class DescriptionHelper {
 					else if(metaDRRInfo.getDate_type() == 3){
 						dateType = "预定日期";
 					}
-					res.append(dateType).append("在").append(DateUtil.formatDate(new Date(metaDRRInfo.getStart_date()),"yyyy.MM.dd")).append("-").append(DateUtil.formatDate(new Date(metaDRRInfo.getEnd_date()),"yyyy.MM.dd")).append(", ")
+					res.append(dateType).append("在").append(sdf.format(new Date(metaDRRInfo.getStart_date()))).append("-").append(sdf.format(new Date(metaDRRInfo.getEnd_date()))).append(", ")
 					.append("连住").append(metaDRRInfo.getRuleValues().get("CheckInNum")).append("晚起，第").append(metaDRRInfo.getRuleValues().get("WhichDayNum")).append("晚起优惠");
 					if("1".equals(metaDRRInfo.getRuleValues().get("CashScale"))){
 						res.append(metaDRRInfo.getRuleValues().get("DeductNum")).append("元");
@@ -189,7 +191,7 @@ public class DescriptionHelper {
 					else if(metaDRRInfo.getDate_type() == 3){
 						dateType = "预定日期";
 					}
-					res.append(dateType).append("在").append(DateUtil.formatDate(new Date(metaDRRInfo.getStart_date()),"yyyy.MM.dd")).append("-").append(DateUtil.formatDate(new Date(metaDRRInfo.getEnd_date()),"yyyy.MM.dd")).append(", ")
+					res.append(dateType).append("在").append(sdf.format(new Date(metaDRRInfo.getStart_date()))).append("-").append(sdf.format(new Date(metaDRRInfo.getEnd_date()))).append(", ")
 					.append("每连住").append(metaDRRInfo.getRuleValues().get("EveryCheckInNum")).append("晚，最后").append(metaDRRInfo.getRuleValues().get("LastDayNum")).append("晚优惠");
 					if("1".equals(metaDRRInfo.getRuleValues().get("CashScale"))){
 						res.append(metaDRRInfo.getRuleValues().get("DeductNum")).append("元");
@@ -222,7 +224,7 @@ public class DescriptionHelper {
 					else if(metaDRRInfo.getDate_type() == 3){
 						dateType = "预定日期";
 					}
-					res.append(dateType).append("在").append(DateUtil.formatDate(new Date(metaDRRInfo.getStart_date()),"yyyy.MM.dd")).append("-").append(DateUtil.formatDate(new Date(metaDRRInfo.getEnd_date()),"yyyy.MM.dd")).append(", ")
+					res.append(dateType).append("在").append(sdf.format(new Date(metaDRRInfo.getStart_date()))).append("-").append(sdf.format(new Date(metaDRRInfo.getEnd_date()))).append(", ")
 					.append("在店日期包含").append(getWeekSet(metaDRRInfo.getIs_week_effective())).append("，按");
 					if("1".equals(metaDRRInfo.getRuleValues().get("FeeType"))){
 						res.append("周末价计算");
@@ -253,7 +255,7 @@ public class DescriptionHelper {
 					else if(metaDRRInfo.getDate_type() == 3){
 						dateType = "预定日期";
 					}
-					res.append(dateType).append("在").append(DateUtil.formatDate(new Date(metaDRRInfo.getStart_date()),"yyyy.MM.dd")).append("-").append(DateUtil.formatDate(new Date(metaDRRInfo.getEnd_date()),"yyyy.MM.dd")).append(", ")
+					res.append(dateType).append("在").append(sdf.format(new Date(metaDRRInfo.getStart_date()))).append("-").append(sdf.format(new Date(metaDRRInfo.getEnd_date()))).append(", ")
 					.append("在店日期包含").append(getWeekSet(metaDRRInfo.getIs_week_effective())).append("，按");
 					if("1".equals(metaDRRInfo.getRuleValues().get("FeeType"))){
 						res.append("周末价计算");
@@ -288,11 +290,9 @@ public class DescriptionHelper {
 		switch(metaPrePayInfo.getPrepay_change_rule()){
 			case 1:
 				if(isCn){
-					res.append("预付规则：在").append(DateUtil.formatDate(
-							new Date(metaPrePayInfo.getStart_date()),
-							"yyyy.MM.dd")).append(" 到").append(DateUtil.formatDate(
-									new Date(metaPrePayInfo.getEnd_date()),
-									"yyyy.MM.dd")).append("期间入住，需要提供信用卡预付全额房费。一经预订成功不可变更/取消。");
+					res.append("预付规则：在").append(sdf.format(
+							new Date(metaPrePayInfo.getStart_date()))).append(" 到").append(sdf.format(
+									new Date(metaPrePayInfo.getEnd_date()))).append("期间入住，需要提供信用卡预付全额房费。一经预订成功不可变更/取消。");
 				}
 				else{
 					res.append(" Once the order has been submitted successfully,  it won't be possible to change or cancel it.");
@@ -300,11 +300,9 @@ public class DescriptionHelper {
 				break;
 			case 2:
 				if(isCn){
-					res.append("预付规则：在").append(DateUtil.formatDate(
-							new Date(metaPrePayInfo.getStart_date()),
-							"yyyy.MM.dd")).append(" 到").append(DateUtil.formatDate(
-									new Date(metaPrePayInfo.getEnd_date()),
-									"yyyy.MM.dd")).append("期间入住");
+					res.append("预付规则：在").append(sdf.format(
+							new Date(metaPrePayInfo.getStart_date()))).append(" 到").append(sdf.format(
+									new Date(metaPrePayInfo.getEnd_date()))).append("期间入住");
 					if(metaPrePayInfo.isCut_after_change_time()){
 						res.append("，离到店日不足").append(metaPrePayInfo.getRule_values().get("HourNum")).append("小时取消将收取罚金");
 						if("1".equals(metaPrePayInfo.getRule_values().get("CashScaleFirstAfter"))){
@@ -337,11 +335,9 @@ public class DescriptionHelper {
 				break;
 			case 3:
 				if(isCn){
-					res.append("预付规则：在").append(DateUtil.formatDate(
-							new Date(metaPrePayInfo.getStart_date()),
-							"yyyy.MM.dd")).append(" 到").append(DateUtil.formatDate(
-									new Date(metaPrePayInfo.getEnd_date()),
-									"yyyy.MM.dd")).append("期间入住");
+					res.append("预付规则：在").append(sdf.format(
+							new Date(metaPrePayInfo.getStart_date()))).append(" 到").append(sdf.format(
+									new Date(metaPrePayInfo.getEnd_date()))).append("期间入住");
 					if(metaPrePayInfo.isCut_after_change_time()){
 						res.append("，在").append(metaPrePayInfo.getRule_values().get("DateNum")).append(" ").append(metaPrePayInfo.getRule_values().get("TimeNum")).append("之后").append(metaPrePayInfo.getRule_values().get("HourNum")).append("小时取消将收取罚金");
 						if("1".equals(metaPrePayInfo.getRule_values().get("CashScaleFirstAfter"))){
@@ -390,13 +386,11 @@ public class DescriptionHelper {
 		case 1:
 			if (isCn) {
 				res.append("担保条件：在")
-						.append(DateUtil.formatDate(
-								new Date(metaVouchInfo.getStart_date()),
-								"yyyy.MM.dd"))
+						.append(sdf.format(
+								new Date(metaVouchInfo.getStart_date())))
 						.append("至")
-						.append(DateUtil.formatDate(
-								new Date(metaVouchInfo.getEndDate()),
-								"yyyy.MM.dd"));
+						.append(sdf.format(
+								new Date(metaVouchInfo.getEndDate())));
 				if (metaVouchInfo.getDate_type() == 1) {
 					res.append("入住");
 				} else if (metaVouchInfo.getDate_type() == 2) {
@@ -447,13 +441,11 @@ public class DescriptionHelper {
 				if (!metaVouchInfo.isIs_arrive_time_vouch()
 						&& !metaVouchInfo.isIs_room_count_vouch()) {
 					res.append("For Bookings with  check-in date between ")
-							.append(DateUtil.formatDate(
-									new Date(metaVouchInfo.getStart_date()),
-									"yyyy.MM.dd"))
+							.append(sdf.format(
+									new Date(metaVouchInfo.getStart_date())))
 							.append(" and ")
-							.append(DateUtil.formatDate(
-									new Date(metaVouchInfo.getEndDate()),
-									"yyyy.MM.dd")).append(", ");
+							.append(sdf.format(
+									new Date(metaVouchInfo.getEndDate()))).append(", ");
 				}
 				if (metaVouchInfo.isIs_arrive_time_vouch()
 						&& !metaVouchInfo.isIs_room_count_vouch()) {
@@ -490,13 +482,11 @@ public class DescriptionHelper {
 		case 2:
 			if (isCn) {
 				res.append("担保条件：在")
-						.append(DateUtil.formatDate(
-								new Date(metaVouchInfo.getStart_date()),
-								"yyyy.MM.dd"))
+						.append(sdf.format(
+								new Date(metaVouchInfo.getStart_date())))
 						.append("至")
-						.append(DateUtil.formatDate(
-								new Date(metaVouchInfo.getEndDate()),
-								"yyyy.MM.dd"));
+						.append(sdf.format(
+								new Date(metaVouchInfo.getEndDate())));
 				if (metaVouchInfo.getDate_type() == 1) {
 					res.append("入住");
 				} else if (metaVouchInfo.getDate_type() == 2) {
@@ -551,13 +541,11 @@ public class DescriptionHelper {
 				if (!metaVouchInfo.isIs_arrive_time_vouch()
 						&& !metaVouchInfo.isIs_room_count_vouch()) {
 					res.append("For Bookings with  check-in date between ")
-							.append(DateUtil.formatDate(
-									new Date(metaVouchInfo.getStart_date()),
-									"yyyy.MM.dd"))
+							.append(sdf.format(
+									new Date(metaVouchInfo.getStart_date())))
 							.append(" and ")
-							.append(DateUtil.formatDate(
-									new Date(metaVouchInfo.getEndDate()),
-									"yyyy.MM.dd")).append(", ");
+							.append(sdf.format(
+									new Date(metaVouchInfo.getEndDate()))).append(", ");
 				}
 				if (metaVouchInfo.isIs_arrive_time_vouch()
 						&& !metaVouchInfo.isIs_room_count_vouch()) {
@@ -599,13 +587,11 @@ public class DescriptionHelper {
 		case 3:
 			if (isCn) {
 				res.append("担保条件：在")
-						.append(DateUtil.formatDate(
-								new Date(metaVouchInfo.getStart_date()),
-								"yyyy.MM.dd"))
+						.append(sdf.format(
+								new Date(metaVouchInfo.getStart_date())))
 						.append("至")
-						.append(DateUtil.formatDate(
-								new Date(metaVouchInfo.getEndDate()),
-								"yyyy.MM.dd"));
+						.append(sdf.format(
+								new Date(metaVouchInfo.getEndDate())));
 				if (metaVouchInfo.getDate_type() == 1) {
 					res.append("入住");
 				} else if (metaVouchInfo.getDate_type() == 2) {
@@ -657,13 +643,11 @@ public class DescriptionHelper {
 				if (!metaVouchInfo.isIs_arrive_time_vouch()
 						&& !metaVouchInfo.isIs_room_count_vouch()) {
 					res.append("For Bookings with  check-in date between ")
-							.append(DateUtil.formatDate(
-									new Date(metaVouchInfo.getStart_date()),
-									"yyyy.MM.dd"))
+							.append(sdf.format(
+									new Date(metaVouchInfo.getStart_date())))
 							.append(" and ")
-							.append(DateUtil.formatDate(
-									new Date(metaVouchInfo.getEndDate()),
-									"yyyy.MM.dd")).append(", ");
+							.append(sdf.format(
+									new Date(metaVouchInfo.getEndDate()))).append(", ");
 				}
 				if (metaVouchInfo.isIs_arrive_time_vouch()
 						&& !metaVouchInfo.isIs_room_count_vouch()) {
@@ -706,13 +690,11 @@ public class DescriptionHelper {
 		case 4:
 			if (isCn) {
 				res.append("担保条件：在")
-						.append(DateUtil.formatDate(
-								new Date(metaVouchInfo.getStart_date()),
-								"yyyy.MM.dd"))
+						.append(sdf.format(
+								new Date(metaVouchInfo.getStart_date())))
 						.append("至")
-						.append(DateUtil.formatDate(
-								new Date(metaVouchInfo.getEndDate()),
-								"yyyy.MM.dd"));
+						.append(sdf.format(
+								new Date(metaVouchInfo.getEndDate())));
 				if (metaVouchInfo.getDate_type() == 1) {
 					res.append("入住");
 				} else if (metaVouchInfo.getDate_type() == 2) {
@@ -765,13 +747,11 @@ public class DescriptionHelper {
 				if (!metaVouchInfo.isIs_arrive_time_vouch()
 						&& !metaVouchInfo.isIs_room_count_vouch()) {
 					res.append("For Bookings with  check-in date between ")
-							.append(DateUtil.formatDate(
-									new Date(metaVouchInfo.getStart_date()),
-									"yyyy.MM.dd"))
+							.append(sdf.format(
+									new Date(metaVouchInfo.getStart_date())))
 							.append(" and ")
-							.append(DateUtil.formatDate(
-									new Date(metaVouchInfo.getEndDate()),
-									"yyyy.MM.dd")).append(", ");
+							.append(sdf.format(
+									new Date(metaVouchInfo.getEndDate()))).append(", ");
 				}
 				if (metaVouchInfo.isIs_arrive_time_vouch()
 						&& !metaVouchInfo.isIs_room_count_vouch()) {

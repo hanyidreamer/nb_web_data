@@ -24,8 +24,8 @@ import com.elong.hotel.goods.ds.thrift.MetaRatePlanBaseInfo;
 import com.elong.hotel.goods.ds.thrift.MetaRoomTypeInfo;
 import com.elong.hotel.goods.ds.thrift.MetaSHotelBaseRpDrrGift;
 import com.elong.hotel.goods.ds.thrift.MetaVouchInfo;
+import com.elong.nb.common.util.ProductTypeUtils;
 import com.elong.nb.common.util.SafeConvertUtils;
-import com.elong.nb.dao.adapter.cache.M_SRelationCache;
 import com.elong.nb.model.bean.base.BaseBookingRule;
 import com.elong.nb.model.bean.base.BaseDrrRule;
 import com.elong.nb.model.bean.base.BaseGuaranteeRule;
@@ -315,7 +315,8 @@ public class RatePlanAdapter extends
 			ratePlan.setGuaranteeRules(toGuaranteeRule(metaRatePlanBaseInfo
 					.getRate_plan_vouch_rule_list()));
 		}
-		ratePlan.setProductTypes(metaRatePlanBaseInfo.getProduct_type());
+		boolean isHourPayRoom=ProductTypeUtils.isHourPayRoom(metaRatePlanBaseInfo.getCn_rate_plan_name());
+		ratePlan.setProductTypes(parseProductType(metaRatePlanBaseInfo.getProduct_type(),metaRatePlanBaseInfo.getBooking_channel(),isHourPayRoom));
 		ratePlan.setRatePlanId(metaRatePlanBaseInfo.getRate_plan_id());
 		ratePlan.setRatePlanName(isCn ? metaRatePlanBaseInfo
 				.getCn_rate_plan_name() : metaRatePlanBaseInfo
@@ -787,8 +788,13 @@ public class RatePlanAdapter extends
 								"TimeNum"));
 					}
 					if (metaPrePayInfo.getRule_values().containsKey("DateNum")) {
-						basePrepay.setDateNum(DateUtil.toDate(metaPrePayInfo
-								.getRule_values().get("DateNum")));
+						if(StringUtils.isNotEmpty(metaPrePayInfo
+								.getRule_values().get("DateNum"))){
+							basePrepay.setDateNum(DateUtil.toDate(metaPrePayInfo
+									.getRule_values().get("DateNum")));
+						}else{
+							basePrepay.setDateNum(DateUtil.getMinValue());
+						}
 					}
 				}
 				basePrepayRules.add(basePrepay);
@@ -997,6 +1003,37 @@ public class RatePlanAdapter extends
 			}
 		}
 		return StringUtils.join(set,",");
+	}
+	/**
+	 * 3---限时抢购
+	 * 4--钟点房
+	 * @param strProductType 16---限时抢购,32--钟点房
+	 * @param bookingchanel
+	 * @param isHourPayRoom
+	 * @return
+	 */
+	public String parseProductType(String strProductType, int bookingchanel,
+			boolean isHourPayRoom) {
+		String productTypes = "";
+		List<String> productTypeList=new LinkedList<String>();
+		int pt = Integer.parseInt("0" + strProductType);
+		if ((pt & 16) == 16)
+			productTypeList.add("3");
+			//productTypes += "3,";
+		if (isHourPayRoom || (pt & 32) == 32)
+			productTypeList.add("4");
+		if ((bookingchanel & 2) == 0 && (bookingchanel & 16) == 16)
+			productTypeList.add("5");
+		// 买一送一 productType值是2的14次方
+		if ((pt & 16384) == 16384) {
+			productTypeList.add("101");
+		}
+		if (productTypeList.size()>0) {
+			productTypes = StringUtils.join(productTypeList, ",");
+		} else {
+			productTypes=null;
+		}
+		return productTypes;
 	}
 
 	@Override
