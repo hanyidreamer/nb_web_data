@@ -569,7 +569,7 @@ public class BookingDataService implements IBookingDataService {
 
 	public void CheckBookingDataResult(RestResponse<BookingDataResult> result,
 			StringBuilder checkOrderResult) {
-		if (result != null && result.getResult() != null) {
+		if (result != null && result.getResult() != null&&"0".equals(result.getCode())) {
 			boolean isAvaliableInv = true;
 			boolean isAvaliableRate = true;
 			if (result.getResult().getInventories() != null
