@@ -100,6 +100,7 @@ public class RatePlanRepository {
 			log.setElapsedTime(String.valueOf(end-start));
 			Gson gson=new Gson();
 			System.out.println(gson.toJson(response));
+			System.out.println(gson.toJson(request));
 			if(response!=null&&response.return_code==0){
 				AbstractGoodsAdapter<HotelRatePlan, GetBaseRatePlanDRRGiftResponse> adapter=new RatePlanAdapter();
 				adapter.setFilter(hotelCodeFilterType,shotelCooperationTypeMap, isCn);

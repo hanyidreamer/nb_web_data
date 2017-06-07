@@ -1,6 +1,7 @@
 package com.elong.nb.controller;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,7 +14,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.elong.nb.common.biglog.Constants;
+import com.elong.nb.common.gson.DateTypeAdapter;
 import com.elong.nb.common.gson.GsonUtil;
 import com.elong.nb.common.model.ErrorCode;
 import com.elong.nb.common.model.RestRequest;
@@ -25,6 +31,7 @@ import com.elong.nb.model.rateplan.RatePlanCondition;
 import com.elong.nb.model.rateplan.RatePlanResult;
 import com.elong.nb.service.IBookingDataService;
 import com.elong.nb.service.IRatePlansService;
+import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 
 @Controller
@@ -113,9 +120,27 @@ public class HotelDataController {
 		RestResponse<BookingDataResult> response = null;
 		response = bookingDataService.getBookingData(restRequest);
 		// 反回JSON
-		return new ResponseEntity<byte[]>(GsonUtil.toJson(response,
+		return new ResponseEntity<byte[]>(toJson(response,
 				restRequest.getVersion()).getBytes(), HttpStatus.OK);
 
+	}
+	@SuppressWarnings("rawtypes")
+	public static String toJson(RestResponse<BookingDataResult> resp, double version) {
+		RequestAttributes ra = RequestContextHolder.getRequestAttributes();
+		String realCode="";
+		realCode=resp == null||resp.getCode()==null ? "" : resp.getCode().split("\\|")[0];
+		if("0".equals(realCode)){
+			realCode=resp.getResult().getRealResponseCode();
+		}
+		ra.setAttribute(Constants.ELONG_RESPONSE_CODE, realCode,
+				ServletRequestAttributes.SCOPE_REQUEST);
+		// 增加版本对应的输出设置
+		GsonBuilder gsonBuilder = new GsonBuilder();
+		gsonBuilder.registerTypeAdapter(Date.class, new DateTypeAdapter());
+		if (version > 0)
+			gsonBuilder.setVersion(version);
+		String json = gsonBuilder.create().toJson(resp, RestResponse.class);
+		return json;
 	}
 	private String validateBookingDataRequest(
 			RestRequest<BookingDataCondition> restRequest) {

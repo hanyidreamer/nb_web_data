@@ -235,7 +235,7 @@ public class RatePlanAdapter extends
 				if (roomBaseInfo.getHotel_booking_rule_list() != null) {
 					for (MetaHotelBookingRule hotelBookingRule : roomBaseInfo
 							.getHotel_booking_rule_list()) {
-						if (bookingRuleMap
+						if (!bookingRuleMap
 								.containsKey(hotelBookingRule.getId())) {
 							bookingRuleMap.put(hotelBookingRule.getId(),
 									toBaseBookingRule(hotelBookingRule));
@@ -981,7 +981,7 @@ public class RatePlanAdapter extends
 	private String getWeekSet(long timeSet){
 		List<Integer> set=new LinkedList<Integer>();
 		for(int i=1;i<=7;i++){
-			if((timeSet&(long)Math.pow(2, i))==Math.pow(2, i)){
+			if((timeSet&(long)Math.pow(2, i-1))==Math.pow(2, i-1)){
 				set.add(i);
 			}
 		}

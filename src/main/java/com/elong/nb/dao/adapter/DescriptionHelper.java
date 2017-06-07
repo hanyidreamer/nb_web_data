@@ -15,7 +15,7 @@ public class DescriptionHelper {
 	private static String getWeekSet(long timeSet){
 		List<Integer> set=new LinkedList<Integer>();
 		for(int i=1;i<=7;i++){
-			if((timeSet&(long)Math.pow(2, i))==Math.pow(2, i)){
+			if((timeSet&(long)Math.pow(2, i-1))==Math.pow(2, i-1)){
 				set.add(i);
 			}
 		}

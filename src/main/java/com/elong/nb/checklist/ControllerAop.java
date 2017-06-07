@@ -71,6 +71,9 @@ public class ControllerAop {
 				ResponseEntity<byte[]> resp = (ResponseEntity<byte[]>) returnValue;
 				result = new String(resp.getBody());
 			}
+			if("getBookingData".equals(methodName)){
+				result+="|"+businessCode;
+			}
 		}else if("getBookingData".equals(methodName)){
 			if (returnValue instanceof String) {
 				result = (String) returnValue;
