@@ -56,6 +56,8 @@ import com.elong.nb.model.rateplan.fornb.EnumPrepayRule;
 import com.elong.nb.model.rateplan.fornb.GiftRelation;
 import com.elong.nb.util.DateUtil;
 
+import edu.emory.mathcs.backport.java.util.Collections;
+
 public class RatePlanAdapter extends
 		AbstractGoodsAdapter<HotelRatePlan, GetBaseRatePlanDRRGiftResponse> {
 	private Map<String, EnumPaymentType> hotelCodeFilterType;
@@ -231,32 +233,51 @@ public class RatePlanAdapter extends
 	private List<BaseBookingRule> toBaseBookingRule(
 			List<MetaHotelBookingRule> hotelBookingRules,
 			List<MetaRoomTypeInfo> roomBaseInfos) {
-		Map<Long, BaseBookingRule> bookingRuleMap = new HashMap<Long, BaseBookingRule>();
+		Map<Long, BaseBookingRule> hotelBookingRuleMap = new HashMap<Long, BaseBookingRule>();
 		List<BaseBookingRule> bookingRules = new LinkedList<BaseBookingRule>();
 		if (hotelBookingRules != null) {
 			for (MetaHotelBookingRule hotelBookingRule : hotelBookingRules) {
-				if (bookingRuleMap.containsKey(hotelBookingRule.getId())) {
-					bookingRuleMap.put(hotelBookingRule.getId(),
+				if (!hotelBookingRuleMap.containsKey(hotelBookingRule.getId())) {
+					hotelBookingRuleMap.put(hotelBookingRule.getId(),
 							toBaseBookingRule(hotelBookingRule));
 				}
 			}
 		}
+		Map<Long, MetaHotelBookingRule> roomBookingRuleMap = new HashMap<Long, MetaHotelBookingRule>();
+		Map<Long,List<String>> bookingRuleRoomTypeRelation=new HashMap<Long, List<String>>();
 		if (roomBaseInfos != null) {
 			for (MetaRoomTypeInfo roomBaseInfo : roomBaseInfos) {
+				String roomTypeId=SafeConvertUtils.ToRoomId(roomBaseInfo.getRoom_type_id());
 				if (roomBaseInfo.getHotel_booking_rule_list() != null) {
 					for (MetaHotelBookingRule hotelBookingRule : roomBaseInfo
 							.getHotel_booking_rule_list()) {
-						if (!bookingRuleMap
-								.containsKey(hotelBookingRule.getId())) {
-							bookingRuleMap.put(hotelBookingRule.getId(),
-									toBaseBookingRule(hotelBookingRule));
+						if (!hotelBookingRuleMap.containsKey(hotelBookingRule.getId())&&!hotelBookingRuleMap.containsKey(hotelBookingRule.getId())) {
+							roomBookingRuleMap.put(hotelBookingRule.getId(),
+									hotelBookingRule);
+						}
+						if(bookingRuleRoomTypeRelation.containsKey(hotelBookingRule.getId())){
+							bookingRuleRoomTypeRelation.get(hotelBookingRule.getId()).add(roomTypeId);
+						}else{
+							List<String> roomTypes=new LinkedList<String>();
+							roomTypes.add(roomTypeId);
+							bookingRuleRoomTypeRelation.put(hotelBookingRule.getId(), roomTypes);
 						}
 					}
 				}
 			}
 		}
-		if (bookingRuleMap.size() > 0) {
-			for (BaseBookingRule baseBookingRule : bookingRuleMap.values()) {
+		if (hotelBookingRuleMap.size() > 0) {
+			for (BaseBookingRule baseBookingRule : hotelBookingRuleMap.values()) {
+				baseBookingRule.setRoomTypeIds("all");
+				bookingRules.add(baseBookingRule);
+			}
+		}
+		if (roomBookingRuleMap.size() > 0) {
+			for (MetaHotelBookingRule metaBookingRule : roomBookingRuleMap.values()) {
+				List<String> roomTypes=bookingRuleRoomTypeRelation.get(metaBookingRule.getId());
+				Collections.sort(roomTypes);
+				BaseBookingRule baseBookingRule=toBaseBookingRule(metaBookingRule);
+				baseBookingRule.setRoomTypeIds(StringUtils.join(roomTypes,","));
 				bookingRules.add(baseBookingRule);
 			}
 		}
@@ -275,7 +296,7 @@ public class RatePlanAdapter extends
 		BaseBookingRule bookingRule = new BaseBookingRule();
 		bookingRule.setDateType(EnumDateType
 				.forValue(hotelBookingRule.date_type));
-		bookingRule.setDescription("");
+		bookingRule.setDescription(isCn?hotelBookingRule.getCn_description():hotelBookingRule.getEn_description());
 		bookingRule.setEndDate(new Date(hotelBookingRule.getEnd_date()));
 		bookingRule.setEndHour(hotelBookingRule.getEnd_hour());
 		bookingRule.setRoomTypeIds(hotelBookingRule.getRoom_type_id());
@@ -323,7 +344,7 @@ public class RatePlanAdapter extends
 				.getEn_rate_plan_name());
 		ratePlan.setRoomTypeIds(roomTypeIds);
 		ratePlan.setStartTime(DateUtil.getTimeString(new Date(
-				metaRatePlanBaseInfo.getStart_time())));
+				metaRatePlanBaseInfo.getStart_time()-28800000)));
 		 ratePlan.setValueAdds(toValueAdd(metaRatePlanBaseInfo.getAdd_value_policy_list(), metaRatePlanBaseInfo.getRateplan_relation_add_value()));
 
 		int c = metaRatePlanBaseInfo.getBooking_channel();
@@ -376,7 +397,7 @@ public class RatePlanAdapter extends
 		ratePlan.setCustomerType(gtype);
 		ratePlan.setDrrRules(drrRuleList);
 		ratePlan.setEndTime(DateUtil.getTimeString(new Date(
-				metaRatePlanBaseInfo.getEnd_time())));
+				metaRatePlanBaseInfo.getEnd_time()-28800000)));
 		// 在这个节点不需要提供
 		// ratePlan.setGifts(metaRatePlanBaseInfo.);
 		//
@@ -468,6 +489,7 @@ public class RatePlanAdapter extends
 								}else{
 									List<String> roomTypeIds=new LinkedList<String>();
 									roomTypeIds.add(giftRelation.getRoomTypeId());
+									rpRoomTypeMap.put(giftRelation.getRatePlanId(), roomTypeIds);
 								}
 							}
 							for (Integer rpId : rpRoomTypeMap.keySet()) {
