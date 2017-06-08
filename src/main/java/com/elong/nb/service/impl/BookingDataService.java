@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSON;
+import com.elong.nb.OrderCheckStatistic;
 import com.elong.nb.bookingdata.thread.InventoryThread;
 import com.elong.nb.bookingdata.thread.RatePlanThread;
 import com.elong.nb.bookingdata.thread.RateThread;
@@ -618,32 +619,33 @@ public class BookingDataService implements IBookingDataService {
 		if (minitor.equals("1")) {
 			{
 				try {
-					CheckMinitor checkMinitor = new CheckMinitor();
+					OrderCheckStatistic checkMinitor=new OrderCheckStatistic();
+//					CheckMinitor checkMinitor = new CheckMinitor();
 					checkMinitor.setServerIp(LocalHost.getLocalIP());
 					checkMinitor.setAgentId(request.getProxyInfo()
 							.getOrderFrom().toString());
-					checkMinitor.setAgentName(getOrderFromProjectName(request
-							.getProxyInfo().getOrderFrom()));
-					checkMinitor.setOrderCheckTime(DateUtil.formatDate(
-							new Date(), "yyyy-MM-dd HH:mm:ss"));
-					checkMinitor.setRoomNightsCount(roomNightsCount + "");
+					checkMinitor.setArrivalDate(DateUtil.formatDate(request.getRequest().getArrivalDate(), "yyyy-MM-dd HH:mm:ss"));
+					checkMinitor.setBusiness_type("nbcheck");
+					checkMinitor.setDepartureDate(DateUtil.formatDate(request.getRequest().getDepartureDate(), "yyyy-MM-dd HH:mm:ss"));
+					checkMinitor.setHotelId(request.getRequest().getHotelId());
+					checkMinitor.setLog_time(DateUtil.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss"));
+					
+					checkMinitor.setRatePlanId(String.valueOf(request.getRequest().getRatePlanId()));
+					checkMinitor.setRoomNightsCount(String.valueOf(roomNightsCount));
+					checkMinitor.setRoomTypeId(request.getRequest().getRoomTypeId());
 					String checkJson;
 					if (!"0".equals(result.getCode())
 							|| !checkResult.toString().isEmpty()) {
-						checkMinitor.setOrderCheckStatus("N");
+						checkMinitor.setOrderCheckStatus(false);
 						if (!"0".equals(result.getCode())) {
-							checkMinitor.setOrderCheckCode(result.getCode()
-									.split("\\|")[0]);
 							checkMinitor
 									.setCheckFailureReason(result.getCode());
 						} else {
-							checkMinitor.setOrderCheckCode(checkResult
-									.toString().split("\\|")[0]);
 							checkMinitor.setCheckFailureReason(checkResult
 									.toString());
 						}
 					} else {
-						checkMinitor.setOrderCheckStatus("Y");
+						checkMinitor.setOrderCheckStatus(true);
 					}
 					checkJson = JSON.toJSONString(checkMinitor);
 					logger.info(checkJson);
@@ -654,6 +656,11 @@ public class BookingDataService implements IBookingDataService {
 		}
 	}
 
+	/**
+	 * 获取供应商名称（废弃）
+	 * @param orderFromId
+	 * @return
+	 */
 	public String getOrderFromProjectName(int orderFromId) {
 		String projectName = "";
 		String key = String.format(
