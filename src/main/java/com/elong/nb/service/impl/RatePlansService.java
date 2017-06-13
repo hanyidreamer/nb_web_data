@@ -309,6 +309,8 @@ public class RatePlansService implements IRatePlansService {
 					}else{
 						showHotelCode.add(hotelCode);
 					}
+				}else{
+					showHotelCode.add(hotelCode);
 				}
 			}
 			if(showHotelCode!=null&&showHotelCode.size()>0){
