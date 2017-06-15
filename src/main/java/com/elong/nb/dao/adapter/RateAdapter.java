@@ -61,7 +61,9 @@ public class RateAdapter extends AbstractGoodsAdapter<Rate, GetBasePrice4NbRespo
 														rate.setStatus(basePrice.getStatus()==1);
 														rate.setWeekend(dealPrice(basePrice.getWeekend_price_origin()));
 														rate.setWeekendCost(dealPrice(basePrice.getWeekend_cost_origin()));
-														rates.add(rate);
+														if(rate.getStatus()){
+															rates.add(rate);
+														}
 													}
 												}
 											}

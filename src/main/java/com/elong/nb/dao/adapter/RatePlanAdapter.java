@@ -716,8 +716,8 @@ public class RatePlanAdapter extends
 					}
 					if (metaVouchInfo.getRule_values()
 							.containsKey("IsTomorrow")) {
-						guaranteeRule.setIsTomorrow(metaVouchInfo
-								.getRule_values().get("IsTomorrow") == "true");
+						guaranteeRule.setIsTomorrow("1".equals(metaVouchInfo
+								.getRule_values().get("IsTomorrow")));
 					}
 				}
 
