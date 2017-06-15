@@ -193,7 +193,6 @@ public class RateService implements IRateService {
 								Date rateStartDate=item.getStartDate() != null ? item.getStartDate().toDate() : DateUtil.getMinValue();
 								double member = item.getMemberRate() != null ? item.getMemberRate().doubleValue() : -1d;
 								member = toIntegerPrice(member,proxyInfo.getIntegerPriceType());
-								
 								double weekend = item.getWeekendMemberRate() != null ? item.getWeekendMemberRate().doubleValue():-1d;
 								weekend = toIntegerPrice(weekend,proxyInfo.getIntegerPriceType());
 								//预付及现付需要返回结算价
@@ -344,9 +343,9 @@ public class RateService implements IRateService {
 			//预付及现付需要返回结算价
 			if(paymentType == EnumPaymentType.All||paymentType == EnumPaymentType.Prepay||proxyInfo.getEnableReturnAgentcyRateCost()){
 				double costPrice=item.getMemberCost();
-				List<RateWithRule> memberRateList=settlementCommon.getSettlementPrice(costPrice, member, item.getHotelID(), rateStartDate, rateEndDate);
+				List<RateWithRule> memberRateList=settlementCommon.getSettlementPrice(costPrice, member, item.getHotelCode(), rateStartDate, rateEndDate);
 				double weekendCost=item.getWeekendCost();
-				List<RateWithRule> weekendRateList=settlementCommon.getSettlementPrice(weekendCost, weekend, item.getHotelID(), rateStartDate, rateEndDate);
+				List<RateWithRule> weekendRateList=settlementCommon.getSettlementPrice(weekendCost, weekend, item.getHotelCode(), rateStartDate, rateEndDate);
 				if(memberRateList!=null&&weekendRateList!=null&&memberRateList.size()==weekendRateList.size()){
 					for(int j=0;j<memberRateList.size();j++){
 						Rate rate = new Rate();
