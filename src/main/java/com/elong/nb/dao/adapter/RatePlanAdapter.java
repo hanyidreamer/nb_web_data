@@ -748,8 +748,8 @@ public class RatePlanAdapter extends
 	 */
 	private List<BasePrepayRule> toPrepayRule(
 			List<MetaPrePayInfo> metaPrePayInfos) {
-		if (metaPrePayInfos != null) {
-			List<BasePrepayRule> basePrepayRules = new LinkedList<BasePrepayRule>();
+		List<BasePrepayRule> basePrepayRules = new LinkedList<BasePrepayRule>();
+		if (metaPrePayInfos != null&&metaPrePayInfos.size()>0) {
 			for (MetaPrePayInfo metaPrePayInfo : metaPrePayInfos) {
 				if (metaPrePayInfo.getTarget() == 1) {
 					continue;
@@ -821,9 +821,32 @@ public class RatePlanAdapter extends
 				}
 				basePrepayRules.add(basePrepay);
 			}
-			return basePrepayRules;
 		}
-		return null;
+		if(basePrepayRules.size()==0){
+			BasePrepayRule base = new BasePrepayRule();
+
+			base.setChangeRule(EnumPrepayChangeRule.PrepayNoChange);
+			base.setDateType(EnumDateType.CheckInDay);
+
+			Date today = DateUtil.getDate(new Date());
+			base.setStartDate(DateUtil.addDays(today, -1));
+			base.setEndDate(DateUtil.addYears(today, 1));
+			base.setCashScaleFirstAfter(EnumPrepayCutPayment.Percent);
+			base.setCashScaleFirstBefore(EnumPrepayCutPayment.Percent);
+			base.setDeductFeesAfter(100);
+			base.setDeductFeesBefore(100);
+			base.setWeekSet("1,2,3,4,5,6,7");
+			base.setDescription(isCn ? "一经预订成功不可变更/取消。"
+					: "Once the order has been submitted successfully,  it won't be possible to change or cancel it.");
+			base.setDeductNumAfter(100);
+			base.setDeductNumBefore(100);
+			base.setDateNum(DateUtil.addDays(today, -1));
+			base.setHour(0);
+			base.setHour2(0);
+			base.setTime("18:00:00");
+			basePrepayRules.add(base);
+		}
+		return basePrepayRules;
 
 	}
 
@@ -1019,10 +1042,13 @@ public class RatePlanAdapter extends
 
 	private String getWeekSet(long timeSet){
 		List<Integer> set=new LinkedList<Integer>();
-		for(int i=1;i<=7;i++){
-			if((timeSet&(long)Math.pow(2, i-1))==Math.pow(2, i-1)){
+		for(int i=1;i<=6;i++){
+			if((timeSet&(long)Math.pow(2, i))==Math.pow(2, i)){
 				set.add(i);
 			}
+		}
+		if((timeSet&(long)Math.pow(2, 0))==Math.pow(2, 0)){
+			set.add(7);
 		}
 		return StringUtils.join(set,",");
 	}
