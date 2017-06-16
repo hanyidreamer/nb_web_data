@@ -19,6 +19,8 @@ import com.elong.hotel.goods.ds.thrift.GetBaseRatePlanDRRGiftResponse;
 import com.elong.hotel.goods.ds.thrift.MetaMhotel;
 import com.elong.nb.agent.thrift.utils.ThriftUtils;
 import com.elong.nb.checklist.CheckListUtil;
+import com.elong.nb.common.model.EnumMemberLevel;
+import com.elong.nb.common.model.EnumSellChannel;
 import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.util.CommonsUtil;
 import com.elong.nb.dao.adapter.AbstractGoodsAdapter;
@@ -71,7 +73,11 @@ public class RatePlanRepository {
 		GetBaseRatePlanDRRGiftRequest request=new GetBaseRatePlanDRRGiftRequest();
 		request.setBooking_channel(proxyInfo.getBookingChannel().getValue());
 		request.setSell_channel(proxyInfo.getSellChannel().getValue());
-		request.setMember_level(proxyInfo.getMemberLevel().getValue());
+		if(proxyInfo.getMemberLevel()!=null){
+			request.setMember_level(proxyInfo.getMemberLevel().getValue());
+		}else{
+			request.setMember_level(EnumMemberLevel.Normal.getValue());
+		}
 		request.setPayment_type((short)paymentType.getValue());
 		request.setTraceId(guid);
 		List<MetaMhotel> mhotels=new LinkedList<MetaMhotel>();
