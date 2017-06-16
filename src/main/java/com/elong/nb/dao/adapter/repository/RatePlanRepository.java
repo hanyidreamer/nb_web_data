@@ -19,6 +19,7 @@ import com.elong.hotel.goods.ds.thrift.GetBaseRatePlanDRRGiftResponse;
 import com.elong.hotel.goods.ds.thrift.MetaMhotel;
 import com.elong.nb.agent.thrift.utils.ThriftUtils;
 import com.elong.nb.checklist.CheckListUtil;
+import com.elong.nb.common.model.EnumBookingChannel;
 import com.elong.nb.common.model.EnumMemberLevel;
 import com.elong.nb.common.model.EnumSellChannel;
 import com.elong.nb.common.model.ProxyAccount;
@@ -71,8 +72,16 @@ public class RatePlanRepository {
 		log.setSpan("1.1");
 		log.setServiceName("getRatePlans");
 		GetBaseRatePlanDRRGiftRequest request=new GetBaseRatePlanDRRGiftRequest();
-		request.setBooking_channel(proxyInfo.getBookingChannel().getValue());
-		request.setSell_channel(proxyInfo.getSellChannel().getValue());
+		if(proxyInfo.getBookingChannel()!=null){
+			request.setBooking_channel(proxyInfo.getBookingChannel().getValue());
+		}else{
+			request.setBooking_channel(EnumBookingChannel.OnLine.getValue());
+		}
+		if(proxyInfo.getSellChannel()!=null){
+			request.setSell_channel(proxyInfo.getSellChannel().getValue());
+		}else{
+			request.setSell_channel(EnumSellChannel.A.getValue());
+		}
 		if(proxyInfo.getMemberLevel()!=null){
 			request.setMember_level(proxyInfo.getMemberLevel().getValue());
 		}else{
