@@ -39,6 +39,7 @@ import com.elong.nb.model.bean.enums.EnumDrrRuleCode;
 import com.elong.nb.model.bean.enums.EnumGuaranteeChangeRule;
 import com.elong.nb.model.bean.enums.EnumGuaranteeMoneyType;
 import com.elong.nb.model.bean.enums.EnumGuestTypeCode;
+import com.elong.nb.model.bean.enums.EnumInvoiceMode;
 import com.elong.nb.model.bean.enums.EnumPaymentType;
 import com.elong.nb.model.bean.enums.EnumPrepayChangeRule;
 import com.elong.nb.model.bean.enums.EnumPrepayCutPayment;
@@ -97,6 +98,7 @@ public class RatePlanAdapter extends
 							Map<Integer, List<Integer>> drrIdsMap = new HashMap<Integer, List<Integer>>();
 							Map<Integer, List<GiftRelation>> giftRelationMap = new HashMap<Integer, List<GiftRelation>>();
 							Map<Integer, List<String>> roomTypesrpRelation=new HashMap<Integer, List<String>>();
+							Map<Integer, Integer> invoiceModeMap = new HashMap<Integer, Integer>();
 							if (metaSHotelBaseRpDrrGift.getRoom_base_infos() != null) {
 								for (MetaRoomTypeInfo metaRoomTypeInfo : metaSHotelBaseRpDrrGift
 										.getRoom_base_infos()) {
@@ -105,6 +107,7 @@ public class RatePlanAdapter extends
 													.getRoom_type_id());
 									for (MetaProductInfo metaProductInfo : metaRoomTypeInfo
 											.getProducts()) {
+										invoiceModeMap.put(metaProductInfo.getRate_plan_id(), metaProductInfo.getInvoice_mode());
 										if(roomTypesrpRelation.containsKey(metaProductInfo.getRate_plan_id())){
 											roomTypesrpRelation.get(metaProductInfo.getRate_plan_id()).add(roomTypeId);
 										}else{
@@ -186,8 +189,11 @@ public class RatePlanAdapter extends
 									if(roomTypesrpRelation.containsKey(metaRatePlanBaseInfo.getRate_plan_id())){
 										roomTypeIds=StringUtils.join(roomTypesrpRelation.get(metaRatePlanBaseInfo.getRate_plan_id()),",");
 									}
-									hotelRatePlan.getRatePlans().add(toRatePlan(metaRatePlanBaseInfo,
-													hotelCode, drrRuleList,roomTypeIds));
+									
+									RatePlan ratePlan = toRatePlan(metaRatePlanBaseInfo,hotelCode, drrRuleList,roomTypeIds);
+									Integer productInvoiceMode = invoiceModeMap.get(metaRatePlanBaseInfo.getRate_plan_id());
+									ratePlan.setInvoiceMode(getInvoiceMode(productInvoiceMode));
+									hotelRatePlan.getRatePlans().add(ratePlan);
 								}
 							}
 						}
@@ -198,6 +204,12 @@ public class RatePlanAdapter extends
 			}
 		}
 		return null;
+	}
+	
+	private EnumInvoiceMode getInvoiceMode(int productInvoiceMode){
+		if(productInvoiceMode == 1||productInvoiceMode ==3) return EnumInvoiceMode.Elong;
+		if(productInvoiceMode == 2) return EnumInvoiceMode.Hotel;
+		return EnumInvoiceMode.NoSense;
 	}
 
 	/**
