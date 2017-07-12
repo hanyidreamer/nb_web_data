@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.model.bookingdata.BookingDataCondition;
 import com.elong.nb.model.rate.bean.Rate;
@@ -14,22 +15,21 @@ public class RateThread implements Callable<List<Rate>> {
 
 	RestRequest<BookingDataCondition> request;
 	RateService rateService;
+	ProxyAccount proxyAccount;
 
-	public RateThread(RestRequest<BookingDataCondition> request,
-			RateService rateService) {
+	public RateThread(RestRequest<BookingDataCondition> request, RateService rateService,ProxyAccount proxyAccount) {
 		this.request = request;
 		this.rateService = rateService;
+		this.proxyAccount = proxyAccount;
 	}
 
 	@Override
 	public List<Rate> call() throws Exception {
 		List<Rate> obj = null;
 		try {
-			List<Rate> list = rateService.getRate(request.getProxyInfo(),
-					request.getRequest().getHotelId(), request.getRequest().getHotelCode(), 
-					request.getRequest().getArrivalDate(), DateUtil.addDays(request.getRequest().getDepartureDate(), -1),
-					request.getRequest().getPaymentType(), 
-					request.getProxyInfo().getLowestProfitPercent(), request.getGuid());
+			List<Rate> list = rateService.getRate(proxyAccount, request.getRequest().getHotelId(), request.getRequest().getHotelCode(),
+					request.getRequest().getArrivalDate(), DateUtil.addDays(request.getRequest().getDepartureDate(), -1), request
+							.getRequest().getPaymentType(), proxyAccount.getLowestProfitPercent(), request.getGuid());
 			List<Rate> rates = new ArrayList<Rate>();
 			if (list != null) {
 				for (Rate x : list) {

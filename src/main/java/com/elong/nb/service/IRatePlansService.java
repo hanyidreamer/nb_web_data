@@ -13,7 +13,7 @@ import com.elong.nb.model.rateplan.RatePlanResult;
 
 public interface IRatePlansService {
 
-	RestResponse<RatePlanResult> GetRatePlans(RestRequest<RatePlanCondition> request);
+	RestResponse<RatePlanResult> GetRatePlans(RestRequest<RatePlanCondition> request,ProxyAccount proxyAccount);
 	List<HotelRatePlan> getRatePlans(EnumLocal language,String mHotelId, String shotelId, EnumPaymentType paymentType,
 			ProxyAccount proxyInfo, double requestVersion, String options,String guid);
 }

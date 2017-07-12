@@ -1,7 +1,6 @@
 package com.elong.nb.service.impl;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -81,7 +80,6 @@ import com.elong.nb.service.task.RatePlanTask;
 import com.elong.nb.util.DateUtil;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
-import edu.emory.mathcs.backport.java.util.Collections;
 
 @Service
 public class RatePlansService implements IRatePlansService {
@@ -103,9 +101,9 @@ public class RatePlansService implements IRatePlansService {
 	private static final int rpFrom=Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("rp.from"));
 	private static final int rpThreadSize=100;
 	public List<HotelRatePlan> getRatePlans(
-			RestRequest<RatePlanCondition> request) {
+			RestRequest<RatePlanCondition> request,ProxyAccount proxyAccount) {
 		List<HotelRatePlan> result = new LinkedList<HotelRatePlan>();
-		if (!request.getProxyInfo().getEnabledPrepayProducts()) {
+		if (!proxyAccount.getEnabledPrepayProducts()) {
 			if (request.getRequest().getPaymentType() == EnumPaymentType.Prepay) {
 				return result;
 			} else if (request.getRequest().getPaymentType() == EnumPaymentType.All) {
@@ -118,7 +116,7 @@ public class RatePlansService implements IRatePlansService {
 		if(rpFrom==1){
 			result=getRatePlansFromGoods(request.getLocal(),
 					Arrays.asList(mHotelArrays), sHotelIdArrays, request.getRequest().getPaymentType(),
-					request.getProxyInfo(), request.getVersion(), request.getRequest().getOptions(),
+					proxyAccount, request.getVersion(), request.getRequest().getOptions(),
 					request.getGuid());
 		}else{
 			List<String> sHotelIds = new ArrayList<String>();
@@ -126,7 +124,7 @@ public class RatePlansService implements IRatePlansService {
 				if (ids == null || ids.length <= 0 || ids[0] == null)
 					continue;
 				for (String shotelId : ids) {
-					if (request.getProxyInfo().isIsOnlyStraight()) {
+					if (proxyAccount.isIsOnlyStraight()) {
 						// 只保留艺龙直签，其他供应商的rp都过滤
 						MSHotelRelation hotelRelation = m_SRelationCache.getHotelRelation(shotelId);
 						if (hotelRelation != null) {
@@ -149,7 +147,7 @@ public class RatePlansService implements IRatePlansService {
 					hashHotel,
 					getRatePlans(request.getLocal(), null, StringUtils.join(
 							sHotelIds, ','), request.getRequest().getPaymentType(),
-							request.getProxyInfo(), request.getVersion(), request
+							proxyAccount, request.getVersion(), request
 									.getRequest().getOptions(), request.getGuid()));
 			if (request.getVersion() > 1.10) {
 				// 获取礼品相关信息
@@ -1585,17 +1583,17 @@ public class RatePlansService implements IRatePlansService {
 
 	@Override
 	public RestResponse<RatePlanResult> GetRatePlans(
-			RestRequest<RatePlanCondition> request) {
+			RestRequest<RatePlanCondition> request,ProxyAccount proxyAccount) {
 
 		RestResponse<RatePlanResult> response = new RestResponse<RatePlanResult>(
 				request.getGuid());
 		if (request.getRequest().getPaymentType() == EnumPaymentType.Prepay
-				&& !request.getProxyInfo().getEnabledPrepayProducts()) {
+				&& !proxyAccount.getEnabledPrepayProducts()) {
 			response.setCode(ErrorCode.Data_NoPrepayProducts);
 		} else {
 			RatePlanResult res = new RatePlanResult();
 			response.setResult(res);
-			response.getResult().setHotels(getRatePlans(request));
+			response.getResult().setHotels(getRatePlans(request,proxyAccount));
 		}
 		return response;
 	}
