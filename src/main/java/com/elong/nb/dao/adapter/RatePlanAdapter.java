@@ -59,138 +59,99 @@ import com.elong.nb.util.DateUtil;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 
-public class RatePlanAdapter extends
-		AbstractGoodsAdapter<HotelRatePlan, GetBaseRatePlanDRRGiftResponse> {
+public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBaseRatePlanDRRGiftResponse> {
 	private Map<String, EnumPaymentType> hotelCodeFilterType;
 	private Map<String, Integer> shotelCooperationTypeMap;
-//	private static M_SRelationCache m_SRelationCache=new M_SRelationCache();
+	// private static M_SRelationCache m_SRelationCache=new M_SRelationCache();
 	private boolean isCn;
 
 	@Override
-	public List<HotelRatePlan> toNBObject(
-			GetBaseRatePlanDRRGiftResponse goodsObject) {
+	public List<HotelRatePlan> toNBObject(GetBaseRatePlanDRRGiftResponse goodsObject) {
 		if (goodsObject.getReturn_code() == 0) {
-			List<HotelRatePlan> HotelRatePlans=new LinkedList<HotelRatePlan>();
+			List<HotelRatePlan> HotelRatePlans = new LinkedList<HotelRatePlan>();
 			if (goodsObject.getMhotel_detail() != null) {
-				for (MetaMHotelBaseRpDrrGift metaMhotel : goodsObject
-						.getMhotel_detail()) {
+				for (MetaMHotelBaseRpDrrGift metaMhotel : goodsObject.getMhotel_detail()) {
 					HotelRatePlan hotelRatePlan = new HotelRatePlan();
-					hotelRatePlan
-							.setSuppliers(new LinkedList<SupplierRatePlan>());
+					hotelRatePlan.setSuppliers(new LinkedList<SupplierRatePlan>());
 					hotelRatePlan.setRatePlans(new LinkedList<RatePlan>());
-					hotelRatePlan.setHotelID(SafeConvertUtils
-							.ToHotelId(metaMhotel.getMhotel_id()));
+					hotelRatePlan.setHotelID(SafeConvertUtils.ToHotelId(metaMhotel.getMhotel_id()));
 					hotelRatePlan.setGifts(new LinkedList<HotelGift>());
 					if (metaMhotel.getShotel_detail() != null) {
-						for (MetaSHotelBaseRpDrrGift metaSHotelBaseRpDrrGift : metaMhotel
-								.getShotel_detail()) {
+						for (MetaSHotelBaseRpDrrGift metaSHotelBaseRpDrrGift : metaMhotel.getShotel_detail()) {
 							hotelRatePlan.getSuppliers().add(
-									toSupplier(metaSHotelBaseRpDrrGift
-											.getHotel_base_info(),
-											metaSHotelBaseRpDrrGift
-													.getRoom_base_infos()));
-							String hotelCode = SafeConvertUtils
-									.ToHotelId(metaSHotelBaseRpDrrGift
-											.getHotel_base_info()
-											.getShotel_id());
-							Map<Integer, BaseDrrRule> drrMap = toDrrRule(metaSHotelBaseRpDrrGift
-									.getDrrs());
+									toSupplier(metaSHotelBaseRpDrrGift.getHotel_base_info(), metaSHotelBaseRpDrrGift.getRoom_base_infos()));
+							String hotelCode = SafeConvertUtils.ToHotelId(metaSHotelBaseRpDrrGift.getHotel_base_info().getShotel_id());
+							Map<Integer, BaseDrrRule> drrMap = toDrrRule(metaSHotelBaseRpDrrGift.getDrrs());
 							Map<Integer, List<Integer>> drrIdsMap = new HashMap<Integer, List<Integer>>();
 							Map<Integer, List<GiftRelation>> giftRelationMap = new HashMap<Integer, List<GiftRelation>>();
-							Map<Integer, List<String>> roomTypesrpRelation=new HashMap<Integer, List<String>>();
+							Map<Integer, List<String>> roomTypesrpRelation = new HashMap<Integer, List<String>>();
 							Map<Integer, Integer> invoiceModeMap = new HashMap<Integer, Integer>();
 							if (metaSHotelBaseRpDrrGift.getRoom_base_infos() != null) {
-								for (MetaRoomTypeInfo metaRoomTypeInfo : metaSHotelBaseRpDrrGift
-										.getRoom_base_infos()) {
-									String roomTypeId = SafeConvertUtils
-											.ToRoomId(metaRoomTypeInfo
-													.getRoom_type_id());
-									for (MetaProductInfo metaProductInfo : metaRoomTypeInfo
-											.getProducts()) {
+								for (MetaRoomTypeInfo metaRoomTypeInfo : metaSHotelBaseRpDrrGift.getRoom_base_infos()) {
+									String roomTypeId = SafeConvertUtils.ToRoomId(metaRoomTypeInfo.getRoom_type_id());
+									for (MetaProductInfo metaProductInfo : metaRoomTypeInfo.getProducts()) {
 										invoiceModeMap.put(metaProductInfo.getRate_plan_id(), metaProductInfo.getInvoice_mode());
-										if(roomTypesrpRelation.containsKey(metaProductInfo.getRate_plan_id())){
+										if (roomTypesrpRelation.containsKey(metaProductInfo.getRate_plan_id())) {
 											roomTypesrpRelation.get(metaProductInfo.getRate_plan_id()).add(roomTypeId);
-										}else{
-											List<String> roomTypeIds=new LinkedList<String>();
+										} else {
+											List<String> roomTypeIds = new LinkedList<String>();
 											roomTypeIds.add(roomTypeId);
 											roomTypesrpRelation.put(metaProductInfo.getRate_plan_id(), roomTypeIds);
 										}
 										if (metaProductInfo.getDrr_ids() != null) {
-											if (drrIdsMap
-													.containsKey(metaProductInfo
-															.getRate_plan_id())) {
-												drrIdsMap
-														.get(metaProductInfo
-																.getRate_plan_id())
-														.addAll(metaProductInfo
-																.getDrr_ids());
+											if (drrIdsMap.containsKey(metaProductInfo.getRate_plan_id())) {
+												drrIdsMap.get(metaProductInfo.getRate_plan_id()).addAll(metaProductInfo.getDrr_ids());
 											} else {
-												drrIdsMap.put(metaProductInfo
-														.getRate_plan_id(),
-														metaProductInfo
-																.getDrr_ids());
+												drrIdsMap.put(metaProductInfo.getRate_plan_id(), metaProductInfo.getDrr_ids());
 											}
 										}
 										if (metaProductInfo.getGift_ids() != null) {
-											for (int giftId : metaProductInfo
-													.getGift_ids()) {
+											for (int giftId : metaProductInfo.getGift_ids()) {
 												GiftRelation giftRelation = new GiftRelation();
-												giftRelation
-														.setRatePlanId(metaProductInfo
-																.getRate_plan_id());
-												giftRelation
-														.setRoomTypeId(roomTypeId);
-												if (giftRelationMap
-														.containsKey(giftId)) {
-													giftRelationMap.get(giftId)
-															.add(giftRelation);
+												giftRelation.setRatePlanId(metaProductInfo.getRate_plan_id());
+												giftRelation.setRoomTypeId(roomTypeId);
+												if (giftRelationMap.containsKey(giftId)) {
+													giftRelationMap.get(giftId).add(giftRelation);
 												} else {
 													List<GiftRelation> giftList = new LinkedList<GiftRelation>();
 													giftList.add(giftRelation);
-													giftRelationMap.put(giftId,
-															giftList);
+													giftRelationMap.put(giftId, giftList);
 												}
 											}
 										}
 									}
 								}
 							}
-							List<HotelGift> hotelGifts=toGift(metaSHotelBaseRpDrrGift.getGifts(), hotelCode, giftRelationMap);
-							if(hotelGifts!=null){
+							List<HotelGift> hotelGifts = toGift(metaSHotelBaseRpDrrGift.getGifts(), hotelCode, giftRelationMap);
+							if (hotelGifts != null) {
 								hotelRatePlan.getGifts().addAll(hotelGifts);
 							}
 							if (metaSHotelBaseRpDrrGift.getRatePlans() != null) {
-								for (MetaRatePlanBaseInfo metaRatePlanBaseInfo : metaSHotelBaseRpDrrGift
-										.getRatePlans()) {
+								for (MetaRatePlanBaseInfo metaRatePlanBaseInfo : metaSHotelBaseRpDrrGift.getRatePlans()) {
 									List<BaseDrrRule> drrRuleList = new LinkedList<BaseDrrRule>();
-									if (drrIdsMap
-											.containsKey(metaRatePlanBaseInfo
-													.getRate_plan_id())) {
-										if (drrIdsMap.get(metaRatePlanBaseInfo
-												.getRate_plan_id()) != null) {
-											for (int drrId : drrIdsMap
-													.get(metaRatePlanBaseInfo
-															.getRate_plan_id())) {
+									if (drrIdsMap.containsKey(metaRatePlanBaseInfo.getRate_plan_id())) {
+										if (drrIdsMap.get(metaRatePlanBaseInfo.getRate_plan_id()) != null) {
+											for (int drrId : drrIdsMap.get(metaRatePlanBaseInfo.getRate_plan_id())) {
 												if (drrMap.containsKey(drrId)) {
-													drrRuleList.add(drrMap
-															.get(drrId));
+													drrRuleList.add(drrMap.get(drrId));
 												}
 											}
 										}
 									}
-									if(hotelCodeFilterType.containsKey(hotelCode)){
-										EnumPaymentType paymentType=EnumPaymentType.forValue(Integer.valueOf(metaRatePlanBaseInfo
+									if (hotelCodeFilterType.containsKey(hotelCode)) {
+										EnumPaymentType paymentType = EnumPaymentType.forValue(Integer.valueOf(metaRatePlanBaseInfo
 												.getSettlement_type()));
-										if(paymentType==hotelCodeFilterType.get(hotelCode)){
+										if (paymentType == hotelCodeFilterType.get(hotelCode)) {
 											continue;
 										}
 									}
-									String roomTypeIds="";
-									if(roomTypesrpRelation.containsKey(metaRatePlanBaseInfo.getRate_plan_id())){
-										roomTypeIds=StringUtils.join(roomTypesrpRelation.get(metaRatePlanBaseInfo.getRate_plan_id()),",");
+									String roomTypeIds = "";
+									if (roomTypesrpRelation.containsKey(metaRatePlanBaseInfo.getRate_plan_id())) {
+										roomTypeIds = StringUtils
+												.join(roomTypesrpRelation.get(metaRatePlanBaseInfo.getRate_plan_id()), ",");
 									}
-									
-									RatePlan ratePlan = toRatePlan(metaRatePlanBaseInfo,hotelCode, drrRuleList,roomTypeIds);
+
+									RatePlan ratePlan = toRatePlan(metaRatePlanBaseInfo, hotelCode, drrRuleList, roomTypeIds);
 									Integer productInvoiceMode = invoiceModeMap.get(metaRatePlanBaseInfo.getRate_plan_id());
 									ratePlan.setInvoiceMode(getInvoiceMode(productInvoiceMode));
 									hotelRatePlan.getRatePlans().add(ratePlan);
@@ -205,10 +166,12 @@ public class RatePlanAdapter extends
 		}
 		return null;
 	}
-	
-	private EnumInvoiceMode getInvoiceMode(int productInvoiceMode){
-		if(productInvoiceMode == 1||productInvoiceMode ==3) return EnumInvoiceMode.Elong;
-		if(productInvoiceMode == 2) return EnumInvoiceMode.Hotel;
+
+	private EnumInvoiceMode getInvoiceMode(int productInvoiceMode) {
+		if (productInvoiceMode == 1 || productInvoiceMode == 3)
+			return EnumInvoiceMode.Elong;
+		if (productInvoiceMode == 2)
+			return EnumInvoiceMode.Hotel;
 		return EnumInvoiceMode.NoSense;
 	}
 
@@ -219,18 +182,15 @@ public class RatePlanAdapter extends
 	 * @param roomBaseInfo
 	 * @return
 	 */
-	private SupplierRatePlan toSupplier(MetaHotelInfo hotelInfo,
-			List<MetaRoomTypeInfo> roomBaseInfo) {
+	private SupplierRatePlan toSupplier(MetaHotelInfo hotelInfo, List<MetaRoomTypeInfo> roomBaseInfo) {
 		SupplierRatePlan supplier = new SupplierRatePlan();
-		supplier.setHotelCode(SafeConvertUtils.ToHotelId(hotelInfo
-				.getShotel_id()));
-//		List<MSRoomRelation> msList = m_SRelationCache
-//				.getMSRoomRelation(supplier.getHotelCode());
-//		supplier.setRooms(msList);
+		supplier.setHotelCode(SafeConvertUtils.ToHotelId(hotelInfo.getShotel_id()));
+		// List<MSRoomRelation> msList = m_SRelationCache
+		// .getMSRoomRelation(supplier.getHotelCode());
+		// supplier.setRooms(msList);
 		supplier.setWeekendEnd(hotelInfo.getWeek_end_end());
 		supplier.setWeekendStart(hotelInfo.getWeek_end_start());
-		supplier.setBookingRules(toBaseBookingRule(
-				hotelInfo.getHotel_booking_rule_list(), roomBaseInfo));
+		supplier.setBookingRules(toBaseBookingRule(hotelInfo.getHotel_booking_rule_list(), roomBaseInfo));
 		return supplier;
 
 	}
@@ -242,35 +202,31 @@ public class RatePlanAdapter extends
 	 * @param roomBaseInfos
 	 * @return
 	 */
-	private List<BaseBookingRule> toBaseBookingRule(
-			List<MetaHotelBookingRule> hotelBookingRules,
-			List<MetaRoomTypeInfo> roomBaseInfos) {
+	private List<BaseBookingRule> toBaseBookingRule(List<MetaHotelBookingRule> hotelBookingRules, List<MetaRoomTypeInfo> roomBaseInfos) {
 		Map<Long, BaseBookingRule> hotelBookingRuleMap = new HashMap<Long, BaseBookingRule>();
 		List<BaseBookingRule> bookingRules = new LinkedList<BaseBookingRule>();
 		if (hotelBookingRules != null) {
 			for (MetaHotelBookingRule hotelBookingRule : hotelBookingRules) {
 				if (!hotelBookingRuleMap.containsKey(hotelBookingRule.getId())) {
-					hotelBookingRuleMap.put(hotelBookingRule.getId(),
-							toBaseBookingRule(hotelBookingRule));
+					hotelBookingRuleMap.put(hotelBookingRule.getId(), toBaseBookingRule(hotelBookingRule));
 				}
 			}
 		}
 		Map<Long, MetaHotelBookingRule> roomBookingRuleMap = new HashMap<Long, MetaHotelBookingRule>();
-		Map<Long,List<String>> bookingRuleRoomTypeRelation=new HashMap<Long, List<String>>();
+		Map<Long, List<String>> bookingRuleRoomTypeRelation = new HashMap<Long, List<String>>();
 		if (roomBaseInfos != null) {
 			for (MetaRoomTypeInfo roomBaseInfo : roomBaseInfos) {
-				String roomTypeId=SafeConvertUtils.ToRoomId(roomBaseInfo.getRoom_type_id());
+				String roomTypeId = SafeConvertUtils.ToRoomId(roomBaseInfo.getRoom_type_id());
 				if (roomBaseInfo.getHotel_booking_rule_list() != null) {
-					for (MetaHotelBookingRule hotelBookingRule : roomBaseInfo
-							.getHotel_booking_rule_list()) {
-						if (!hotelBookingRuleMap.containsKey(hotelBookingRule.getId())&&!hotelBookingRuleMap.containsKey(hotelBookingRule.getId())) {
-							roomBookingRuleMap.put(hotelBookingRule.getId(),
-									hotelBookingRule);
+					for (MetaHotelBookingRule hotelBookingRule : roomBaseInfo.getHotel_booking_rule_list()) {
+						if (!hotelBookingRuleMap.containsKey(hotelBookingRule.getId())
+								&& !hotelBookingRuleMap.containsKey(hotelBookingRule.getId())) {
+							roomBookingRuleMap.put(hotelBookingRule.getId(), hotelBookingRule);
 						}
-						if(bookingRuleRoomTypeRelation.containsKey(hotelBookingRule.getId())){
+						if (bookingRuleRoomTypeRelation.containsKey(hotelBookingRule.getId())) {
 							bookingRuleRoomTypeRelation.get(hotelBookingRule.getId()).add(roomTypeId);
-						}else{
-							List<String> roomTypes=new LinkedList<String>();
+						} else {
+							List<String> roomTypes = new LinkedList<String>();
 							roomTypes.add(roomTypeId);
 							bookingRuleRoomTypeRelation.put(hotelBookingRule.getId(), roomTypes);
 						}
@@ -286,10 +242,10 @@ public class RatePlanAdapter extends
 		}
 		if (roomBookingRuleMap.size() > 0) {
 			for (MetaHotelBookingRule metaBookingRule : roomBookingRuleMap.values()) {
-				List<String> roomTypes=bookingRuleRoomTypeRelation.get(metaBookingRule.getId());
+				List<String> roomTypes = bookingRuleRoomTypeRelation.get(metaBookingRule.getId());
 				Collections.sort(roomTypes);
-				BaseBookingRule baseBookingRule=toBaseBookingRule(metaBookingRule);
-				baseBookingRule.setRoomTypeIds(StringUtils.join(roomTypes,","));
+				BaseBookingRule baseBookingRule = toBaseBookingRule(metaBookingRule);
+				baseBookingRule.setRoomTypeIds(StringUtils.join(roomTypes, ","));
 				bookingRules.add(baseBookingRule);
 			}
 		}
@@ -303,19 +259,16 @@ public class RatePlanAdapter extends
 	 * @param hotelBookingRule
 	 * @return
 	 */
-	private BaseBookingRule toBaseBookingRule(
-			MetaHotelBookingRule hotelBookingRule) {
+	private BaseBookingRule toBaseBookingRule(MetaHotelBookingRule hotelBookingRule) {
 		BaseBookingRule bookingRule = new BaseBookingRule();
-		bookingRule.setDateType(EnumDateType
-				.forValue(hotelBookingRule.date_type));
-		bookingRule.setDescription(isCn?hotelBookingRule.getCn_description():hotelBookingRule.getEn_description());
+		bookingRule.setDateType(EnumDateType.forValue(hotelBookingRule.date_type));
+		bookingRule.setDescription(isCn ? hotelBookingRule.getCn_description() : hotelBookingRule.getEn_description());
 		bookingRule.setEndDate(new Date(hotelBookingRule.getEnd_date()));
 		bookingRule.setEndHour(hotelBookingRule.getEnd_hour());
 		bookingRule.setRoomTypeIds(hotelBookingRule.getRoom_type_id());
 		bookingRule.setStartDate(new Date(hotelBookingRule.getStart_date()));
 		bookingRule.setStartHour(hotelBookingRule.getStart_hour());
-		bookingRule.setTypeCode(EnumBookingRule.forValue(hotelBookingRule
-				.getHotelBookingRule()));
+		bookingRule.setTypeCode(EnumBookingRule.forValue(hotelBookingRule.getHotelBookingRule()));
 		return bookingRule;
 	}
 
@@ -327,37 +280,30 @@ public class RatePlanAdapter extends
 	 * @param roomTypeIds
 	 * @return
 	 */
-	private RatePlan toRatePlan(MetaRatePlanBaseInfo metaRatePlanBaseInfo,
-			String hotelCode, List<BaseDrrRule> drrRuleList, String roomTypeIds) {
+	private RatePlan toRatePlan(MetaRatePlanBaseInfo metaRatePlanBaseInfo, String hotelCode, List<BaseDrrRule> drrRuleList,
+			String roomTypeIds) {
 		RatePlan ratePlan = new RatePlan();
-		ratePlan.setIsLimitTimeSale(metaRatePlanBaseInfo
-				.getIs_limit_time_sale() == 1);
-		ratePlan.setMaxAdvHours(metaRatePlanBaseInfo
-				.getMax_advance_booking_days());
+		ratePlan.setIsLimitTimeSale(metaRatePlanBaseInfo.getIs_limit_time_sale() == 1);
+		ratePlan.setMaxAdvHours(metaRatePlanBaseInfo.getMax_advance_booking_days());
 		ratePlan.setMaxDays(metaRatePlanBaseInfo.getMax_stay_days());
-		ratePlan.setMinAdvHours(metaRatePlanBaseInfo
-				.getMin_advance_booking_days());
+		ratePlan.setMinAdvHours(metaRatePlanBaseInfo.getMin_advance_booking_days());
 		ratePlan.setMinAmount(metaRatePlanBaseInfo.getMin_checkin_rooms());
 		ratePlan.setMinDays(metaRatePlanBaseInfo.getMin_stay_days());
-		ratePlan.setPaymentType(EnumPaymentType.forValue(Integer.valueOf(metaRatePlanBaseInfo
-				.getSettlement_type())));
+		ratePlan.setPaymentType(EnumPaymentType.forValue(Integer.valueOf(metaRatePlanBaseInfo.getSettlement_type())));
 		if (ratePlan.getPaymentType() == EnumPaymentType.Prepay) {
-			ratePlan.setPrepayRules(toPrepayRule(metaRatePlanBaseInfo
-					.getRate_plan_pre_pay_rule_list()));
+			ratePlan.setPrepayRules(toPrepayRule(metaRatePlanBaseInfo.getRate_plan_pre_pay_rule_list()));
 		} else {
-			ratePlan.setGuaranteeRules(toGuaranteeRule(metaRatePlanBaseInfo
-					.getRate_plan_vouch_rule_list()));
+			ratePlan.setGuaranteeRules(toGuaranteeRule(metaRatePlanBaseInfo.getRate_plan_vouch_rule_list()));
 		}
-		boolean isHourPayRoom=ProductTypeUtils.isHourPayRoom(metaRatePlanBaseInfo.getCn_rate_plan_name());
-		ratePlan.setProductTypes(parseProductType(metaRatePlanBaseInfo.getProduct_type(),metaRatePlanBaseInfo.getBooking_channel(),isHourPayRoom));
+		boolean isHourPayRoom = ProductTypeUtils.isHourPayRoom(metaRatePlanBaseInfo.getCn_rate_plan_name());
+		ratePlan.setProductTypes(parseProductType(metaRatePlanBaseInfo.getProduct_type(), metaRatePlanBaseInfo.getBooking_channel(),
+				isHourPayRoom));
 		ratePlan.setRatePlanId(metaRatePlanBaseInfo.getRate_plan_id());
-		ratePlan.setRatePlanName(isCn ? metaRatePlanBaseInfo
-				.getCn_rate_plan_name() : metaRatePlanBaseInfo
-				.getEn_rate_plan_name());
+		ratePlan.setRatePlanName(isCn ? metaRatePlanBaseInfo.getCn_rate_plan_name() : metaRatePlanBaseInfo.getEn_rate_plan_name());
 		ratePlan.setRoomTypeIds(roomTypeIds);
-		ratePlan.setStartTime(DateUtil.getTimeString(new Date(
-				metaRatePlanBaseInfo.getStart_time()-28800000)));
-		 ratePlan.setValueAdds(toValueAdd(metaRatePlanBaseInfo.getAdd_value_policy_list(), metaRatePlanBaseInfo.getRateplan_relation_add_value()));
+		ratePlan.setStartTime(DateUtil.getTimeString(new Date(metaRatePlanBaseInfo.getStart_time() - 28800000)));
+		ratePlan.setValueAdds(toValueAdd(metaRatePlanBaseInfo.getAdd_value_policy_list(),
+				metaRatePlanBaseInfo.getRateplan_relation_add_value()));
 
 		int c = metaRatePlanBaseInfo.getBooking_channel();
 		List<Integer> channels = new LinkedList<Integer>();
@@ -408,8 +354,7 @@ public class RatePlanAdapter extends
 			gtype = EnumGuestTypeCode.Japanese;
 		ratePlan.setCustomerType(gtype);
 		ratePlan.setDrrRules(drrRuleList);
-		ratePlan.setEndTime(DateUtil.getTimeString(new Date(
-				metaRatePlanBaseInfo.getEnd_time()-28800000)));
+		ratePlan.setEndTime(DateUtil.getTimeString(new Date(metaRatePlanBaseInfo.getEnd_time() - 28800000)));
 		// 在这个节点不需要提供
 		// ratePlan.setGifts(metaRatePlanBaseInfo.);
 		//
@@ -432,18 +377,25 @@ public class RatePlanAdapter extends
 		String joinStrs = StringUtils.join(list.toArray(), ",");
 		return joinStrs;
 	}
+
 	/**
 	 * 
 	 * @param gift
 	 */
-	private List<HotelGift> toGift(List<MetaHotelGiftModel> gift, String hotelCode,
-			Map<Integer, List<GiftRelation>> giftRelationMap) {
+	private List<HotelGift> toGift(List<MetaHotelGiftModel> gift, String hotelCode, Map<Integer, List<GiftRelation>> giftRelationMap) {
 		if (gift != null) {
-			List<HotelGift> hotelGifts=new LinkedList<HotelGift>();
+			List<HotelGift> hotelGifts = new LinkedList<HotelGift>();
 			for (MetaHotelGiftModel item : gift) {
-
 				if (item.getStatus() == 0) {
 					continue;
+				}
+				// 礼包信息屏蔽
+				String giftContentCn = item.getGift_content_cn();
+				if (StringUtils.isNotEmpty(giftContentCn)) {
+					giftContentCn = DescriptionHelper.giftContentFilter(giftContentCn);
+					if (giftContentCn == null)
+						continue;
+					item.setGift_content_cn(giftContentCn);
 				}
 				HotelGiftDateTypeEnum dateType = HotelGiftDateTypeEnum.CheckinDate;
 				String weekSet = "";
@@ -451,24 +403,21 @@ public class RatePlanAdapter extends
 				int hourNumber = -1;
 				List<HotelGiftDate> dates = new ArrayList<HotelGiftDate>();
 				if (item.getRelation_date_list() != null) {
-					for (MetaHotelGiftRelationDate date : item
-							.getRelation_date_list()) {
-						if (date.getBegin_date() <= System.currentTimeMillis()
-								&& date.getEnd_date() >= System
-										.currentTimeMillis()) {
+					for (MetaHotelGiftRelationDate date : item.getRelation_date_list()) {
+						if (date.getBegin_date() <= System.currentTimeMillis() && date.getEnd_date() >= System.currentTimeMillis()) {
 							HotelGiftDateTypeEnum giftDateType = HotelGiftDateTypeEnum.CheckinDate;
-							if(date.getDate_type()==0){
+							if (date.getDate_type() == 0) {
 								giftDateType = HotelGiftDateTypeEnum.CheckinDate;
-							}else{
+							} else {
 								giftDateType = HotelGiftDateTypeEnum.BookingDate;
 							}
 							dateType = giftDateType;
-							 weekSet =bitMaskIntToString(date.getBit_sum4_week());
+							weekSet = bitMaskIntToString(date.getBit_sum4_week());
 							HotelGiftHourTypeEnum giftHourType = HotelGiftHourTypeEnum.Hours24;
-							 if (date.getHour_type() ==2)
-							 giftHourType = HotelGiftHourTypeEnum.XHourAfter;
-							 else if (date.getHour_type() ==1)
-							 giftHourType = HotelGiftHourTypeEnum.XHourBefore;
+							if (date.getHour_type() == 2)
+								giftHourType = HotelGiftHourTypeEnum.XHourAfter;
+							else if (date.getHour_type() == 1)
+								giftHourType = HotelGiftHourTypeEnum.XHourBefore;
 							hourType = giftHourType;
 							hourNumber = date.getHour_number();
 
@@ -491,24 +440,23 @@ public class RatePlanAdapter extends
 
 					products.add(gp);
 				} else {
-					if (giftRelationMap != null
-							&& giftRelationMap.containsKey(item.gift_id)) {
+					if (giftRelationMap != null && giftRelationMap.containsKey(item.gift_id)) {
 						if (giftRelationMap.get(item.gift_id) != null) {
-							Map<Integer,List<String>> rpRoomTypeMap=new HashMap<Integer, List<String>>();
-							for(GiftRelation giftRelation:giftRelationMap.get(item.gift_id)){
-								if(rpRoomTypeMap.containsKey(giftRelation.getRatePlanId())){
+							Map<Integer, List<String>> rpRoomTypeMap = new HashMap<Integer, List<String>>();
+							for (GiftRelation giftRelation : giftRelationMap.get(item.gift_id)) {
+								if (rpRoomTypeMap.containsKey(giftRelation.getRatePlanId())) {
 									rpRoomTypeMap.get(giftRelation.getRatePlanId()).add(giftRelation.getRoomTypeId());
-								}else{
-									List<String> roomTypeIds=new LinkedList<String>();
+								} else {
+									List<String> roomTypeIds = new LinkedList<String>();
 									roomTypeIds.add(giftRelation.getRoomTypeId());
 									rpRoomTypeMap.put(giftRelation.getRatePlanId(), roomTypeIds);
 								}
 							}
 							for (Integer rpId : rpRoomTypeMap.keySet()) {
-									HotelGiftProductRelation hgp = new HotelGiftProductRelation();
-									hgp.setRatePlanId(rpId);
-									hgp.setRoomTypeIds(StringUtils.join(rpRoomTypeMap.get(rpId),","));
-									products.add(hgp);
+								HotelGiftProductRelation hgp = new HotelGiftProductRelation();
+								hgp.setRatePlanId(rpId);
+								hgp.setRoomTypeIds(StringUtils.join(rpRoomTypeMap.get(rpId), ","));
+								products.add(hgp);
 							}
 						}
 
@@ -563,88 +511,67 @@ public class RatePlanAdapter extends
 			for (MetaDRRInfo metaDRRInfo : drrInfo) {
 				BaseDrrRule drrRule = new BaseDrrRule();
 				EnumDrrRuleCode drrRuleEnum = EnumDrrRuleCode.DRRBookAhead;
-				if (metaDRRInfo.getDrr_rule() == EnumDrrRuleCode.DRRBookAhead
-						.getValue())
+				if (metaDRRInfo.getDrr_rule() == EnumDrrRuleCode.DRRBookAhead.getValue())
 					drrRuleEnum = EnumDrrRuleCode.DRRBookAhead;
-				else if (metaDRRInfo.getDrr_rule() == EnumDrrRuleCode.DRRCheckInWeekDay
-						.getValue())
+				else if (metaDRRInfo.getDrr_rule() == EnumDrrRuleCode.DRRCheckInWeekDay.getValue())
 					drrRuleEnum = EnumDrrRuleCode.DRRCheckInWeekDay;
-				else if (metaDRRInfo.getDrr_rule() == EnumDrrRuleCode.DRRStayLastNight
-						.getValue())
+				else if (metaDRRInfo.getDrr_rule() == EnumDrrRuleCode.DRRStayLastNight.getValue())
 					drrRuleEnum = EnumDrrRuleCode.DRRStayLastNight;
-				else if (metaDRRInfo.getDrr_rule() == EnumDrrRuleCode.DRRStayPerLastNight
-						.getValue())
+				else if (metaDRRInfo.getDrr_rule() == EnumDrrRuleCode.DRRStayPerLastNight.getValue())
 					drrRuleEnum = EnumDrrRuleCode.DRRStayPerLastNight;
-				else if (metaDRRInfo.getDrr_rule() == EnumDrrRuleCode.DRRStayPerRoomPerNight
-						.getValue())
+				else if (metaDRRInfo.getDrr_rule() == EnumDrrRuleCode.DRRStayPerRoomPerNight.getValue())
 					drrRuleEnum = EnumDrrRuleCode.DRRStayPerRoomPerNight;
-				else if (metaDRRInfo.getDrr_rule() == EnumDrrRuleCode.DRRStayTheNightAndAfter
-						.getValue())
+				else if (metaDRRInfo.getDrr_rule() == EnumDrrRuleCode.DRRStayTheNightAndAfter.getValue())
 					drrRuleEnum = EnumDrrRuleCode.DRRStayTheNightAndAfter;
-				else if (metaDRRInfo.getDrr_rule() == EnumDrrRuleCode.DRRStayWeekDay
-						.getValue())
+				else if (metaDRRInfo.getDrr_rule() == EnumDrrRuleCode.DRRStayWeekDay.getValue())
 					drrRuleEnum = EnumDrrRuleCode.DRRStayWeekDay;
-				else if (metaDRRInfo.getDrr_rule() == EnumDrrRuleCode.None
-						.getValue())
+				else if (metaDRRInfo.getDrr_rule() == EnumDrrRuleCode.None.getValue())
 					drrRuleEnum = EnumDrrRuleCode.None;
 				drrRule.setTypeCode(drrRuleEnum);
 
 				EnumDrrPreferential drrPre = EnumDrrPreferential.Scale;
-				if (metaDRRInfo.getMoney_or_percent() == EnumDrrPreferential.Cash
-						.getValue())
+				if (metaDRRInfo.getMoney_or_percent() == EnumDrrPreferential.Cash.getValue())
 					drrPre = EnumDrrPreferential.Cash;
-				else if (metaDRRInfo.getMoney_or_percent() == EnumDrrPreferential.Scale
-						.getValue())
+				else if (metaDRRInfo.getMoney_or_percent() == EnumDrrPreferential.Scale.getValue())
 					drrPre = EnumDrrPreferential.Scale;
 				drrRule.setCashScale(drrPre);
 				drrRule.setDeductNum(metaDRRInfo.getMoney_or_percent_value());
 
 				EnumDateType dateType = EnumDateType.CheckInDay;
-				if (metaDRRInfo.getDate_type() == EnumDateType.BookDay
-						.getValue())
+				if (metaDRRInfo.getDate_type() == EnumDateType.BookDay.getValue())
 					dateType = EnumDateType.BookDay;
-				else if (metaDRRInfo.getDate_type() == EnumDateType.CheckInDay
-						.getValue())
+				else if (metaDRRInfo.getDate_type() == EnumDateType.CheckInDay.getValue())
 					dateType = EnumDateType.CheckInDay;
-				else if (metaDRRInfo.getDate_type() == EnumDateType.StayDay
-						.getValue())
+				else if (metaDRRInfo.getDate_type() == EnumDateType.StayDay.getValue())
 					dateType = EnumDateType.StayDay;
 				drrRule.setDateType(dateType);
 
-				 drrRule.setDescription(DescriptionHelper.drrDescription(metaDRRInfo, isCn));
+				drrRule.setDescription(DescriptionHelper.drrDescription(metaDRRInfo, isCn));
 				drrRule.setStartDate(new Date(metaDRRInfo.getStart_date()));
 				drrRule.setEndDate(new Date(metaDRRInfo.getEnd_date()));
 
 				EnumDrrFeeType drrFee = EnumDrrFeeType.WeekendFee;
-				if (metaDRRInfo.getFee_type() == EnumDrrFeeType.WeekdayFee
-						.getValue())
+				if (metaDRRInfo.getFee_type() == EnumDrrFeeType.WeekdayFee.getValue())
 					drrFee = EnumDrrFeeType.WeekdayFee;
-				else if (metaDRRInfo.getFee_type() == EnumDrrFeeType.WeekendFee
-						.getValue())
+				else if (metaDRRInfo.getFee_type() == EnumDrrFeeType.WeekendFee.getValue())
 					drrFee = EnumDrrFeeType.WeekendFee;
 				drrRule.setFeeType(drrFee);
-				 drrRule.setWeekSet(getWeekSet(metaDRRInfo.getIs_week_effective()));
+				drrRule.setWeekSet(getWeekSet(metaDRRInfo.getIs_week_effective()));
 				if (metaDRRInfo.getRuleValues() != null) {
 					if (metaDRRInfo.getRuleValues().containsKey("CheckInNum")) {
-						drrRule.setCheckInNum(Integer.valueOf(metaDRRInfo
-								.getRuleValues().get("CheckInNum")));
+						drrRule.setCheckInNum(Integer.valueOf(metaDRRInfo.getRuleValues().get("CheckInNum")));
 					}
 					if (metaDRRInfo.getRuleValues().containsKey("DayNum")) {
-						drrRule.setDayNum(Integer.valueOf(metaDRRInfo
-								.getRuleValues().get("DayNum")));
+						drrRule.setDayNum(Integer.valueOf(metaDRRInfo.getRuleValues().get("DayNum")));
 					}
 					if (metaDRRInfo.getRuleValues().containsKey("LastDayNum")) {
-						drrRule.setLastDayNum(Integer.valueOf(metaDRRInfo
-								.getRuleValues().get("LastDayNum")));
+						drrRule.setLastDayNum(Integer.valueOf(metaDRRInfo.getRuleValues().get("LastDayNum")));
 					}
-					if (metaDRRInfo.getRuleValues().containsKey(
-							"EveryCheckInNum")) {
-						drrRule.setEveryCheckInNum(Integer.valueOf(metaDRRInfo
-								.getRuleValues().get("EveryCheckInNum")));
+					if (metaDRRInfo.getRuleValues().containsKey("EveryCheckInNum")) {
+						drrRule.setEveryCheckInNum(Integer.valueOf(metaDRRInfo.getRuleValues().get("EveryCheckInNum")));
 					}
 					if (metaDRRInfo.getRuleValues().containsKey("WhichDayNum")) {
-						drrRule.setWhichDayNum(Integer.valueOf(metaDRRInfo
-								.getRuleValues().get("WhichDayNum")));
+						drrRule.setWhichDayNum(Integer.valueOf(metaDRRInfo.getRuleValues().get("WhichDayNum")));
 					}
 				}
 				drrRule.setRoomTypeIds(metaDRRInfo.getRoom_type_ids());
@@ -660,89 +587,66 @@ public class RatePlanAdapter extends
 	 * @param metaVouchInfos
 	 * @return
 	 */
-	private List<BaseGuaranteeRule> toGuaranteeRule(
-			List<MetaVouchInfo> metaVouchInfos) {
+	private List<BaseGuaranteeRule> toGuaranteeRule(List<MetaVouchInfo> metaVouchInfos) {
 		if (metaVouchInfos != null) {
 			List<BaseGuaranteeRule> guaranteeRules = new LinkedList<BaseGuaranteeRule>();
 			for (MetaVouchInfo metaVouchInfo : metaVouchInfos) {
 				BaseGuaranteeRule guaranteeRule = new BaseGuaranteeRule();
-				guaranteeRule.setStartDate(new Date(metaVouchInfo
-						.getStart_date()));
+				guaranteeRule.setStartDate(new Date(metaVouchInfo.getStart_date()));
 				guaranteeRule.setEndDate(new Date(metaVouchInfo.getEndDate()));
-				guaranteeRule
-						.setStartTime(metaVouchInfo.getArrive_start_time() != null ? metaVouchInfo
-								.getArrive_start_time() : "");
-				guaranteeRule
-						.setEndTime(metaVouchInfo.getArrive_end_time() != null ? metaVouchInfo
-								.getArrive_end_time() : "");
+				guaranteeRule.setStartTime(metaVouchInfo.getArrive_start_time() != null ? metaVouchInfo.getArrive_start_time() : "");
+				guaranteeRule.setEndTime(metaVouchInfo.getArrive_end_time() != null ? metaVouchInfo.getArrive_end_time() : "");
 				guaranteeRule.setAmount(metaVouchInfo.getRoom_count());
 
 				EnumGuaranteeChangeRule gcrule = EnumGuaranteeChangeRule.NoChange;
-				if (metaVouchInfo.getVouch_change_rule() == EnumGuaranteeChangeRule.NeedCheckin24hour
-						.getValue())
+				if (metaVouchInfo.getVouch_change_rule() == EnumGuaranteeChangeRule.NeedCheckin24hour.getValue())
 					gcrule = EnumGuaranteeChangeRule.NeedCheckin24hour;
-				else if (metaVouchInfo.getVouch_change_rule() == EnumGuaranteeChangeRule.NeedCheckinTime
-						.getValue())
+				else if (metaVouchInfo.getVouch_change_rule() == EnumGuaranteeChangeRule.NeedCheckinTime.getValue())
 					gcrule = EnumGuaranteeChangeRule.NeedCheckinTime;
-				else if (metaVouchInfo.getVouch_change_rule() == EnumGuaranteeChangeRule.NeedSomeDay
-						.getValue())
+				else if (metaVouchInfo.getVouch_change_rule() == EnumGuaranteeChangeRule.NeedSomeDay.getValue())
 					gcrule = EnumGuaranteeChangeRule.NeedSomeDay;
 				guaranteeRule.setChangeRule(gcrule);
 
 				EnumDateType dateType = EnumDateType.CheckInDay;
-				if (metaVouchInfo.getDate_type() == EnumDateType.BookDay
-						.getValue())
+				if (metaVouchInfo.getDate_type() == EnumDateType.BookDay.getValue())
 					dateType = EnumDateType.BookDay;
-				else if (metaVouchInfo.getDate_type() == EnumDateType.CheckInDay
-						.getValue())
+				else if (metaVouchInfo.getDate_type() == EnumDateType.CheckInDay.getValue())
 					dateType = EnumDateType.CheckInDay;
-				else if (metaVouchInfo.getDate_type() == EnumDateType.StayDay
-						.getValue())
+				else if (metaVouchInfo.getDate_type() == EnumDateType.StayDay.getValue())
 					dateType = EnumDateType.StayDay;
 				guaranteeRule.setDateType(dateType);
 
 				guaranteeRule.setDescription(DescriptionHelper.vouchInfoDescription(metaVouchInfo, isCn));
-				guaranteeRule.setIsAmountGuarantee(metaVouchInfo
-						.isIs_room_count_vouch());
-				guaranteeRule.setIsTimeGuarantee(metaVouchInfo
-						.isIs_arrive_time_vouch());
+				guaranteeRule.setIsAmountGuarantee(metaVouchInfo.isIs_room_count_vouch());
+				guaranteeRule.setIsTimeGuarantee(metaVouchInfo.isIs_arrive_time_vouch());
 
 				EnumGuaranteeMoneyType moneyType = EnumGuaranteeMoneyType.FullNightCost;
-				if (metaVouchInfo.getVouch_money_type() == EnumGuaranteeMoneyType.FirstNightCost
-						.getValue())
+				if (metaVouchInfo.getVouch_money_type() == EnumGuaranteeMoneyType.FirstNightCost.getValue())
 					moneyType = EnumGuaranteeMoneyType.FirstNightCost;
 				guaranteeRule.setGuaranteeType(moneyType);
-				 guaranteeRule.setWeekSet(getWeekSet(metaVouchInfo.getIs_week_effective()));
+				guaranteeRule.setWeekSet(getWeekSet(metaVouchInfo.getIs_week_effective()));
 				if (metaVouchInfo.getRule_values() != null) {
 					if (metaVouchInfo.getRule_values().containsKey("DayNum")) {
-						guaranteeRule.setDay(DateUtil.toDate(metaVouchInfo
-								.getRule_values().get("DayNum")));
+						guaranteeRule.setDay(DateUtil.toDate(metaVouchInfo.getRule_values().get("DayNum")));
 					}
 					if (metaVouchInfo.getRule_values().containsKey("HourNum")) {
-						guaranteeRule.setHour(Integer.valueOf(metaVouchInfo
-								.getRule_values().get("HourNum")));
+						guaranteeRule.setHour(Integer.valueOf(metaVouchInfo.getRule_values().get("HourNum")));
 					}
 					if (metaVouchInfo.getRule_values().containsKey("TimeNum")) {
-						guaranteeRule.setTime(metaVouchInfo.getRule_values()
-								.get("TimeNum"));
+						guaranteeRule.setTime(metaVouchInfo.getRule_values().get("TimeNum"));
 					}
-					if (metaVouchInfo.getRule_values()
-							.containsKey("IsTomorrow")) {
-						guaranteeRule.setIsTomorrow("1".equals(metaVouchInfo
-								.getRule_values().get("IsTomorrow")));
+					if (metaVouchInfo.getRule_values().containsKey("IsTomorrow")) {
+						guaranteeRule.setIsTomorrow("1".equals(metaVouchInfo.getRule_values().get("IsTomorrow")));
 					}
 				}
 
 				// 如果是无条件担保，需要将取消条款中的 最早到店时间前N小时修改成
 				// 到店日24点前N+10小时---这样就是将最早到店时间默认为14点
-				if (!guaranteeRule.getIsAmountGuarantee()
-						&& !guaranteeRule.getIsTimeGuarantee()
+				if (!guaranteeRule.getIsAmountGuarantee() && !guaranteeRule.getIsTimeGuarantee()
 						&& guaranteeRule.getChangeRule() == EnumGuaranteeChangeRule.NeedCheckinTime) {
-					guaranteeRule
-							.setChangeRule(EnumGuaranteeChangeRule.NeedCheckin24hour);
+					guaranteeRule.setChangeRule(EnumGuaranteeChangeRule.NeedCheckin24hour);
 					guaranteeRule.setHour(guaranteeRule.getHour() + 10);
-					 guaranteeRule.setDescription(guaranteeRule
-					 .BuildDescription(isCn));
+					guaranteeRule.setDescription(guaranteeRule.BuildDescription(isCn));
 				}
 				guaranteeRules.add(guaranteeRule);
 			}
@@ -758,75 +662,60 @@ public class RatePlanAdapter extends
 	 * @param metaPrePayInfos
 	 * @return
 	 */
-	private List<BasePrepayRule> toPrepayRule(
-			List<MetaPrePayInfo> metaPrePayInfos) {
+	private List<BasePrepayRule> toPrepayRule(List<MetaPrePayInfo> metaPrePayInfos) {
 		List<BasePrepayRule> basePrepayRules = new LinkedList<BasePrepayRule>();
-		if (metaPrePayInfos != null&&metaPrePayInfos.size()>0) {
+		if (metaPrePayInfos != null && metaPrePayInfos.size() > 0) {
 			for (MetaPrePayInfo metaPrePayInfo : metaPrePayInfos) {
 				if (metaPrePayInfo.getTarget() == 1) {
 					continue;
 				}
 				BasePrepayRule basePrepay = new BasePrepayRule();
 				EnumPrepayChangeRule prepayrule = EnumPrepayChangeRule.PrepayNoChange;
-				if (metaPrePayInfo.getPrepay_change_rule() == EnumPrepayRule.PrepayNeedOneTime
-						.value())
+				if (metaPrePayInfo.getPrepay_change_rule() == EnumPrepayRule.PrepayNeedOneTime.value())
 					prepayrule = EnumPrepayChangeRule.PrepayNeedOneTime;
-				else if (metaPrePayInfo.getPrepay_change_rule() == EnumPrepayRule.PrepayNeedSomeDay
-						.value())
+				else if (metaPrePayInfo.getPrepay_change_rule() == EnumPrepayRule.PrepayNeedSomeDay.value())
 					prepayrule = EnumPrepayChangeRule.PrepayNeedSomeDay;
 				basePrepay.setChangeRule(prepayrule);
 
 				EnumDateType dateType = EnumDateType.CheckInDay;
 				if (metaPrePayInfo.getDate_type() != 0) {
-					dateType = EnumDateType.forValue(metaPrePayInfo
-							.getDate_type());
+					dateType = EnumDateType.forValue(metaPrePayInfo.getDate_type());
 				}
 				basePrepay.setDateType(dateType);
-				basePrepay
-						.setStartDate(new Date(metaPrePayInfo.getStart_date()));
+				basePrepay.setStartDate(new Date(metaPrePayInfo.getStart_date()));
 				basePrepay.setEndDate(new Date(metaPrePayInfo.getEnd_date()));
 				EnumPrepayCutPayment after = EnumPrepayCutPayment.FristNight;
 				if (metaPrePayInfo.getCut_type_after() > 0) {
-					after = EnumPrepayCutPayment.forValue(metaPrePayInfo
-							.getCut_type_after());
+					after = EnumPrepayCutPayment.forValue(metaPrePayInfo.getCut_type_after());
 				}
 				basePrepay.setCashScaleFirstAfter(after);
 				EnumPrepayCutPayment before = EnumPrepayCutPayment.FristNight;
 				if (metaPrePayInfo.getCut_type_befor() > 0) {
-					before = EnumPrepayCutPayment.forValue(metaPrePayInfo
-							.getCut_type_befor());
+					before = EnumPrepayCutPayment.forValue(metaPrePayInfo.getCut_type_befor());
 				}
 				basePrepay.setCashScaleFirstBefore(before);
 
-				basePrepay.setDeductFeesAfter(metaPrePayInfo
-						.isCut_after_change_time() ? 1 : 0);
-				basePrepay.setDeductFeesBefore(metaPrePayInfo
-						.isCut_befor_change_time() ? 1 : 0);
+				basePrepay.setDeductFeesAfter(metaPrePayInfo.isCut_after_change_time() ? 1 : 0);
+				basePrepay.setDeductFeesBefore(metaPrePayInfo.isCut_befor_change_time() ? 1 : 0);
 
 				basePrepay.setDeductNumAfter(metaPrePayInfo.getCut_num_after());
-				basePrepay
-						.setDeductNumBefore(metaPrePayInfo.getCut_num_befor());
-				 basePrepay.setDescription(DescriptionHelper.prepayDescription(metaPrePayInfo, isCn));
-				 basePrepay.setWeekSet(getWeekSet(metaPrePayInfo.getIs_week_effective()));
+				basePrepay.setDeductNumBefore(metaPrePayInfo.getCut_num_befor());
+				basePrepay.setDescription(DescriptionHelper.prepayDescription(metaPrePayInfo, isCn));
+				basePrepay.setWeekSet(getWeekSet(metaPrePayInfo.getIs_week_effective()));
 				if (metaPrePayInfo.getRule_values() != null) {
 					if (metaPrePayInfo.getRule_values().containsKey("HourNum")) {
-						basePrepay.setHour(Integer.valueOf(metaPrePayInfo
-								.getRule_values().get("HourNum")));
+						basePrepay.setHour(Integer.valueOf(metaPrePayInfo.getRule_values().get("HourNum")));
 					}
 					if (metaPrePayInfo.getRule_values().containsKey("HourNum2")) {
-						basePrepay.setHour2(Integer.valueOf(metaPrePayInfo
-								.getRule_values().get("HourNum2")));
+						basePrepay.setHour2(Integer.valueOf(metaPrePayInfo.getRule_values().get("HourNum2")));
 					}
 					if (metaPrePayInfo.getRule_values().containsKey("TimeNum")) {
-						basePrepay.setTime(metaPrePayInfo.getRule_values().get(
-								"TimeNum"));
+						basePrepay.setTime(metaPrePayInfo.getRule_values().get("TimeNum"));
 					}
 					if (metaPrePayInfo.getRule_values().containsKey("DateNum")) {
-						if(StringUtils.isNotEmpty(metaPrePayInfo
-								.getRule_values().get("DateNum"))){
-							basePrepay.setDateNum(DateUtil.toDate(metaPrePayInfo
-									.getRule_values().get("DateNum")));
-						}else{
+						if (StringUtils.isNotEmpty(metaPrePayInfo.getRule_values().get("DateNum"))) {
+							basePrepay.setDateNum(DateUtil.toDate(metaPrePayInfo.getRule_values().get("DateNum")));
+						} else {
 							basePrepay.setDateNum(DateUtil.getMinValue());
 						}
 					}
@@ -834,7 +723,7 @@ public class RatePlanAdapter extends
 				basePrepayRules.add(basePrepay);
 			}
 		}
-		if(basePrepayRules.size()==0){
+		if (basePrepayRules.size() == 0) {
 			BasePrepayRule base = new BasePrepayRule();
 
 			base.setChangeRule(EnumPrepayChangeRule.PrepayNoChange);
@@ -862,9 +751,7 @@ public class RatePlanAdapter extends
 
 	}
 
-	private List<BaseValueAddRule> toValueAdd(
-			List<MetaAddValuePolicyInfo> policyInfo,
-			List<MetaAddValueInfoSimple> relationAdd) {
+	private List<BaseValueAddRule> toValueAdd(List<MetaAddValuePolicyInfo> policyInfo, List<MetaAddValueInfoSimple> relationAdd) {
 		List<BaseValueAddRule> result = new LinkedList<BaseValueAddRule>();
 
 		if (relationAdd == null || policyInfo == null)
@@ -873,7 +760,7 @@ public class RatePlanAdapter extends
 		for (MetaAddValueInfoSimple rule : relationAdd) {
 			BaseValueAddRule baserule = new BaseValueAddRule();
 
-			 baserule.setDescription(getAdditionalServiceRDisciption(rule));
+			baserule.setDescription(getAdditionalServiceRDisciption(rule));
 			baserule.setTypeCode(rule.getBusiness_code());
 			baserule.setIsInclude(rule.getIs_include() == 1);
 			// 无None(0),金额Money(1),比例Percent(2)
@@ -902,24 +789,17 @@ public class RatePlanAdapter extends
 			String cnDescription = "";
 			String enDescription = "";
 			if (rule.getStart_date() != 0 && rule.getEnd_date() != 0) {
-				cnDescription = DateUtil.getDateString(new Date(rule
-						.getStart_date()))
-						+ " - "
+				cnDescription = DateUtil.getDateString(new Date(rule.getStart_date())) + " - "
 						+ DateUtil.getDateString(new Date(rule.getEnd_date()))
-						+ ((rule.getIs_include() == 0) ? " 不含早餐" : " 包含 "
-								+ rule.getShare() + " 份早餐");
-				enDescription = DateUtil.getDateString(new Date(rule
-						.getStart_date()))
-						+ " - "
+						+ ((rule.getIs_include() == 0) ? " 不含早餐" : " 包含 " + rule.getShare() + " 份早餐");
+				enDescription = DateUtil.getDateString(new Date(rule.getStart_date())) + " - "
 						+ DateUtil.getDateString(new Date(rule.getEnd_date()))
-						+ ((rule.getIs_include() == 0) ? " no breakfast"
-								: " includes " + rule.getShare() + " breakfast");
+						+ ((rule.getIs_include() == 0) ? " no breakfast" : " includes " + rule.getShare() + " breakfast");
 			}
 
 			BaseValueAddRule base = new BaseValueAddRule();
 
-			 base.setDescription(isCn ? cnDescription
-			 : enDescription);
+			base.setDescription(isCn ? cnDescription : enDescription);
 			base.setTypeCode("99");
 			base.setIsInclude(rule.getIs_include() == 1);
 			// 无None(0),金额Money(1),比例Percent(2)
@@ -946,12 +826,13 @@ public class RatePlanAdapter extends
 			if (rule.getEnd_date() != 0)
 				base.setEndDate(new Date(rule.getEnd_date()));
 			base.setCurrencyCode(rule.getCurrency_code());
-			 base.setWeekSet(getWeekSet(rule.getIs_week_effective()));
+			base.setWeekSet(getWeekSet(rule.getIs_week_effective()));
 
 			result.add(base);
 		}
 		return result;
 	}
+
 	private String getAdditionalServiceRDisciption(MetaAddValueInfoSimple addValue) {
 		if (addValue == null)
 			return "";
@@ -964,11 +845,9 @@ public class RatePlanAdapter extends
 			if (addValue.getIs_include() == 1) {
 				if (addValue.getShare() > 0)
 					if (isCn) {
-						sb1.append(addValue.getShare() + "份"
-								+ addValue.getAdd_value_cn_name() + ",");
+						sb1.append(addValue.getShare() + "份" + addValue.getAdd_value_cn_name() + ",");
 					} else {
-						sb1.append(" " + addValue.getShare() + " "
-								+ addValue.getAdd_value_en_name() + ",");
+						sb1.append(" " + addValue.getShare() + " " + addValue.getAdd_value_en_name() + ",");
 					}
 				else if (isCn) {
 					sb1.append(addValue.getAdd_value_cn_name() + ",");
@@ -995,7 +874,7 @@ public class RatePlanAdapter extends
 					if (isCn) {
 						sb2.append("首晚房费的" + addValue.getSingle_price() + "%,");
 					} else {
-						sb2.append(addValue.getSingle_price()+"%"+" of the first night room rate. ,");
+						sb2.append(addValue.getSingle_price() + "%" + " of the first night room rate. ,");
 					}
 				}
 			}
@@ -1005,8 +884,7 @@ public class RatePlanAdapter extends
 			if (sb1.length() != 0) {
 				String temp1 = "";
 				if (sb1.toString().contains(","))
-					temp1 = sb1.toString().substring(0,
-							sb1.toString().lastIndexOf(","));
+					temp1 = sb1.toString().substring(0, sb1.toString().lastIndexOf(","));
 				else
 					temp1 = sb1.toString();
 				sb3.append("包含" + temp1 + ";");
@@ -1015,8 +893,7 @@ public class RatePlanAdapter extends
 				// "单加" + sb2.ToString().TrimEnd(',')
 				String temp1 = "";
 				if (sb2.toString().contains(","))
-					temp1 = sb2.toString().substring(0,
-							sb2.toString().lastIndexOf(","));
+					temp1 = sb2.toString().substring(0, sb2.toString().lastIndexOf(","));
 				else
 					temp1 = sb2.toString();
 
@@ -1026,8 +903,7 @@ public class RatePlanAdapter extends
 			if (sb1.length() != 0) {
 				String temp1 = "";
 				if (sb1.toString().contains(","))
-					temp1 = sb1.toString().substring(0,
-							sb1.toString().lastIndexOf(","));
+					temp1 = sb1.toString().substring(0, sb1.toString().lastIndexOf(","));
 				else
 					temp1 = sb1.toString();
 
@@ -1036,8 +912,7 @@ public class RatePlanAdapter extends
 			if (sb2.length() != 0) {
 				String temp1 = "";
 				if (sb2.toString().contains(","))
-					temp1 = sb2.toString().substring(0,
-							sb2.toString().lastIndexOf(","));
+					temp1 = sb2.toString().substring(0, sb2.toString().lastIndexOf(","));
 				else
 					temp1 = sb2.toString();
 
@@ -1048,22 +923,22 @@ public class RatePlanAdapter extends
 		if (isCn) {
 			return sb3.toString().equals("") ? "" : "附加服务：" + sb3.toString();
 		}
-		return sb3.toString().equals("") ? "" : "Other service："
-				+ sb3.toString();
+		return sb3.toString().equals("") ? "" : "Other service：" + sb3.toString();
 	}
 
-	private String getWeekSet(long timeSet){
-		List<Integer> set=new LinkedList<Integer>();
-		for(int i=1;i<=6;i++){
-			if((timeSet&(long)Math.pow(2, i))==Math.pow(2, i)){
+	private String getWeekSet(long timeSet) {
+		List<Integer> set = new LinkedList<Integer>();
+		for (int i = 1; i <= 6; i++) {
+			if ((timeSet & (long) Math.pow(2, i)) == Math.pow(2, i)) {
 				set.add(i);
 			}
 		}
-		if((timeSet&(long)Math.pow(2, 0))==Math.pow(2, 0)){
+		if ((timeSet & (long) Math.pow(2, 0)) == Math.pow(2, 0)) {
 			set.add(7);
 		}
-		return StringUtils.join(set,",");
+		return StringUtils.join(set, ",");
 	}
+
 	/**
 	 * 3---限时抢购
 	 * 4--钟点房
@@ -1072,14 +947,13 @@ public class RatePlanAdapter extends
 	 * @param isHourPayRoom
 	 * @return
 	 */
-	public String parseProductType(String strProductType, int bookingchanel,
-			boolean isHourPayRoom) {
+	public String parseProductType(String strProductType, int bookingchanel, boolean isHourPayRoom) {
 		String productTypes = "";
-		List<String> productTypeList=new LinkedList<String>();
+		List<String> productTypeList = new LinkedList<String>();
 		int pt = Integer.parseInt("0" + strProductType);
 		if ((pt & 16) == 16)
 			productTypeList.add("3");
-			//productTypes += "3,";
+		// productTypes += "3,";
 		if (isHourPayRoom || (pt & 32) == 32)
 			productTypeList.add("4");
 		if ((bookingchanel & 2) == 0 && (bookingchanel & 16) == 16)
@@ -1088,20 +962,19 @@ public class RatePlanAdapter extends
 		if ((pt & 16384) == 16384) {
 			productTypeList.add("101");
 		}
-		if (productTypeList.size()>0) {
+		if (productTypeList.size() > 0) {
 			productTypes = StringUtils.join(productTypeList, ",");
 		} else {
-			productTypes=null;
+			productTypes = null;
 		}
 		return productTypes;
 	}
 
 	@Override
-	public void setFilter(Map<String, EnumPaymentType> hotelCodeFilterType,
-			Map<String, Integer> shotelCooperationTypeMap, boolean isCn) {
-		this.hotelCodeFilterType=hotelCodeFilterType;
-		this.shotelCooperationTypeMap=shotelCooperationTypeMap;
-		this.isCn=isCn;
-	} 
+	public void setFilter(Map<String, EnumPaymentType> hotelCodeFilterType, Map<String, Integer> shotelCooperationTypeMap, boolean isCn) {
+		this.hotelCodeFilterType = hotelCodeFilterType;
+		this.shotelCooperationTypeMap = shotelCooperationTypeMap;
+		this.isCn = isCn;
+	}
 
 }

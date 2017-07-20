@@ -16,6 +16,7 @@ import com.elong.nb.agent.HotelGiftService.HotelGiftRelationDate;
 import com.elong.nb.agent.HotelGiftService.HotelGiftRelationProduct;
 import com.elong.nb.agent.HotelGiftService.IHotelGiftServiceContract;
 import com.elong.nb.checklist.CheckListUtil;
+import com.elong.nb.dao.adapter.DescriptionHelper;
 import com.elong.nb.data.biglog.BigLog;
 import com.elong.nb.model.bean.enums.HotelGiftDateTypeEnum;
 import com.elong.nb.model.bean.enums.HotelGiftHourTypeEnum;
@@ -47,12 +48,10 @@ public class HotelGiftRepository {
 			log.setRequestBody(shotelId);
 			long start = System.currentTimeMillis();
 			res = hotelGiftServiceContract.getHotelGiftListByHotelID(shotelId);
-			log.setElapsedTime(String.valueOf(System.currentTimeMillis()
-					- start));
-			//log.setRequestBody(res != null ? JSON.toJSONString(res) : "");
+			log.setElapsedTime(String.valueOf(System.currentTimeMillis() - start));
+			// log.setRequestBody(res != null ? JSON.toJSONString(res) : "");
 			if (res != null && res.getResult() != null) {
-				log.setBusinessErrorCode(String.valueOf(res.getResult()
-						.getResponseCode()));
+				log.setBusinessErrorCode(String.valueOf(res.getResult().getResponseCode()));
 				log.setExceptionMsg(res.getResult().getErrorMessage());
 			} else {
 				log.setResponseCode("1");
@@ -63,19 +62,23 @@ public class HotelGiftRepository {
 			log.setExceptionMsg(ex.getMessage());
 			log.setResponseCode("1");
 			CheckListUtil.error(log);
-			throw new RuntimeException(ex.getMessage()+"|shotelId:"+shotelId,ex);
+			throw new RuntimeException(ex.getMessage() + "|shotelId:" + shotelId, ex);
 		}
 		CheckListUtil.info(log);
-		if (res != null && res.getResult() != null
-				&& res.getResult().getResponseCode() == 0
-				&& res.getHotelGiftList() != null
-				&& res.getHotelGiftList().getHotelGiftModel() != null
-				&& res.getHotelGiftList().getHotelGiftModel().size() > 0) {
+		if (res != null && res.getResult() != null && res.getResult().getResponseCode() == 0 && res.getHotelGiftList() != null
+				&& res.getHotelGiftList().getHotelGiftModel() != null && res.getHotelGiftList().getHotelGiftModel().size() > 0) {
 			Date today = DateUtil.getDate(new Date());
-			for (HotelGiftModel item : res.getHotelGiftList()
-					.getHotelGiftModel()) {
+			for (HotelGiftModel item : res.getHotelGiftList().getHotelGiftModel()) {
 				if (item.getStatus() == 0) {
 					continue;
+				}
+				// 礼包信息屏蔽
+				String giftContentCn = item.getGiftContentCn();
+				if (StringUtils.isNotEmpty(giftContentCn)) {
+					giftContentCn = DescriptionHelper.giftContentFilter(giftContentCn);
+					if (giftContentCn == null)
+						continue;
+					item.setGiftContentCn(giftContentCn);
 				}
 				HotelGiftDateTypeEnum dateType = HotelGiftDateTypeEnum.CheckinDate;
 				String weekSet = "";
@@ -83,10 +86,8 @@ public class HotelGiftRepository {
 				int hourNumber = -1;
 				List<HotelGiftDate> dates = new ArrayList<HotelGiftDate>();
 				if (item.getRelationDateList() != null) {
-					for (HotelGiftRelationDate date : item
-							.getRelationDateList().getHotelGiftRelationDate()) {
-						if (date.getBeginDate().toDate().compareTo(today) <= 0
-								&& date.getEndDate().toDate().compareTo(today) >= 0) {
+					for (HotelGiftRelationDate date : item.getRelationDateList().getHotelGiftRelationDate()) {
+						if (date.getBeginDate().toDate().compareTo(today) <= 0 && date.getEndDate().toDate().compareTo(today) >= 0) {
 							HotelGiftDateTypeEnum giftDateType = HotelGiftDateTypeEnum.CheckinDate;
 							if (date.getDateType() == com.elong.nb.agent.HotelGiftService.HotelGiftDateTypeEnum.BOOKING_DATE)
 								giftDateType = HotelGiftDateTypeEnum.BookingDate;
@@ -121,12 +122,9 @@ public class HotelGiftRepository {
 
 					products.add(gp);
 				} else {
-					if (item != null
-							&& item.getRelationProductList() != null
+					if (item != null && item.getRelationProductList() != null
 							&& item.getRelationProductList().getHotelGiftRelationProduct() != null) {
-						for (HotelGiftRelationProduct p : item
-								.getRelationProductList()
-								.getHotelGiftRelationProduct()) {
+						for (HotelGiftRelationProduct p : item.getRelationProductList().getHotelGiftRelationProduct()) {
 							if (p.getRoomTypeID() != "none") {
 								HotelGiftProductRelation hgp = new HotelGiftProductRelation();
 								hgp.setRatePlanId(p.getRatePlanID());
