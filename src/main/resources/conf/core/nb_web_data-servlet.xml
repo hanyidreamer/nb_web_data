@@ -45,7 +45,4 @@
 		<property name="requestContextAttribute" value="rc" />
 	</bean>
 
-	<bean id="hotSwitchConfigHelper" class="com.elong.hotswitch.client.HotSwitchConfigHelper">
-	</bean>
-
 </beans>

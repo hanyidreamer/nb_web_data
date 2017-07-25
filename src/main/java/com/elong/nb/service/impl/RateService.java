@@ -8,17 +8,14 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import com.elong.hotswitch.client.HotSwitchConfigHelper;
-import com.elong.hotswitch.client.Exception.HotSwitchClientException;
 import com.elong.nb.agent.ProductForNBServiceContract.GetHotelRoomPriceResponse2;
 import com.elong.nb.agent.ProductForNBServiceContract.PriceInfoForNB;
 import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
+import com.elong.nb.common.util.HowSwitchUtil;
 import com.elong.nb.dao.adapter.cache.M_SRelationCache;
 import com.elong.nb.dao.adapter.repository.InventoryRuleRepository;
 import com.elong.nb.dao.adapter.repository.RateRepository;
@@ -38,10 +35,6 @@ import edu.emory.mathcs.backport.java.util.Arrays;
 @Service
 public class RateService implements IRateService {
 
-	private static Logger logger = LogManager.getLogger(RateService.class);
-
-	@Resource
-	private HotSwitchConfigHelper hotSwitchConfigHelper;
 	@Resource
 	private RateRepository rateRepository;
 	@Resource
@@ -65,12 +58,7 @@ public class RateService implements IRateService {
 		}
 		List<Rate> rates = new ArrayList<Rate>();
 
-		int rateFrom = 1;
-		try {
-			rateFrom = hotSwitchConfigHelper.GetConfigValue("rate.from", Integer.class, 1);
-		} catch (HotSwitchClientException e) {
-			logger.error(e.getMessage(), e);
-		}
+		int rateFrom = HowSwitchUtil.getValue("rate.from", Integer.class, 1);
 		if (rateFrom == 1) {
 			rates = getGoodsRate(proxyAccount, request.getRequest().getHotelIds(), request.getRequest().getHotelCodes(), request
 					.getRequest().getStartDate(), request.getRequest().getEndDate(), request.getRequest().getPaymentType(),

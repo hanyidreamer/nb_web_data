@@ -8,15 +8,11 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
 import com.elong.hotel.goods.ds.thrift.GetBasePrice4NbRequest;
 import com.elong.hotel.goods.ds.thrift.GetBasePrice4NbResponse;
 import com.elong.hotel.goods.ds.thrift.HotelBasePriceRequest;
-import com.elong.hotswitch.client.HotSwitchConfigHelper;
-import com.elong.hotswitch.client.Exception.HotSwitchClientException;
 import com.elong.nb.agent.ProductForNBServiceContract.EnumPayMentType;
 import com.elong.nb.agent.ProductForNBServiceContract.GetHotelRoomPriceRequest;
 import com.elong.nb.agent.ProductForNBServiceContract.GetHotelRoomPriceResponse2;
@@ -37,11 +33,6 @@ import com.google.gson.Gson;
 
 @Repository
 public class RateRepository {
-
-	private static Logger logger = LogManager.getLogger(RateRepository.class);
-
-	@Resource
-	private HotSwitchConfigHelper hotSwitchConfigHelper;
 
 	private static final String server_ip = CommonsUtil.CONFIG_PROVIDAR.getProperty("goods.server_ip");
 	private static final int server_port = Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("goods.server_port"));
@@ -132,11 +123,6 @@ public class RateRepository {
 			}
 		}
 		request.setHotel_base_price_request(hotelBases);
-		try {
-			server_timeout = hotSwitchConfigHelper.GetConfigValue("goods.rate.server_timeout", Integer.class, 30000);
-		} catch (HotSwitchClientException e) {
-			logger.error(e.getMessage(), e);
-		}
 		try {
 			long start = System.currentTimeMillis();
 			GetBasePrice4NbResponse response = ThriftUtils.getMetaPrice4Nb(request, server_ip, server_port, server_timeout);

@@ -17,17 +17,14 @@ import java.util.concurrent.ForkJoinPool;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import com.elong.hotswitch.client.HotSwitchConfigHelper;
-import com.elong.hotswitch.client.Exception.HotSwitchClientException;
 import com.elong.nb.common.ComparableUtil;
 import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.common.util.CommonsUtil;
+import com.elong.nb.common.util.HowSwitchUtil;
 import com.elong.nb.dao.adapter.cache.M_SRelationCache;
 import com.elong.nb.dao.adapter.repository.InventoryRepository;
 import com.elong.nb.dao.adapter.repository.InventoryRuleRepository;
@@ -61,10 +58,6 @@ import edu.emory.mathcs.backport.java.util.Arrays;
 @Service
 public class InventoryService implements IInventoryService {
 
-	private static Logger logger = LogManager.getLogger(InventoryService.class);
-
-	@Resource
-	private HotSwitchConfigHelper hotSwitchConfigHelper;
 	@Resource
 	private M_SRelationCache m_SRelationCache;
 	@Resource
@@ -89,12 +82,7 @@ public class InventoryService implements IInventoryService {
 		InventoryResult result = new InventoryResult();
 		List<Inventory> list = null;
 
-		int invFrom = 1;
-		try {
-			invFrom = hotSwitchConfigHelper.GetConfigValue("inv.from", Integer.class, 1);
-		} catch (HotSwitchClientException e) {
-			logger.error(e.getMessage(), e);
-		}
+		int invFrom = HowSwitchUtil.getValue("inv.from", Integer.class, 1);
 		if (invFrom == 1) {
 			list = getInentory(proxyAccount, restRequest.getRequest().getHotelIds(), restRequest.getRequest().getHotelCodes(), restRequest
 					.getRequest().getRoomTypeId(), restRequest.getRequest().getStartDate(), restRequest.getRequest().getEndDate(),

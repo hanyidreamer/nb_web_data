@@ -9,11 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.annotation.Resource;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
 import com.alibaba.fastjson.JSON;
@@ -21,8 +17,6 @@ import com.alibaba.fastjson.TypeReference;
 import com.elong.hotel.goods.ds.thrift.GetBaseRatePlanDRRGiftRequest;
 import com.elong.hotel.goods.ds.thrift.GetBaseRatePlanDRRGiftResponse;
 import com.elong.hotel.goods.ds.thrift.MetaMhotel;
-import com.elong.hotswitch.client.HotSwitchConfigHelper;
-import com.elong.hotswitch.client.Exception.HotSwitchClientException;
 import com.elong.nb.agent.thrift.utils.ThriftUtils;
 import com.elong.nb.checklist.CheckListUtil;
 import com.elong.nb.common.model.EnumBookingChannel;
@@ -49,11 +43,6 @@ import com.google.gson.Gson;
  */
 @Repository
 public class RatePlanRepository {
-
-	private static Logger logger = LogManager.getLogger(RatePlanRepository.class);
-
-	@Resource
-	private HotSwitchConfigHelper hotSwitchConfigHelper;
 
 	private static final String server_ip = CommonsUtil.CONFIG_PROVIDAR.getProperty("goods.server_ip");
 	private static final int server_port = Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("goods.server_port"));
@@ -125,11 +114,6 @@ public class RatePlanRepository {
 			}
 		}
 		request.setMhotel(mhotels);
-		try {
-			server_timeout = hotSwitchConfigHelper.GetConfigValue("goods.rp.server_timeout", Integer.class, 30000);
-		} catch (HotSwitchClientException e) {
-			logger.error(e.getMessage(), e);
-		}
 		try {
 			long start = System.currentTimeMillis();
 			GetBaseRatePlanDRRGiftResponse response = ThriftUtils.getMetaRatePlanDrrGift(request, server_ip, server_port, server_timeout);

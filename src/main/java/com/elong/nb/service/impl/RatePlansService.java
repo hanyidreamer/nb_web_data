@@ -17,8 +17,6 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import com.elong.hotswitch.client.HotSwitchConfigHelper;
-import com.elong.hotswitch.client.Exception.HotSwitchClientException;
 import com.elong.nb.agent.ProductForNBServiceContract.GetRatePlanBaseInfoRequest;
 import com.elong.nb.agent.ProductForNBServiceContract.GetRatePlanBaseInfoResponse2;
 import com.elong.nb.agent.SupplierService.GetSupplierInfoBySupplierIDRequest;
@@ -34,7 +32,7 @@ import com.elong.nb.common.model.ErrorCode;
 import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
-import com.elong.nb.common.util.CommonsUtil;
+import com.elong.nb.common.util.HowSwitchUtil;
 import com.elong.nb.common.util.ProductTypeUtils;
 import com.elong.nb.dao.adapter.cache.M_SRelationCache;
 import com.elong.nb.dao.adapter.repository.HotelGiftRepository;
@@ -88,8 +86,6 @@ public class RatePlansService implements IRatePlansService {
 
 	private static Logger LocalMsg = LogManager.getLogger(RatePlansService.class);
 	@Resource
-	private HotSwitchConfigHelper hotSwitchConfigHelper;
-	@Resource
 	private RatePlanRepository ratePlanRepository;
 	@Resource
 	private InventoryRuleRepository inventoryRuleRepository;
@@ -115,12 +111,7 @@ public class RatePlansService implements IRatePlansService {
 		String[] mHotelArrays = request.getRequest().getHotelIds().replaceAll(" ", "").split(",");
 		List<String[]> sHotelIdArrays = m_SRelationCache.getSHotelIds(mHotelArrays);
 
-		int rpFrom = 1;
-		try {
-			rpFrom = hotSwitchConfigHelper.GetConfigValue("rp.from", Integer.class, 1);
-		} catch (HotSwitchClientException e) {
-			LocalMsg.error(e.getMessage(), e);
-		}
+		int rpFrom = HowSwitchUtil.getValue("rp.from", Integer.class, 1);
 		if (rpFrom == 1) {
 			result = getRatePlansFromGoods(request.getLocal(), Arrays.asList(mHotelArrays), sHotelIdArrays, request.getRequest()
 					.getPaymentType(), proxyAccount, request.getVersion(), request.getRequest().getOptions(), request.getGuid());

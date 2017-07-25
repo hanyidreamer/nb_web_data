@@ -9,8 +9,6 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Repository;
 
@@ -23,8 +21,6 @@ import com.elong.hotel.searchagent.thrift.dss.MhotelDetail;
 import com.elong.hotel.searchagent.thrift.dss.ShotelAttr;
 import com.elong.hotel.searchagent.thrift.dss.ShotelDetail;
 import com.elong.hotel.searchagent.thrift.dss.SroomDetail;
-import com.elong.hotswitch.client.HotSwitchConfigHelper;
-import com.elong.hotswitch.client.Exception.HotSwitchClientException;
 import com.elong.nb.agent.ProductForPartnerServiceContract.GetInvChangeAndInstantConfirmRequest;
 import com.elong.nb.agent.ProductForPartnerServiceContract.GetInvChangeAndInstantConfirmResponse;
 import com.elong.nb.agent.ProductForPartnerServiceContract.GetInventoryChangeDetailRequest;
@@ -44,11 +40,6 @@ import com.google.gson.Gson;
 @Repository
 public class InventoryRepository {
 
-	private static Logger logger = LogManager.getLogger(InventoryRepository.class);
-
-	@Resource
-	private HotSwitchConfigHelper hotSwitchConfigHelper;
-
 	@Resource(name = "webProductForPartnerServiceContract")
 	private IProductForPartnerServiceContract webProductForPartnerServiceContract;
 
@@ -57,7 +48,7 @@ public class InventoryRepository {
 
 	private static final String server_ip = CommonsUtil.CONFIG_PROVIDAR.getProperty("goods.server_ip");
 	private static final int server_port = Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("goods.server_port"));
-	private static int server_timeout = Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("goods.server_timeout"));
+	private static final int server_timeout = Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("goods.server_timeout"));
 
 	/**
 	 * 获取库存
@@ -234,12 +225,6 @@ public class InventoryRepository {
 			mhotel_attr.add(mhotel);
 		}
 		request.setMhotel_attr(mhotel_attr);
-
-		try {
-			server_timeout = hotSwitchConfigHelper.GetConfigValue("goods.inv.server_timeout", Integer.class, 30000);
-		} catch (HotSwitchClientException e) {
-			logger.error(e.getMessage(), e);
-		}
 		try {
 			long start = System.currentTimeMillis();
 			GetInvAndInstantConfirmResponse response = ThriftUtils.getInventory(request, server_ip, server_port, server_timeout);
