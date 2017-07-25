@@ -30,8 +30,9 @@ import com.google.gson.TypeAdapter;
  */
 @Repository
 public class SearchDetailRepository {
-//	private static Logger logger = LogManager.getLogger("biglog");
-	private static final String SEARCHURL=CommonsUtil.CONFIG_PROVIDAR.getProperty("InnerDetail.url");
+	// private static Logger logger = LogManager.getLogger("biglog");
+	private static final String SEARCHURL = CommonsUtil.CONFIG_PROVIDAR.getProperty("InnerDetail.url");
+
 	/**
 	 * 获取订单详情
 	 * @param guid
@@ -44,14 +45,12 @@ public class SearchDetailRepository {
 	 * @param ratePlanId
 	 * @return
 	 */
-	public RestResponse<HotelListResponse> getHotelDetail(String guid, EnumLocal local,
-			ProxyAccount proxyInfo, Date arrivalDate, Date departureDate,
-			String hotelId, String roomTypeId, int ratePlanId,EnumPaymentType paymentType) {
+	public RestResponse<HotelListResponse> getHotelDetail(String guid, EnumLocal local, ProxyAccount proxyInfo, Date arrivalDate,
+			Date departureDate, String hotelId, String roomTypeId, int ratePlanId, EnumPaymentType paymentType, ProxyAccount proxyAccount) {
 		RestRequest<HotelDetailRequest> detailreq = new RestRequest<HotelDetailRequest>();
 		detailreq.setGuid(guid);
 		detailreq.setLocal(local);
 		detailreq.setVersion(10d);
-		detailreq.setProxyInfo(proxyInfo);
 		HotelDetailRequest request = new HotelDetailRequest();
 		request.setArrivalDate(arrivalDate);
 		request.setDepartureDate(departureDate);
@@ -61,35 +60,34 @@ public class SearchDetailRepository {
 		request.setRoomTypeId(roomTypeId);
 		request.setPaymentType(paymentType);
 		detailreq.setRequest(request);
-		String reqData = GsonUtil.toJson(detailreq,10d);
+		String reqData = GsonUtil.toJson(detailreq, 10d);
 		String response = null;
-		RestResponse<HotelListResponse> detailres = new RestResponse<HotelListResponse>(
-				guid);
-//		BigLog log = new BigLog();
-//		log.setUserLogType(guid);
-//		log.setAppName("data_http");
-//		log.setTraceId(UUID.randomUUID().toString());
-//		log.setSpan("1.1");
-//		log.setServiceName("com.elong.nb.search.InnerDetail");
-//		long start = System.currentTimeMillis();
+		RestResponse<HotelListResponse> detailres = new RestResponse<HotelListResponse>(guid);
+		// BigLog log = new BigLog();
+		// log.setUserLogType(guid);
+		// log.setAppName("data_http");
+		// log.setTraceId(UUID.randomUUID().toString());
+		// log.setSpan("1.1");
+		// log.setServiceName("com.elong.nb.search.InnerDetail");
+		// long start = System.currentTimeMillis();
 		try {
-			response = HttpUtil.httpPost(SEARCHURL, reqData, "application/x-www-form-urlencoded");
-//			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
-//			logger.info(log.toString());
+			response = HttpUtil.httpPost(SEARCHURL, reqData, "application/x-www-form-urlencoded", proxyAccount.getUserName());
+			// log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
+			// logger.info(log.toString());
 			if (StringUtils.isNotBlank(response)) {
 				Map<Class, TypeAdapter> m = new HashMap<Class, TypeAdapter>();
 				m.put(Date.class, new DateTypeAdapter());
-				detailres = GsonUtil.toResponse(response,
-						new TypeToken<RestResponse<HotelListResponse>>() {
-						}.getType(), m);
-				return detailres;			}
+				detailres = GsonUtil.toResponse(response, new TypeToken<RestResponse<HotelListResponse>>() {
+				}.getType(), m);
+				return detailres;
+			}
 		} catch (Exception ex) {
-//			log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
-//			log.setException(ex);
-//			log.setExceptionMsg(ex.getMessage());
-//			log.setResponseCode("1");
-//			logger.info(log.toString());
-			throw new RuntimeException("search.InnerDetail",ex);
+			// log.setElapsedTime(String.valueOf(System.currentTimeMillis()-start));
+			// log.setException(ex);
+			// log.setExceptionMsg(ex.getMessage());
+			// log.setResponseCode("1");
+			// logger.info(log.toString());
+			throw new RuntimeException("search.InnerDetail", ex);
 		}
 		return detailres;
 	}

@@ -638,6 +638,6 @@ public class DescriptionHelper {
 			giftContentCn = giftContentCn.toLowerCase().replaceAll("elong", "本站");
 		}
 		return giftContentCn.replaceAll("艺龙网", "本站").replaceAll("艺龙", "本站").replaceAll("elong", "本站");
-
 	}
+	
 }

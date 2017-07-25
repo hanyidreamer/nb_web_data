@@ -83,6 +83,7 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 							String hotelCode = SafeConvertUtils.ToHotelId(metaSHotelBaseRpDrrGift.getHotel_base_info().getShotel_id());
 							Map<Integer, BaseDrrRule> drrMap = toDrrRule(metaSHotelBaseRpDrrGift.getDrrs());
 							Map<Integer, List<Integer>> drrIdsMap = new HashMap<Integer, List<Integer>>();
+							Map<Integer, List<String>> drrIdroomTypeIdMap = new HashMap<Integer, List<String>>();
 							Map<Integer, List<GiftRelation>> giftRelationMap = new HashMap<Integer, List<GiftRelation>>();
 							Map<Integer, List<String>> roomTypesrpRelation = new HashMap<Integer, List<String>>();
 							Map<Integer, Integer> invoiceModeMap = new HashMap<Integer, Integer>();
@@ -99,11 +100,25 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 											roomTypesrpRelation.put(metaProductInfo.getRate_plan_id(), roomTypeIds);
 										}
 										if (metaProductInfo.getDrr_ids() != null) {
-											if (drrIdsMap.containsKey(metaProductInfo.getRate_plan_id())) {
-												drrIdsMap.get(metaProductInfo.getRate_plan_id()).addAll(metaProductInfo.getDrr_ids());
-											} else {
-												drrIdsMap.put(metaProductInfo.getRate_plan_id(), metaProductInfo.getDrr_ids());
+											// drrrule 重复bug修改
+											List<Integer> drrIds = drrIdsMap.get(metaProductInfo.getRate_plan_id());
+											if (drrIds == null) {
+												drrIds = new ArrayList<Integer>();
 											}
+											for (Integer metaDrrId : metaProductInfo.getDrr_ids()) {
+												// drrrule 和 roomtypeid 对应关系
+												List<String> roomTypeIds = drrIdroomTypeIdMap.get(metaDrrId);
+												if (roomTypeIds == null) {
+													roomTypeIds = new ArrayList<String>();
+												}
+												roomTypeIds.add(StringUtils.trim(roomTypeId));
+												drrIdroomTypeIdMap.put(metaDrrId, roomTypeIds);
+
+												if (drrIds.contains(metaDrrId))
+													continue;
+												drrIds.add(metaDrrId);
+											}
+											drrIdsMap.put(metaProductInfo.getRate_plan_id(), drrIds);
 										}
 										if (metaProductInfo.getGift_ids() != null) {
 											for (int giftId : metaProductInfo.getGift_ids()) {
@@ -133,7 +148,17 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 										if (drrIdsMap.get(metaRatePlanBaseInfo.getRate_plan_id()) != null) {
 											for (int drrId : drrIdsMap.get(metaRatePlanBaseInfo.getRate_plan_id())) {
 												if (drrMap.containsKey(drrId)) {
-													drrRuleList.add(drrMap.get(drrId));
+													// 补充drrrule里的roomtypeid
+													BaseDrrRule baseDrrRule = drrMap.get(drrId);
+													List<String> roomTypeIds = drrIdroomTypeIdMap.get(drrId);
+													@SuppressWarnings("unchecked")
+													String roomTypeIdStr = StringUtils.join(roomTypeIds);
+													if (StringUtils.isNotEmpty(roomTypeIdStr)) {
+														roomTypeIdStr = StringUtils.remove(roomTypeIdStr, "[");
+														roomTypeIdStr = StringUtils.remove(roomTypeIdStr, "]");
+														baseDrrRule.setRoomTypeIds(roomTypeIdStr);
+													}
+													drrRuleList.add(baseDrrRule);
 												}
 											}
 										}
@@ -386,7 +411,6 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 		if (gift != null) {
 			List<HotelGift> hotelGifts = new LinkedList<HotelGift>();
 			for (MetaHotelGiftModel item : gift) {
-
 				if (item.getStatus() == 0) {
 					continue;
 				}

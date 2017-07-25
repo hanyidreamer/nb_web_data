@@ -41,11 +41,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.elong.nb.common.checklist.Constants;
 import com.elong.nb.model.bookingdata.ResponseResult;
-import com.elong.nb.model.common.DataRestRequestCommon;
 import com.elong.nb.model.common.DataRestResponseCommon;
-import com.elong.nb.model.rateplan.fornb.SearchHotelRatePlanListResp;
 import com.elong.springmvc_enhance.utilities.ActionLogHelper;
 import com.google.gson.Gson;
+
 /**
  * (类型功能说明描述)
  *
@@ -63,64 +62,74 @@ import com.google.gson.Gson;
 public class HttpUtil {
 
 	protected static Logger logger = LogManager.getLogger(HttpUtil.class);
-	private static Gson gson=new Gson();
-	
-	public static String httpPostData(String reqUrl,String reqData){
+	private static Gson gson = new Gson();
+
+	public static String httpPostData(String reqUrl, String reqData) {
 		HttpURLConnection conn = null;
-		try{
-			String enReqData = java.net.URLEncoder.encode(reqData,"UTF-8"); 
-			URL url = new URL(reqUrl+enReqData);
+		try {
+			String enReqData = java.net.URLEncoder.encode(reqData, "UTF-8");
+			URL url = new URL(reqUrl + enReqData);
 			conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("POST");
-			conn.setDoInput(true);// 设置是否从httpUrlConnection读入，默认情况下是true;   
+			conn.setDoInput(true);// 设置是否从httpUrlConnection读入，默认情况下是true;
 			conn.setDoOutput(true);
-			conn.setUseCaches(false);   // Post 请求不能使用缓存
+			conn.setUseCaches(false); // Post 请求不能使用缓存
 			conn.setConnectTimeout(8 * 1000);
 			conn.setReadTimeout(30 * 1000);
 			conn.setInstanceFollowRedirects(true);
-			conn.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
+			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 			conn.connect();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(),"UTF-8"));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
 			String lines;
 			StringBuilder sb = new StringBuilder();
 			while ((lines = reader.readLine()) != null)
 				sb.append(lines);
 			return sb.toString();
-		}catch(Exception ex){
-			logger.error("http Error,reqUrl:"+reqUrl+",Exception:"+ex.getMessage());
+		} catch (Exception ex) {
+			logger.error("http Error,reqUrl:" + reqUrl + ",Exception:" + ex.getMessage());
 			throw new RuntimeException(ex);
-			
-		}finally{
-			if(null != conn)try{
-				conn.disconnect();
-			}catch(Exception ex){
-				logger.error("method:httpPost,使用finally块来关闭输入流,Exception:"+ex.getMessage());
-				throw ex;
+
+		} finally {
+			if (null != conn)
+				try {
+					conn.disconnect();
+				} catch (Exception ex) {
+					logger.error("method:httpPost,使用finally块来关闭输入流,Exception:" + ex.getMessage());
+					throw ex;
 				}
 		}
 	}
+
 	protected static CloseableHttpClient client = generateHttpClient();
-	public static String httpPost(String reqUrl, String reqData, String contentType){
+
+	public static String httpPost(String reqUrl, String reqData, String contentType) {
+		return httpPost(reqUrl, reqData, contentType, null);
+	}
+
+	public static String httpPost(String reqUrl, String reqData, String contentType, String userName) {
 		RequestAttributes request = RequestContextHolder.getRequestAttributes();
-		Object guid=null;
+		Object guid = null;
 		try {
-			guid=request.getAttribute(Constants.ELONG_REQUEST_REQUESTGUID, ServletRequestAttributes.SCOPE_REQUEST);
+			guid = request.getAttribute(Constants.ELONG_REQUEST_REQUESTGUID, ServletRequestAttributes.SCOPE_REQUEST);
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
-		if(guid==null){
-			guid=UUID.randomUUID();
+		if (guid == null) {
+			guid = UUID.randomUUID();
 		}
-		String methodName="";
-		String hostName="";
-		try{
+		String methodName = "";
+		String hostName = "";
+		try {
 			long startTime = System.currentTimeMillis();
 			URI uri = new URI(reqUrl);
-			methodName=uri.getPath();
-			hostName=uri.getHost();
+			methodName = uri.getPath();
+			hostName = uri.getHost();
 			HttpPost httpPost = new HttpPost(uri);
 			contentType = StringUtils.isEmpty(contentType) ? "application/json" : contentType;
 			httpPost.addHeader("Content-Type", contentType);
+			if (StringUtils.isNotEmpty(userName)) {
+				httpPost.addHeader("userName", userName);
+			}
 			httpPost.setEntity(new StringEntity(reqData, "UTF-8"));
 			CloseableHttpResponse response = client.execute(httpPost);
 			InputStream is = response.getEntity().getContent();
@@ -134,31 +143,33 @@ public class HttpUtil {
 			outputStream.close();
 			response.close();
 			long endTime = System.currentTimeMillis();
-			ActionLogHelper.businessLog(guid.toString(), true, methodName, hostName, null, (endTime - startTime), 0, null,null, "");
+			ActionLogHelper.businessLog(guid.toString(), true, methodName, hostName, null, (endTime - startTime), 0, null, null, "");
 			return new String(outputStream.toByteArray());
-		}catch(Exception e){
-			ActionLogHelper.businessLog(guid.toString(), false, methodName, hostName, e ,0, -1, null, null,"");
+		} catch (Exception e) {
+			ActionLogHelper.businessLog(guid.toString(), false, methodName, hostName, e, 0, -1, null, null, "");
 			throw new RuntimeException(e);
 		}
 	}
-	public static <T1,T2> DataRestResponseCommon<T1> getDataRestResponse(String reqUrl, String reqData, String contentType,DataRestResponseCommon<T1> type1,TypeReference<T2> type2){
+
+	public static <T1, T2> DataRestResponseCommon<T1> getDataRestResponse(String reqUrl, String reqData, String contentType,
+			DataRestResponseCommon<T1> type1, TypeReference<T2> type2) {
 		RequestAttributes request = RequestContextHolder.getRequestAttributes();
-		Object guid=null;
+		Object guid = null;
 		try {
-			guid=request.getAttribute(Constants.ELONG_REQUEST_REQUESTGUID, ServletRequestAttributes.SCOPE_REQUEST);
+			guid = request.getAttribute(Constants.ELONG_REQUEST_REQUESTGUID, ServletRequestAttributes.SCOPE_REQUEST);
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
-		if(guid==null){
-			guid=UUID.randomUUID();
+		if (guid == null) {
+			guid = UUID.randomUUID();
 		}
-		String methodName="";
-		String hostName="";
-		try{
+		String methodName = "";
+		String hostName = "";
+		try {
 			long startTime = System.currentTimeMillis();
 			URI uri = new URI(reqUrl);
-			methodName=uri.getPath();
-			hostName=uri.getHost();
+			methodName = uri.getPath();
+			hostName = uri.getHost();
 			HttpPost httpPost = new HttpPost(uri);
 			contentType = StringUtils.isEmpty(contentType) ? "application/json" : contentType;
 			httpPost.addHeader("Content-Type", contentType);
@@ -175,20 +186,24 @@ public class HttpUtil {
 			outputStream.close();
 			response.close();
 			long endTime = System.currentTimeMillis();
-			DataRestResponseCommon<T1> result=(DataRestResponseCommon<T1>) JSON.parseObject(new String(outputStream.toByteArray()),type2);
-			if(result.getRealResponse()!=null){
-				int businessCode=((com.elong.nb.model.common.ResponseBase)result.getRealResponse()).getResponseCode();
-				ActionLogHelper.businessLog(guid.toString(), true, methodName, hostName, null, (endTime - startTime), businessCode, null,null, "");
-			}else{
-				ActionLogHelper.businessLog(guid.toString(), false, methodName, hostName, null, (endTime - startTime), 0, result.getExceptionMsg(),null, "");
+			DataRestResponseCommon<T1> result = (DataRestResponseCommon<T1>) JSON
+					.parseObject(new String(outputStream.toByteArray()), type2);
+			if (result.getRealResponse() != null) {
+				int businessCode = ((com.elong.nb.model.common.ResponseBase) result.getRealResponse()).getResponseCode();
+				ActionLogHelper.businessLog(guid.toString(), true, methodName, hostName, null, (endTime - startTime), businessCode, null,
+						null, "");
+			} else {
+				ActionLogHelper.businessLog(guid.toString(), false, methodName, hostName, null, (endTime - startTime), 0,
+						result.getExceptionMsg(), null, "");
 			}
 			return result;
-		}catch(Exception e){
-			ActionLogHelper.businessLog(guid.toString(), false, methodName, hostName, e ,0, -1, null, null,"");
+		} catch (Exception e) {
+			ActionLogHelper.businessLog(guid.toString(), false, methodName, hostName, e, 0, -1, null, null, "");
 			throw new RuntimeException(e);
 		}
-		
+
 	}
+
 	private static CloseableHttpClient generateHttpClient() {
 		Registry<ConnectionSocketFactory> socketFactory = RegistryBuilder.<ConnectionSocketFactory> create()
 				.register("http", PlainConnectionSocketFactory.INSTANCE).build();
@@ -206,83 +221,87 @@ public class HttpUtil {
 				.build();
 		return httpClient;
 	}
-	 public static com.elong.nb.model.bookingdata.ResponseResult httpGet(String url) throws Exception {
-		 ResponseResult result=new ResponseResult();
-	        BufferedReader in = null;
-	        try {
-	            String urlNameString = url ;
-	            URL realUrl = new URL(urlNameString);
-	            // 打开和URL之间的连接
-	            HttpURLConnection  connection = (HttpURLConnection)realUrl.openConnection();
-	            connection.setRequestProperty("connection", "Keep-Alive");
-	            connection.setRequestProperty("user-agent",
-	                    "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
-	            connection.connect();
-	            in = new BufferedReader(new InputStreamReader(
-	                    connection.getInputStream()));
-	            StringBuffer buffer=new StringBuffer();
-	            String line;
-	            if ((line = in.readLine()) != null) {
-	            	buffer.append(line);
-	            }
-	            result=gson.fromJson(buffer.toString(), ResponseResult.class);
-	        } catch (Exception e) {
-	        	result.setCode(-1);
-	        	result.setMessage(e.getMessage());
-	        	logger.error("method:httpGet,发送GET请求出现异常！URL："+url+",Exception:"+e.getMessage());
-	        	throw e;
-	        }
-	        // 使用finally块来关闭输入流
-	        finally {
-	            try {
-	                if (in != null) {
-	                    in.close();
-	                }
-	            } catch (Exception e2) {
-	            	result.setCode(-1);
-		        	result.setMessage(e2.getMessage());
-		        	logger.error("method:httpGet 使用finally块来关闭输入流,Exception:"+e2.getMessage());
-		        	throw e2;
-	            }
-	        }
-	        return result;
-	    }
-	 public static String httpGetData(String reqUrl)throws Exception{
-			HttpURLConnection conn = null;
-			logger.info("[HTTPGET]开始访问"+reqUrl);
-			try{
-				long start = System.currentTimeMillis();
-				URL url = new URL(reqUrl);
-				conn = (HttpURLConnection) url.openConnection();
-				conn.setRequestMethod("GET");
-				conn.setDoInput(true);// 设置是否从httpUrlConnection读入，默认情况下是true;   
-				conn.setDoOutput(false);
-				conn.setConnectTimeout(8 * 1000);
-				conn.setReadTimeout(60 * 1000);
-				conn.connect();
-				int code =conn.getResponseCode();
-				if(HttpURLConnection.HTTP_OK != code){
-					logger.info("http访问错误:"+reqUrl);
-					throw new RuntimeException("http访问错误,返回码："+code);
+
+	public static com.elong.nb.model.bookingdata.ResponseResult httpGet(String url) throws Exception {
+		ResponseResult result = new ResponseResult();
+		BufferedReader in = null;
+		try {
+			String urlNameString = url;
+			URL realUrl = new URL(urlNameString);
+			// 打开和URL之间的连接
+			HttpURLConnection connection = (HttpURLConnection) realUrl.openConnection();
+			connection.setRequestProperty("connection", "Keep-Alive");
+			connection.setRequestProperty("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
+			connection.connect();
+			in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			StringBuffer buffer = new StringBuffer();
+			String line;
+			if ((line = in.readLine()) != null) {
+				buffer.append(line);
+			}
+			result = gson.fromJson(buffer.toString(), ResponseResult.class);
+		} catch (Exception e) {
+			result.setCode(-1);
+			result.setMessage(e.getMessage());
+			logger.error("method:httpGet,发送GET请求出现异常！URL：" + url + ",Exception:" + e.getMessage());
+			throw e;
+		}
+		// 使用finally块来关闭输入流
+		finally {
+			try {
+				if (in != null) {
+					in.close();
 				}
-				BufferedReader in=new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			      StringBuffer buffer=new StringBuffer();
-		            String line;
-		            if ((line = in.readLine()) != null) {
-		            	buffer.append(line);
-		            }
-		            String result=buffer.toString();
-			//	String result = StreamUtils.copyToString(conn.getInputStream(),Charset.forName("UTF-8"));
-				long end = System.currentTimeMillis();
-				logger.info("[HTTPGET]访问结果"+",time:" + (end-start));
-				return result;
-			}catch(Exception ex){
-				logger.info("http访问错误:"+reqUrl);
-				logger.info("[HTTPGET]访问出错:"+ex);
-				ex.printStackTrace();
-				throw ex;
-			}finally{
-				if(null != conn)try{conn.disconnect();}catch(Exception ex){}
+			} catch (Exception e2) {
+				result.setCode(-1);
+				result.setMessage(e2.getMessage());
+				logger.error("method:httpGet 使用finally块来关闭输入流,Exception:" + e2.getMessage());
+				throw e2;
 			}
 		}
+		return result;
+	}
+
+	public static String httpGetData(String reqUrl) throws Exception {
+		HttpURLConnection conn = null;
+		logger.info("[HTTPGET]开始访问" + reqUrl);
+		try {
+			long start = System.currentTimeMillis();
+			URL url = new URL(reqUrl);
+			conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod("GET");
+			conn.setDoInput(true);// 设置是否从httpUrlConnection读入，默认情况下是true;
+			conn.setDoOutput(false);
+			conn.setConnectTimeout(8 * 1000);
+			conn.setReadTimeout(60 * 1000);
+			conn.connect();
+			int code = conn.getResponseCode();
+			if (HttpURLConnection.HTTP_OK != code) {
+				logger.info("http访问错误:" + reqUrl);
+				throw new RuntimeException("http访问错误,返回码：" + code);
+			}
+			BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			StringBuffer buffer = new StringBuffer();
+			String line;
+			if ((line = in.readLine()) != null) {
+				buffer.append(line);
+			}
+			String result = buffer.toString();
+			// String result = StreamUtils.copyToString(conn.getInputStream(),Charset.forName("UTF-8"));
+			long end = System.currentTimeMillis();
+			logger.info("[HTTPGET]访问结果" + ",time:" + (end - start));
+			return result;
+		} catch (Exception ex) {
+			logger.info("http访问错误:" + reqUrl);
+			logger.info("[HTTPGET]访问出错:" + ex);
+			ex.printStackTrace();
+			throw ex;
+		} finally {
+			if (null != conn)
+				try {
+					conn.disconnect();
+				} catch (Exception ex) {
+				}
+		}
+	}
 }

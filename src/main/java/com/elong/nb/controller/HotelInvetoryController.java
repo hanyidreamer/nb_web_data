@@ -10,8 +10,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.elong.nb.UserServiceAgent;
 import com.elong.nb.common.gson.GsonUtil;
 import com.elong.nb.common.model.ErrorCode;
+import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.common.util.ValidateUtil;
@@ -30,57 +32,63 @@ public class HotelInvetoryController {
 	private IValidateInventoryService validateInventoryService;
 
 	@RequestMapping(value = "/api/Hotel/GetInventories", method = RequestMethod.POST)
-	public ResponseEntity<byte[]> getInventories(HttpServletRequest request)
-			throws Exception {
-		RestRequest<InventoryCondition> restRequest = GsonUtil.toReq(request,
-				InventoryCondition.class, null);
-		String rst = validateInventoryRequest(restRequest);
+	public ResponseEntity<byte[]> getInventories(HttpServletRequest request) throws Exception {
+		String userName = request.getHeader("userName");
+		ProxyAccount proxyAccount = UserServiceAgent.findProxyByUsername(userName);
+		RestRequest<InventoryCondition> restRequest = null;
+		try {
+			restRequest = GsonUtil.toReq(request, InventoryCondition.class, null);
+		} catch (Exception e) {
+			RestResponse<InventoryResult> response = new RestResponse<InventoryResult>(request.getHeader("guid"));
+			response.setCode(ErrorCode.Common_ParamInvalid);
+			return new ResponseEntity<byte[]>(GsonUtil.toJson(response, 0d).getBytes(), HttpStatus.OK);
+		}
+		String rst = validateInventoryRequest(restRequest, proxyAccount);
 		if (StringUtils.isNotBlank(rst)) {
-			RestResponse<InventoryResult> response = new RestResponse<InventoryResult>(
-					restRequest.getGuid());
+			RestResponse<InventoryResult> response = new RestResponse<InventoryResult>(restRequest.getGuid());
 			response.setCode(rst);
 			response.setResult(null);
-			return new ResponseEntity<byte[]>(GsonUtil.toJson(
-					response,
-					restRequest.getVersion() == null ? 0d : restRequest
-							.getVersion()).getBytes(), HttpStatus.OK);
+			return new ResponseEntity<byte[]>(GsonUtil.toJson(response, restRequest.getVersion() == null ? 0d : restRequest.getVersion())
+					.getBytes(), HttpStatus.OK);
 		}
-		RestResponse<InventoryResult> response = this.inventoryService.getInventories(restRequest);
-		return new ResponseEntity<byte[]>(GsonUtil.toJson(response,
-				restRequest.getVersion()).getBytes(), HttpStatus.OK);
+		RestResponse<InventoryResult> response = this.inventoryService.getInventories(restRequest, proxyAccount);
+		return new ResponseEntity<byte[]>(GsonUtil.toJson(response, restRequest.getVersion()).getBytes(), HttpStatus.OK);
 
 	}
 
 	@RequestMapping(value = "/api/Hotel/ValidateInventory", method = RequestMethod.POST)
-	public ResponseEntity<byte[]> validateInventory(HttpServletRequest request)
-			throws Exception {
-		RestRequest<ValidateInventoryCondition> restRequest = GsonUtil.toReq(
-				request, ValidateInventoryCondition.class, null);
-		String rst = validateValidateInventoryRequest(restRequest);// validateInventoryRequest(restRequest);
+	public ResponseEntity<byte[]> validateInventory(HttpServletRequest request) throws Exception {
+		String userName = request.getHeader("userName");
+		ProxyAccount proxyAccount = UserServiceAgent.findProxyByUsername(userName);
+		RestRequest<ValidateInventoryCondition> restRequest = null;
+		try {
+			restRequest = GsonUtil.toReq(request, ValidateInventoryCondition.class, null);
+		} catch (Exception e) {
+			RestResponse<InventoryResult> response = new RestResponse<InventoryResult>(request.getHeader("guid"));
+			response.setCode(ErrorCode.Common_ParamInvalid);
+			return new ResponseEntity<byte[]>(GsonUtil.toJson(response, 0d).getBytes(), HttpStatus.OK);
+		}
+		String rst = validateValidateInventoryRequest(restRequest, proxyAccount);// validateInventoryRequest(restRequest);
 		if (StringUtils.isNotBlank(rst)) {
-			RestResponse<InventoryResult> response = new RestResponse<InventoryResult>(
-					restRequest.getGuid());
+			RestResponse<InventoryResult> response = new RestResponse<InventoryResult>(restRequest.getGuid());
 			response.setCode(rst);
 			response.setResult(null);
-			return new ResponseEntity<byte[]>(GsonUtil.toJson(
-					response,
-					restRequest.getVersion() == null ? 0d : restRequest
-							.getVersion()).getBytes(), HttpStatus.OK);
+			return new ResponseEntity<byte[]>(GsonUtil.toJson(response, restRequest.getVersion() == null ? 0d : restRequest.getVersion())
+					.getBytes(), HttpStatus.OK);
 		}
-		RestResponse<ValidateInventoryResult> response = this.validateInventoryService
-				.getValidateInventories(restRequest);
-		return new ResponseEntity<byte[]>(GsonUtil.toJson(response,
-				restRequest.getVersion()).getBytes(), HttpStatus.OK);
+		RestResponse<ValidateInventoryResult> response = this.validateInventoryService.getValidateInventories(restRequest, proxyAccount);
+		return new ResponseEntity<byte[]>(GsonUtil.toJson(response, restRequest.getVersion()).getBytes(), HttpStatus.OK);
 
 	}
+
 	/**
 	 * 校验库存入参合法性
 	 * @param restRequest
 	 * @return
 	 */
-	private String validateInventoryRequest(RestRequest<InventoryCondition> restRequest) {
-		StringBuffer sb = new StringBuffer(ValidateUtil.validateRestRequest(restRequest));
-		if(StringUtils.isBlank(restRequest.getRequest().getHotelIds())||restRequest.getRequest().getHotelIds().split(",").length>10){
+	private String validateInventoryRequest(RestRequest<InventoryCondition> restRequest, ProxyAccount proxyAccount) {
+		StringBuffer sb = new StringBuffer(ValidateUtil.validateRestRequest(restRequest, proxyAccount));
+		if (StringUtils.isBlank(restRequest.getRequest().getHotelIds()) || restRequest.getRequest().getHotelIds().split(",").length > 10) {
 			sb.append(ErrorCode.Common_NumberIdsFormatErrorAndLessThanTen);
 			return sb.toString();
 		}
@@ -92,32 +100,34 @@ public class HotelInvetoryController {
 			sb.append(ErrorCode.Common_EndDateRequired);
 			return sb.toString();
 		}
-		if (restRequest.getRequest().getStartDate().getTime()>restRequest.getRequest().getEndDate().getTime()) {
+		if (restRequest.getRequest().getStartDate().getTime() > restRequest.getRequest().getEndDate().getTime()) {
 			sb.append(ErrorCode.Common_StartDateLessThanEndDate);
 			return sb.toString();
 		}
-//		if (StringUtils.isBlank(restRequest.getRequest().getHotelCodes())&& StringUtils.isBlank(restRequest.getRequest().getHotelIds())) {
-//			sb.append(ErrorCode.Common_NumberIdsFormatErrorAndLessThanTen);
-//			return sb.toString();
-//		}
-		if(!StringUtils.isBlank(restRequest.getRequest().getHotelCodes())){
-			if(restRequest.getRequest().getHotelIds().contains(",")){
+		// if (StringUtils.isBlank(restRequest.getRequest().getHotelCodes())&& StringUtils.isBlank(restRequest.getRequest().getHotelIds()))
+		// {
+		// sb.append(ErrorCode.Common_NumberIdsFormatErrorAndLessThanTen);
+		// return sb.toString();
+		// }
+		if (!StringUtils.isBlank(restRequest.getRequest().getHotelCodes())) {
+			if (restRequest.getRequest().getHotelIds().contains(",")) {
 				sb.append(ErrorCode.Common_HotelIdRequiredOnlyOne);
 				return sb.toString();
-			}else if(restRequest.getRequest().getHotelCodes().split(",").length>10){
+			} else if (restRequest.getRequest().getHotelCodes().split(",").length > 10) {
 				sb.append(ErrorCode.Common_NumberCodesFormatErrorAndLessThanTen);
 				return sb.toString();
 			}
 		}
 		return sb.toString();
 	}
+
 	/**
 	 * 校验库存验证入参合法性
 	 * @param restRequest
 	 * @return
 	 */
-	private String validateValidateInventoryRequest(RestRequest<ValidateInventoryCondition> restRequest) {
-		StringBuffer sb = new StringBuffer(ValidateUtil.validateRestRequest(restRequest));
+	private String validateValidateInventoryRequest(RestRequest<ValidateInventoryCondition> restRequest, ProxyAccount proxyAccount) {
+		StringBuffer sb = new StringBuffer(ValidateUtil.validateRestRequest(restRequest, proxyAccount));
 		if (StringUtils.isBlank(restRequest.getRequest().getHotelId())) {
 			sb.append(ErrorCode.Common_HotelIdRequired);
 			return sb.toString();
@@ -138,7 +148,7 @@ public class HotelInvetoryController {
 			sb.append(ErrorCode.Common_DepartureDateRequired);
 			return sb.toString();
 		}
-		if (restRequest.getRequest().getArrivalDate().getTime()>restRequest.getRequest().getDepartureDate().getTime()) {
+		if (restRequest.getRequest().getArrivalDate().getTime() > restRequest.getRequest().getDepartureDate().getTime()) {
 			sb.append(ErrorCode.Common_StartDateLessThanEndDate);
 			return sb.toString();
 		}

@@ -24,6 +24,7 @@ import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.common.util.CommonsUtil;
+import com.elong.nb.common.util.HowSwitchUtil;
 import com.elong.nb.dao.adapter.cache.M_SRelationCache;
 import com.elong.nb.dao.adapter.repository.InventoryRepository;
 import com.elong.nb.dao.adapter.repository.InventoryRuleRepository;
@@ -55,7 +56,7 @@ import edu.emory.mathcs.backport.java.util.Arrays;
  * @since		JDK1.7
  */
 @Service
-public class InventoryService implements IInventoryService{
+public class InventoryService implements IInventoryService {
 
 	@Resource
 	private M_SRelationCache m_SRelationCache;
@@ -63,9 +64,9 @@ public class InventoryService implements IInventoryService{
 	private InventoryRepository inventoryRepository;
 	@Resource
 	private InventoryRuleRepository inventoryRuleRepository;
-	
-	private static final int invThreadSize=Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("inv.thread.size"));
-	private static final int invFrom=Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("inv.from"));
+
+	private static final int invThreadSize = Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("inv.thread.size"));
+
 	/** 
 	 * (方法说明描述)获得库存接口 
 	 *
@@ -75,46 +76,53 @@ public class InventoryService implements IInventoryService{
 	 * @see com.elong.nb.service.IInventoryService#getInventories(com.elong.nb.common.model.RestRequest)    
 	 */
 	@Override
-	public RestResponse<InventoryResult> getInventories(RestRequest<InventoryCondition> restRequest) throws Exception {
-		RestResponse<InventoryResult> response = new RestResponse<InventoryResult>(
-				restRequest.getGuid());
+	public RestResponse<InventoryResult> getInventories(RestRequest<InventoryCondition> restRequest, ProxyAccount proxyAccount)
+			throws Exception {
+		RestResponse<InventoryResult> response = new RestResponse<InventoryResult>(restRequest.getGuid());
 		InventoryResult result = new InventoryResult();
-		List<Inventory> list=null;
-		if(invFrom==1){
-			list= getInentory(restRequest.getProxyInfo(),restRequest.getRequest().getHotelIds(),restRequest.getRequest().getHotelCodes(),restRequest.getRequest().getRoomTypeId(),restRequest.getRequest().getStartDate(),restRequest.getRequest().getEndDate(),
-				restRequest.getRequest().isIsNeedInstantConfirm(),restRequest.getGuid());
-		}else{
-		    list= getInentory(restRequest.getProxyInfo(),restRequest.getRequest().getHotelIds(),restRequest.getRequest().getHotelCodes(),restRequest.getRequest().getRoomTypeId(),restRequest.getRequest().getStartDate(),restRequest.getRequest().getEndDate(),
-				restRequest.getRequest().isIsNeedInstantConfirm(),restRequest.getProxyInfo().getOrderFrom(),false,restRequest.getGuid());
+		List<Inventory> list = null;
+
+		int invFrom = HowSwitchUtil.getValue("inv.from", Integer.class, 1);
+		if (invFrom == 1) {
+			list = getInentory(proxyAccount, restRequest.getRequest().getHotelIds(), restRequest.getRequest().getHotelCodes(), restRequest
+					.getRequest().getRoomTypeId(), restRequest.getRequest().getStartDate(), restRequest.getRequest().getEndDate(),
+					restRequest.getRequest().isIsNeedInstantConfirm(), restRequest.getGuid());
+		} else {
+			list = getInentory(proxyAccount, restRequest.getRequest().getHotelIds(), restRequest.getRequest().getHotelCodes(), restRequest
+					.getRequest().getRoomTypeId(), restRequest.getRequest().getStartDate(), restRequest.getRequest().getEndDate(),
+					restRequest.getRequest().isIsNeedInstantConfirm(), proxyAccount.getOrderFrom(), false, restRequest.getGuid());
 		}
 		result.setInventories(list);
 		response.setResult(result);
 		return response;
 	}
+
 	@Override
-	public RestResponse<InventoryResult> getInventoriesForBooking(RestRequest<InventoryCondition> restRequest) throws Exception {
-		RestResponse<InventoryResult> response = new RestResponse<InventoryResult>(
-				restRequest.getGuid());
+	public RestResponse<InventoryResult> getInventoriesForBooking(RestRequest<InventoryCondition> restRequest, ProxyAccount proxyAccount)
+			throws Exception {
+		RestResponse<InventoryResult> response = new RestResponse<InventoryResult>(restRequest.getGuid());
 		InventoryResult result = new InventoryResult();
-		List<Inventory> list= getInentory(restRequest.getProxyInfo(),restRequest.getRequest().getHotelIds(),restRequest.getRequest().getHotelCodes(),restRequest.getRequest().getRoomTypeId(),restRequest.getRequest().getStartDate(),restRequest.getRequest().getEndDate(),
-				true,restRequest.getProxyInfo().getOrderFrom(),true,restRequest.getGuid());
+		List<Inventory> list = getInentory(proxyAccount, restRequest.getRequest().getHotelIds(), restRequest.getRequest().getHotelCodes(),
+				restRequest.getRequest().getRoomTypeId(), restRequest.getRequest().getStartDate(), restRequest.getRequest().getEndDate(),
+				true, proxyAccount.getOrderFrom(), true, restRequest.getGuid());
 		result.setInventories(list);
 		response.setResult(result);
 		return response;
 	}
+
 	/**
 	 * 需要规则验证的库存数据转换
 	 * @param list
 	 * @param needBlackListRuleCodes 
 	 * @return
 	 */
-	private List<RuleInventoryRequest> toRuleInventory(List<Inventory> list, List<String> needBlackListRuleCodes){
-		List<RuleInventoryRequest> result=new ArrayList<RuleInventoryRequest>();
-		for(int index=0;index<list.size();index++){
-			Inventory inventory=list.get(index);
-			//过滤不在黑名单列表里的库存
-			if(needBlackListRuleCodes.contains(inventory.getHotelCode())&&inventory.isStatus()){
-				RuleInventoryRequest ruleInventory=new RuleInventoryRequest();
+	private List<RuleInventoryRequest> toRuleInventory(List<Inventory> list, List<String> needBlackListRuleCodes) {
+		List<RuleInventoryRequest> result = new ArrayList<RuleInventoryRequest>();
+		for (int index = 0; index < list.size(); index++) {
+			Inventory inventory = list.get(index);
+			// 过滤不在黑名单列表里的库存
+			if (needBlackListRuleCodes.contains(inventory.getHotelCode()) && inventory.isStatus()) {
+				RuleInventoryRequest ruleInventory = new RuleInventoryRequest();
 				ruleInventory.setHotelCode(inventory.getHotelCode());
 				ruleInventory.setHotelID(inventory.getHotelID());
 				ruleInventory.setRoomTypeID(inventory.getRoomTypeID());
@@ -128,21 +136,23 @@ public class InventoryService implements IInventoryService{
 		}
 		return result;
 	}
-	//合并黑名单数据
-	private void convertToInventory(List<RuleInventoryResponse> ruleList,List<Inventory> list){
-		if(ruleList!=null){
-			for(RuleInventoryResponse ruleInventory:ruleList){
+
+	// 合并黑名单数据
+	private void convertToInventory(List<RuleInventoryResponse> ruleList, List<Inventory> list) {
+		if (ruleList != null) {
+			for (RuleInventoryResponse ruleInventory : ruleList) {
 				list.get(Integer.parseInt(ruleInventory.getRuleKey())).setEndDate(ruleInventory.getEndDate());
 				list.get(Integer.parseInt(ruleInventory.getRuleKey())).setOverBooking(ruleInventory.getOverBooking());
 				list.get(Integer.parseInt(ruleInventory.getRuleKey())).setStartDate(ruleInventory.getStartDate());
 				list.get(Integer.parseInt(ruleInventory.getRuleKey())).setStatus(ruleInventory.isStatus());
-				if(!ruleInventory.isStatus()){
+				if (!ruleInventory.isStatus()) {
 					list.get(Integer.parseInt(ruleInventory.getRuleKey())).setAvailableAmount(0);
 				}
 			}
 		}
-		
+
 	}
+
 	/**
 	 * 获取产品组库存
 	 * @param proxyInfo
@@ -158,23 +168,24 @@ public class InventoryService implements IInventoryService{
 	 * @return
 	 * @throws Exception
 	 */
-	private List<Inventory> getInentory(ProxyAccount proxyInfo,String hotelId,String hotelCodeString,String roomTypeId,Date startDate,Date endDate,boolean isNeedInstantConfirm,int orderFrom,boolean isForBooking,String guid) throws Exception{
-		List<Inventory> result=new ArrayList<Inventory>();
+	private List<Inventory> getInentory(ProxyAccount proxyInfo, String hotelId, String hotelCodeString, String roomTypeId, Date startDate,
+			Date endDate, boolean isNeedInstantConfirm, int orderFrom, boolean isForBooking, String guid) throws Exception {
+		List<Inventory> result = new ArrayList<Inventory>();
 		// 仅提供昨天和近90天的房态数据
 		int days = proxyInfo.getMaxDays() != null ? proxyInfo.getMaxDays() : 90;
-		Date date= DateUtil.getDate(DateUtil.addDays(new Date(), -1));
-		if (startDate.getTime()<date.getTime()) {
+		Date date = DateUtil.getDate(DateUtil.addDays(new Date(), -1));
+		if (startDate.getTime() < date.getTime()) {
 			startDate = DateUtil.getDate(DateUtil.addDays(new Date(), -1));
 		}
-		if (endDate.getTime()>DateUtil.getDate(DateUtil.addDays(new Date(), days)).getTime()) {
+		if (endDate.getTime() > DateUtil.getDate(DateUtil.addDays(new Date(), days)).getTime()) {
 			endDate = DateUtil.getDate(DateUtil.addDays(new Date(), days));
 		}
-		String[] shotelIdsUnderSupplier=null;
-		if(StringUtils.isNotBlank(proxyInfo.getSupplier())){
-			List<String> list=this.m_SRelationCache.getSupplierHotels(proxyInfo.getSupplier().trim().split(","));//获取供应商下的hotelcode
-			if(list!=null){
-				String tmp=StringUtils.join(list, ',');
-				shotelIdsUnderSupplier=tmp.split(",");
+		String[] shotelIdsUnderSupplier = null;
+		if (StringUtils.isNotBlank(proxyInfo.getSupplier())) {
+			List<String> list = this.m_SRelationCache.getSupplierHotels(proxyInfo.getSupplier().trim().split(","));// 获取供应商下的hotelcode
+			if (list != null) {
+				String tmp = StringUtils.join(list, ',');
+				shotelIdsUnderSupplier = tmp.split(",");
 			}
 		}
 		String[] mHotelIdArray = null;
@@ -182,85 +193,85 @@ public class InventoryService implements IInventoryService{
 		if (StringUtils.isNotBlank(hotelCodeString)) {
 			mHotelIdArray = new String[] { hotelId };
 			sHotelIdArrays = new ArrayList<String[]>();
-			String[] hotelCodes=hotelCodeString.trim().split(",");
+			String[] hotelCodes = hotelCodeString.trim().split(",");
 			sHotelIdArrays.add(hotelCodes);
-		} else{
-			List<String> hotelIdList=ComparableUtil.convertDistinctList(Arrays.asList(hotelId.split(",")));
-			String tmp=StringUtils.join(hotelIdList, ',');
-			mHotelIdArray=tmp.split(",");
+		} else {
+			List<String> hotelIdList = ComparableUtil.convertDistinctList(Arrays.asList(hotelId.split(",")));
+			String tmp = StringUtils.join(hotelIdList, ',');
+			mHotelIdArray = tmp.split(",");
 			sHotelIdArrays = m_SRelationCache.getSHotelIds(mHotelIdArray);
 		}
-		//如果代理商有供应商限制，则只取其有权限的供应商下的s酒店
-		if(shotelIdsUnderSupplier!=null){
-			for(int i=0;i<mHotelIdArray.length;i++){
-				String[] intersectHotelCode=ComparableUtil.intersect(sHotelIdArrays.get(i),shotelIdsUnderSupplier);
+		// 如果代理商有供应商限制，则只取其有权限的供应商下的s酒店
+		if (shotelIdsUnderSupplier != null) {
+			for (int i = 0; i < mHotelIdArray.length; i++) {
+				String[] intersectHotelCode = ComparableUtil.intersect(sHotelIdArrays.get(i), shotelIdsUnderSupplier);
 				sHotelIdArrays.set(i, intersectHotelCode);
 			}
 		}
-		Map<String,List<String>> hotelMap=new HashMap<String, List<String>>();
-		for(int index=0;index<mHotelIdArray.length;index++){
+		Map<String, List<String>> hotelMap = new HashMap<String, List<String>>();
+		for (int index = 0; index < mHotelIdArray.length; index++) {
 			hotelMap.put(mHotelIdArray[index], Arrays.asList(sHotelIdArrays.get(index)));
 		}
-		List<MSHotelIdRelation> relationList=new LinkedList<MSHotelIdRelation>();
-		for(int i=0;i<mHotelIdArray.length;i++){
-			if(sHotelIdArrays.get(i)!=null){
-				String[] hotelCodes=sHotelIdArrays.get(i);
-				for(String hotelCode:hotelCodes){
-					MSHotelIdRelation relation=new MSHotelIdRelation();
+		List<MSHotelIdRelation> relationList = new LinkedList<MSHotelIdRelation>();
+		for (int i = 0; i < mHotelIdArray.length; i++) {
+			if (sHotelIdArrays.get(i) != null) {
+				String[] hotelCodes = sHotelIdArrays.get(i);
+				for (String hotelCode : hotelCodes) {
+					MSHotelIdRelation relation = new MSHotelIdRelation();
 					relation.setHotelId(mHotelIdArray[i]);
 					relation.setHotelCode(hotelCode);
 					relationList.add(relation);
 				}
 			}
 		}
-		if(relationList.size()<=invThreadSize){
+		if (relationList.size() <= invThreadSize) {
 			for (MSHotelIdRelation relation : relationList) {
 				try {
-					List<Inventory> list = this.inventoryRepository.getInventorys(
-							relation.getHotelId(), relation.getHotelCode(), roomTypeId, startDate, endDate,
-							isNeedInstantConfirm,isForBooking,guid);
+					List<Inventory> list = this.inventoryRepository.getInventorys(relation.getHotelId(), relation.getHotelCode(),
+							roomTypeId, startDate, endDate, isNeedInstantConfirm, isForBooking, guid);
 					if (list != null && list.size() > 0) {
 						result.addAll(list);
 					}
 				} catch (Exception ex) {
-					throw new RuntimeException("Inner Exception: InventoryTaskException:",ex);
+					throw new RuntimeException("Inner Exception: InventoryTaskException:", ex);
 				}
 			}
-		}else{
-			InventoryTask inventoryTask=new InventoryTask(relationList,roomTypeId,startDate,endDate,isNeedInstantConfirm,inventoryRepository,guid,isForBooking);
+		} else {
+			InventoryTask inventoryTask = new InventoryTask(relationList, roomTypeId, startDate, endDate, isNeedInstantConfirm,
+					inventoryRepository, guid, isForBooking);
 			ForkJoinPool forkJoinPool = new ForkJoinPool();
 			forkJoinPool.execute(inventoryTask);
 			do {
 
 			} while (!inventoryTask.isDone());
-			
+
 			forkJoinPool.shutdown();
 			try {
-				result= inventoryTask.get();
+				result = inventoryTask.get();
 			} catch (InterruptedException | ExecutionException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		
-	
-		if(result!=null&&result.size()>0){
-			InventoryRuleHitCheckRealResponse hitRule=inventoryRuleRepository.getCheckInfo(hotelMap, orderFrom, isNeedInstantConfirm);
-			List<String> needBlackListRuleCodes=hitRule.getNeedBlackListRuleCodes();
-			List<RuleInventoryResponse> ruleListResult= null;
-			if(needBlackListRuleCodes!=null&&needBlackListRuleCodes.size()>0){
-				List<RuleInventoryRequest> ruleList=toRuleInventory(result,needBlackListRuleCodes);
-				if(ruleList!=null&&ruleList.size()>0){
-					ruleListResult= inventoryRuleRepository.convertInventoryWithRule(ruleList,proxyInfo.getOrderFrom(),isNeedInstantConfirm);
+
+		if (result != null && result.size() > 0) {
+			InventoryRuleHitCheckRealResponse hitRule = inventoryRuleRepository.getCheckInfo(hotelMap, orderFrom, isNeedInstantConfirm);
+			List<String> needBlackListRuleCodes = hitRule.getNeedBlackListRuleCodes();
+			List<RuleInventoryResponse> ruleListResult = null;
+			if (needBlackListRuleCodes != null && needBlackListRuleCodes.size() > 0) {
+				List<RuleInventoryRequest> ruleList = toRuleInventory(result, needBlackListRuleCodes);
+				if (ruleList != null && ruleList.size() > 0) {
+					ruleListResult = inventoryRuleRepository.convertInventoryWithRule(ruleList, proxyInfo.getOrderFrom(),
+							isNeedInstantConfirm);
 					convertToInventory(ruleListResult, result);
 				}
 			}
-			List<String> hitInstantConfirmList=hitRule.getInstantConfirmCodes();
-			if(isNeedInstantConfirm&&hitInstantConfirmList!=null&&hitInstantConfirmList.size()>0){
-				if(result!=null&&result.size()>0){
-					for(Inventory inv:result){
-						if(inv.isIsInstantConfirm()){
-							if(hitInstantConfirmList.contains(inv.getHotelCode())){
+			List<String> hitInstantConfirmList = hitRule.getInstantConfirmCodes();
+			if (isNeedInstantConfirm && hitInstantConfirmList != null && hitInstantConfirmList.size() > 0) {
+				if (result != null && result.size() > 0) {
+					for (Inventory inv : result) {
+						if (inv.isIsInstantConfirm()) {
+							if (hitInstantConfirmList.contains(inv.getHotelCode())) {
 								inv.setIsInstantConfirm(false);
 							}
 						}
@@ -270,6 +281,7 @@ public class InventoryService implements IInventoryService{
 		}
 		return result;
 	}
+
 	/**
 	 * 获取库存 商品库
 	 * @param proxyInfo
@@ -283,82 +295,86 @@ public class InventoryService implements IInventoryService{
 	 * @return
 	 * @throws Exception
 	 */
-	private List<Inventory> getInentory(ProxyAccount proxyInfo,String hotelId,String hotelCodeString,String roomTypeId,Date startDate,Date endDate,boolean isNeedInstantConfirm,String guid) throws Exception{
-			List<Inventory> result=new ArrayList<Inventory>();
-			// 仅提供昨天和近90天的房态数据
-			int days = proxyInfo.getMaxDays() != null ? proxyInfo.getMaxDays() : 90;
-			Date date= DateUtil.getDate(DateUtil.addDays(new Date(), -1));
-			if (startDate.getTime()<date.getTime()) {
-				startDate = DateUtil.getDate(DateUtil.addDays(new Date(), -1));
+	private List<Inventory> getInentory(ProxyAccount proxyInfo, String hotelId, String hotelCodeString, String roomTypeId, Date startDate,
+			Date endDate, boolean isNeedInstantConfirm, String guid) throws Exception {
+		List<Inventory> result = new ArrayList<Inventory>();
+		// 仅提供昨天和近90天的房态数据
+		int days = proxyInfo.getMaxDays() != null ? proxyInfo.getMaxDays() : 90;
+		Date date = DateUtil.getDate(DateUtil.addDays(new Date(), -1));
+		if (startDate.getTime() < date.getTime()) {
+			startDate = DateUtil.getDate(DateUtil.addDays(new Date(), -1));
+		}
+		if (endDate.getTime() > DateUtil.getDate(DateUtil.addDays(new Date(), days)).getTime()) {
+			endDate = DateUtil.getDate(DateUtil.addDays(new Date(), days));
+		}
+		String[] shotelIdsUnderSupplier = null;
+		if (StringUtils.isNotBlank(proxyInfo.getSupplier())) {
+			List<String> list = this.m_SRelationCache.getSupplierHotels(proxyInfo.getSupplier().trim().split(","));// 获取供应商下的hotelcode
+			if (list != null) {
+				String tmp = StringUtils.join(list, ',');
+				shotelIdsUnderSupplier = tmp.split(",");
 			}
-			if (endDate.getTime()>DateUtil.getDate(DateUtil.addDays(new Date(), days)).getTime()) {
-				endDate = DateUtil.getDate(DateUtil.addDays(new Date(), days));
+		}
+		if (StringUtils.isNotEmpty(hotelId)) {
+			hotelId = hotelId.replaceAll(" ", "");
+		}
+		String[] mHotelIdArray = null;
+		List<String[]> sHotelIdArrays = null;
+		if (StringUtils.isNotBlank(hotelCodeString)) {
+			hotelCodeString = hotelCodeString.replaceAll(" ", "");
+			mHotelIdArray = new String[] { hotelId };
+			sHotelIdArrays = new ArrayList<String[]>();
+			String[] hotelCodes = hotelCodeString.split(",");
+			sHotelIdArrays.add(hotelCodes);
+		} else {
+			List<String> hotelIdList = ComparableUtil.convertDistinctList(Arrays.asList(hotelId.split(",")));
+			String tmp = StringUtils.join(hotelIdList, ',');
+			mHotelIdArray = tmp.split(",");
+			sHotelIdArrays = m_SRelationCache.getSHotelIds(mHotelIdArray);
+		}
+		// 如果代理商有供应商限制，则只取其有权限的供应商下的s酒店
+		if (shotelIdsUnderSupplier != null) {
+			for (int i = 0; i < mHotelIdArray.length; i++) {
+				String[] intersectHotelCode = ComparableUtil.intersect(sHotelIdArrays.get(i), shotelIdsUnderSupplier);
+				sHotelIdArrays.set(i, intersectHotelCode);
 			}
-			String[] shotelIdsUnderSupplier=null;
-			if(StringUtils.isNotBlank(proxyInfo.getSupplier())){
-				List<String> list=this.m_SRelationCache.getSupplierHotels(proxyInfo.getSupplier().trim().split(","));//获取供应商下的hotelcode
-				if(list!=null){
-					String tmp=StringUtils.join(list, ',');
-					shotelIdsUnderSupplier=tmp.split(",");
+		}
+		Map<String, List<String>> hotelMap = new HashMap<String, List<String>>();
+		for (int index = 0; index < mHotelIdArray.length; index++) {
+			hotelMap.put(mHotelIdArray[index], Arrays.asList(sHotelIdArrays.get(index)));
+		}
+		List<String> roomTypeIds = null;
+		if (!StringUtils.isBlank(roomTypeId)) {
+			roomTypeIds = Arrays.asList(roomTypeId.split(","));
+		}
+		result = inventoryRepository.getInventorys(hotelMap, roomTypeIds, startDate, endDate, isNeedInstantConfirm,
+				proxyInfo.getOrderFrom(), guid);
+		if (result != null && result.size() > 0) {
+			InventoryRuleHitCheckRealResponse hitRule = inventoryRuleRepository.getCheckInfo(hotelMap, proxyInfo.getOrderFrom(),
+					isNeedInstantConfirm);
+			List<String> needBlackListRuleCodes = hitRule.getNeedBlackListRuleCodes();
+			List<RuleInventoryResponse> ruleListResult = null;
+			if (needBlackListRuleCodes != null && needBlackListRuleCodes.size() > 0) {
+				List<RuleInventoryRequest> ruleList = toRuleInventory(result, needBlackListRuleCodes);
+				if (ruleList != null && ruleList.size() > 0) {
+					ruleListResult = inventoryRuleRepository.convertInventoryWithRule(ruleList, proxyInfo.getOrderFrom(),
+							isNeedInstantConfirm);
+					convertToInventory(ruleListResult, result);
 				}
 			}
-			if(StringUtils.isNotEmpty(hotelId)){
-				hotelId=hotelId.replaceAll(" ", "");
-			}
-			String[] mHotelIdArray = null;
-			List<String[]> sHotelIdArrays = null;
-			if (StringUtils.isNotBlank(hotelCodeString)) {
-				hotelCodeString=hotelCodeString.replaceAll(" ", "");
-				mHotelIdArray = new String[] { hotelId };
-				sHotelIdArrays = new ArrayList<String[]>();
-				String[] hotelCodes=hotelCodeString.split(",");
-				sHotelIdArrays.add(hotelCodes);
-			} else{
-				List<String> hotelIdList=ComparableUtil.convertDistinctList(Arrays.asList(hotelId.split(",")));
-				String tmp=StringUtils.join(hotelIdList, ',');
-				mHotelIdArray=tmp.split(",");
-				sHotelIdArrays = m_SRelationCache.getSHotelIds(mHotelIdArray);
-			}
-			//如果代理商有供应商限制，则只取其有权限的供应商下的s酒店
-			if(shotelIdsUnderSupplier!=null){
-				for(int i=0;i<mHotelIdArray.length;i++){
-					String[] intersectHotelCode=ComparableUtil.intersect(sHotelIdArrays.get(i),shotelIdsUnderSupplier);
-					sHotelIdArrays.set(i, intersectHotelCode);
-				}
-			}
-			Map<String,List<String>> hotelMap=new HashMap<String, List<String>>();
-			for(int index=0;index<mHotelIdArray.length;index++){
-				hotelMap.put(mHotelIdArray[index], Arrays.asList(sHotelIdArrays.get(index)));
-			}
-			List<String> roomTypeIds=null;
-			if(!StringUtils.isBlank(roomTypeId)){
-				roomTypeIds=Arrays.asList(roomTypeId.split(","));
-			}
-			result=inventoryRepository.getInventorys(hotelMap, roomTypeIds, startDate, endDate, isNeedInstantConfirm, proxyInfo.getOrderFrom(), guid);
-			if(result!=null&&result.size()>0){
-				InventoryRuleHitCheckRealResponse hitRule=inventoryRuleRepository.getCheckInfo(hotelMap, proxyInfo.getOrderFrom(), isNeedInstantConfirm);
-				List<String> needBlackListRuleCodes=hitRule.getNeedBlackListRuleCodes();
-				List<RuleInventoryResponse> ruleListResult= null;
-				if(needBlackListRuleCodes!=null&&needBlackListRuleCodes.size()>0){
-					List<RuleInventoryRequest> ruleList=toRuleInventory(result,needBlackListRuleCodes);
-					if(ruleList!=null&&ruleList.size()>0){
-						ruleListResult= inventoryRuleRepository.convertInventoryWithRule(ruleList,proxyInfo.getOrderFrom(),isNeedInstantConfirm);
-						convertToInventory(ruleListResult, result);
-					}
-				}
-				List<String> hitInstantConfirmList=hitRule.getInstantConfirmCodes();
-				if(isNeedInstantConfirm&&hitInstantConfirmList!=null&&hitInstantConfirmList.size()>0){
-					if(result!=null&&result.size()>0){
-						for(Inventory inv:result){
-							if(inv.isIsInstantConfirm()){
-								if(hitInstantConfirmList.contains(inv.getHotelCode())){
-									inv.setIsInstantConfirm(false);
-								}
+			List<String> hitInstantConfirmList = hitRule.getInstantConfirmCodes();
+			if (isNeedInstantConfirm && hitInstantConfirmList != null && hitInstantConfirmList.size() > 0) {
+				if (result != null && result.size() > 0) {
+					for (Inventory inv : result) {
+						if (inv.isIsInstantConfirm()) {
+							if (hitInstantConfirmList.contains(inv.getHotelCode())) {
+								inv.setIsInstantConfirm(false);
 							}
 						}
 					}
 				}
 			}
-			return result;
 		}
+		return result;
+	}
 }
