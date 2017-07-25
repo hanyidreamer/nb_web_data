@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.elong.nb.UserServiceAgent;
 import com.elong.nb.common.gson.GsonUtil;
+import com.elong.nb.common.model.ErrorCode;
 import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
@@ -39,7 +40,14 @@ public class CommentController {
 	public ResponseEntity<byte[]> getListComments(HttpServletRequest request) throws IOException {
 		String userName = request.getHeader("userName");
 		ProxyAccount proxyAccount = UserServiceAgent.findProxyByUsername(userName);
-		RestRequest<CommentCondition> restRequest = GsonUtil.toReq(request, CommentCondition.class, null);
+		RestRequest<CommentCondition> restRequest = null;
+		try {
+			restRequest = GsonUtil.toReq(request, CommentCondition.class, null);
+		} catch (Exception e) {
+			RestResponse<CommentResult> response = new RestResponse<CommentResult>(request.getHeader("guid"));
+			response.setCode(ErrorCode.Common_ParamInvalid);
+			return new ResponseEntity<byte[]>(GsonUtil.toJson(response, 0d).getBytes(), HttpStatus.OK);
+		}
 		// 基本校验
 		String rst = restRequest.getRequest().validateCondition().toString();
 		if (StringUtils.isNotBlank(rst)) {
@@ -65,7 +73,14 @@ public class CommentController {
 	public ResponseEntity<byte[]> getListCommentSummaries(HttpServletRequest request) throws IOException {
 		String userName = request.getHeader("userName");
 		ProxyAccount proxyAccount = UserServiceAgent.findProxyByUsername(userName);
-		RestRequest<CommentSummaryCondition> restRequest = GsonUtil.toReq(request, CommentSummaryCondition.class, null);
+		RestRequest<CommentSummaryCondition> restRequest = null;
+		try {
+			restRequest = GsonUtil.toReq(request, CommentSummaryCondition.class, null);
+		} catch (Exception e) {
+			RestResponse<CommentSummaryResult> response = new RestResponse<CommentSummaryResult>(request.getHeader("guid"));
+			response.setCode(ErrorCode.Common_ParamInvalid);
+			return new ResponseEntity<byte[]>(GsonUtil.toJson(response, 0d).getBytes(), HttpStatus.OK);
+		}
 		// 基本校验
 		StringBuffer sb = new StringBuffer(ValidateUtil.validateRestRequest(restRequest, proxyAccount));
 		String rst = sb.toString();

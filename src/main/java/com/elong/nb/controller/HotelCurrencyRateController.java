@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.elong.nb.common.gson.GsonUtil;
+import com.elong.nb.common.model.ErrorCode;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.model.bean.ExchangeRateCondition;
@@ -41,22 +42,21 @@ public class HotelCurrencyRateController {
 	private ICurrencyRateService currencyRateService;
 
 	@RequestMapping(value = "/api/Hotel/GetExchangeRate", method = RequestMethod.POST)
-	public ResponseEntity<byte[]> getExchangeRate(HttpServletRequest request)
-			throws Exception {
+	public ResponseEntity<byte[]> getExchangeRate(HttpServletRequest request) throws Exception {
 		RestRequest<ExchangeRateCondition> restRequest = null;
 		RestResponse<ExchangeRateResult> restResponse = null;
-		// try {
-		restRequest = GsonUtil.toReq(request, ExchangeRateCondition.class, null);
+		try {
+			restRequest = GsonUtil.toReq(request, ExchangeRateCondition.class, null);
+		} catch (Exception e) {
+			RestResponse<ExchangeRateResult> response = new RestResponse<ExchangeRateResult>(request.getHeader("guid"));
+			response.setCode(ErrorCode.Common_ParamInvalid);
+			return new ResponseEntity<byte[]>(GsonUtil.toJson(response, 0d).getBytes(), HttpStatus.OK);
+		}
 		restResponse = new RestResponse<ExchangeRateResult>(restRequest.getGuid());
 		if (restRequest != null) {
 			restResponse = currencyRateService.getCurrencyRate(restRequest);
 		}
-
-		// } catch (Exception e) {
-		// restResponse.setResult(null);
-		// restResponse.setCode("获取汇率接口异常"+e);
-		// }
-		return new ResponseEntity(GsonUtil.toJson(restResponse,restRequest.getVersion() == null ? 0d : restRequest
-						.getVersion()).getBytes(), HttpStatus.OK);
+		return new ResponseEntity(GsonUtil.toJson(restResponse, restRequest.getVersion() == null ? 0d : restRequest.getVersion())
+				.getBytes(), HttpStatus.OK);
 	}
 }

@@ -51,7 +51,14 @@ public class HotelDataController {
 		ProxyAccount proxyAccount = UserServiceAgent.findProxyByUsername(userName);
 		// 基本校验
 		Map<Class, TypeAdapter> m = new HashMap<Class, TypeAdapter>();
-		RestRequest<RatePlanCondition> restRequest = GsonUtil.toReq(request, RatePlanCondition.class, m);
+		RestRequest<RatePlanCondition> restRequest = null;
+		try {
+			restRequest = GsonUtil.toReq(request, RatePlanCondition.class, m);
+		} catch (Exception e) {
+			RestResponse<RatePlanResult> response = new RestResponse<RatePlanResult>(request.getHeader("guid"));
+			response.setCode(ErrorCode.Common_ParamInvalid);
+			return new ResponseEntity<byte[]>(GsonUtil.toJson(response, 0d).getBytes(), HttpStatus.OK);
+		}
 		String rst = validateRatePlanRequest(restRequest, proxyAccount);
 		if (StringUtils.isNotBlank(rst)) {
 			RestResponse<RatePlanResult> response = new RestResponse<RatePlanResult>(restRequest.getGuid());
@@ -98,7 +105,15 @@ public class HotelDataController {
 	public ResponseEntity<byte[]> getBookingData(HttpServletRequest request) throws IOException {
 		// 基本校验
 		Map<Class, TypeAdapter> m = new HashMap<Class, TypeAdapter>();
-		RestRequest<BookingDataCondition> restRequest = GsonUtil.toReq(request, BookingDataCondition.class, m);
+		RestRequest<BookingDataCondition> restRequest = null;
+		try {
+			restRequest = GsonUtil.toReq(request, BookingDataCondition.class, m);
+		} catch (Exception e) {
+			RestResponse<BookingDataResult> response = new RestResponse<BookingDataResult>(request.getHeader("guid"));
+			response.setCode(ErrorCode.Common_ParamInvalid);
+			return new ResponseEntity<byte[]>(GsonUtil.toJson(response, 0d).getBytes(), HttpStatus.OK);
+		}
+
 		String userName = request.getHeader("userName");
 		ProxyAccount proxyAccount = UserServiceAgent.findProxyByUsername(userName);
 		String rst = validateBookingDataRequest(restRequest, proxyAccount);

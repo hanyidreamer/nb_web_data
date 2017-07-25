@@ -35,7 +35,14 @@ public class HotelInvetoryController {
 	public ResponseEntity<byte[]> getInventories(HttpServletRequest request) throws Exception {
 		String userName = request.getHeader("userName");
 		ProxyAccount proxyAccount = UserServiceAgent.findProxyByUsername(userName);
-		RestRequest<InventoryCondition> restRequest = GsonUtil.toReq(request, InventoryCondition.class, null);
+		RestRequest<InventoryCondition> restRequest = null;
+		try {
+			restRequest = GsonUtil.toReq(request, InventoryCondition.class, null);
+		} catch (Exception e) {
+			RestResponse<InventoryResult> response = new RestResponse<InventoryResult>(request.getHeader("guid"));
+			response.setCode(ErrorCode.Common_ParamInvalid);
+			return new ResponseEntity<byte[]>(GsonUtil.toJson(response, 0d).getBytes(), HttpStatus.OK);
+		}
 		String rst = validateInventoryRequest(restRequest, proxyAccount);
 		if (StringUtils.isNotBlank(rst)) {
 			RestResponse<InventoryResult> response = new RestResponse<InventoryResult>(restRequest.getGuid());
@@ -53,7 +60,14 @@ public class HotelInvetoryController {
 	public ResponseEntity<byte[]> validateInventory(HttpServletRequest request) throws Exception {
 		String userName = request.getHeader("userName");
 		ProxyAccount proxyAccount = UserServiceAgent.findProxyByUsername(userName);
-		RestRequest<ValidateInventoryCondition> restRequest = GsonUtil.toReq(request, ValidateInventoryCondition.class, null);
+		RestRequest<ValidateInventoryCondition> restRequest = null;
+		try {
+			restRequest = GsonUtil.toReq(request, ValidateInventoryCondition.class, null);
+		} catch (Exception e) {
+			RestResponse<InventoryResult> response = new RestResponse<InventoryResult>(request.getHeader("guid"));
+			response.setCode(ErrorCode.Common_ParamInvalid);
+			return new ResponseEntity<byte[]>(GsonUtil.toJson(response, 0d).getBytes(), HttpStatus.OK);
+		}
 		String rst = validateValidateInventoryRequest(restRequest, proxyAccount);// validateInventoryRequest(restRequest);
 		if (StringUtils.isNotBlank(rst)) {
 			RestResponse<InventoryResult> response = new RestResponse<InventoryResult>(restRequest.getGuid());

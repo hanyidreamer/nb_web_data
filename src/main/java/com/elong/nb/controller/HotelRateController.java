@@ -31,7 +31,14 @@ public class HotelRateController {
 	public ResponseEntity<byte[]> getRates(HttpServletRequest request) throws Exception {
 		String userName = request.getHeader("userName");
 		ProxyAccount proxyAccount = UserServiceAgent.findProxyByUsername(userName);
-		RestRequest<RateCondition> restRequest = GsonUtil.toReq(request, RateCondition.class, null);
+		RestRequest<RateCondition> restRequest = null;
+		try {
+			restRequest = GsonUtil.toReq(request, RateCondition.class, null);
+		} catch (Exception e) {
+			RestResponse<RateResult> response = new RestResponse<RateResult>(request.getHeader("guid"));
+			response.setCode(ErrorCode.Common_ParamInvalid);
+			return new ResponseEntity<byte[]>(GsonUtil.toJson(response, 0d).getBytes(), HttpStatus.OK);
+		}
 		String rst = validateRateRequest(restRequest, proxyAccount);
 		if (StringUtils.isNotBlank(rst)) {
 			RestResponse<RateResult> response = new RestResponse<RateResult>(restRequest.getGuid());
