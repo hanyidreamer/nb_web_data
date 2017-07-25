@@ -17,6 +17,8 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import com.elong.hotswitch.client.HotSwitchConfigHelper;
+import com.elong.hotswitch.client.Exception.HotSwitchClientException;
 import com.elong.nb.agent.ProductForNBServiceContract.GetRatePlanBaseInfoRequest;
 import com.elong.nb.agent.ProductForNBServiceContract.GetRatePlanBaseInfoResponse2;
 import com.elong.nb.agent.SupplierService.GetSupplierInfoBySupplierIDRequest;
@@ -84,10 +86,11 @@ import edu.emory.mathcs.backport.java.util.Arrays;
 @Service
 public class RatePlansService implements IRatePlansService {
 
+	private static Logger LocalMsg = LogManager.getLogger(RatePlansService.class);
+	@Resource
+	private HotSwitchConfigHelper hotSwitchConfigHelper;
 	@Resource
 	private RatePlanRepository ratePlanRepository;
-	private static Logger LocalMsg = LogManager
-			.getLogger(RatePlansService.class);
 	@Resource
 	private InventoryRuleRepository inventoryRuleRepository;
 	@Resource
@@ -98,10 +101,9 @@ public class RatePlansService implements IRatePlansService {
 	private SupplierServiceRepository supplierServiceRepository;
 	@Resource
 	HotelGiftRepository hotelGiftRepository;
-	private static final int rpFrom=Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("rp.from"));
-	private static final int rpThreadSize=100;
-	public List<HotelRatePlan> getRatePlans(
-			RestRequest<RatePlanCondition> request,ProxyAccount proxyAccount) {
+	private static final int rpThreadSize = 100;
+
+	public List<HotelRatePlan> getRatePlans(RestRequest<RatePlanCondition> request, ProxyAccount proxyAccount) {
 		List<HotelRatePlan> result = new LinkedList<HotelRatePlan>();
 		if (!proxyAccount.getEnabledPrepayProducts()) {
 			if (request.getRequest().getPaymentType() == EnumPaymentType.Prepay) {
@@ -112,13 +114,17 @@ public class RatePlansService implements IRatePlansService {
 		}
 		String[] mHotelArrays = request.getRequest().getHotelIds().replaceAll(" ", "").split(",");
 		List<String[]> sHotelIdArrays = m_SRelationCache.getSHotelIds(mHotelArrays);
-	
-		if(rpFrom==1){
-			result=getRatePlansFromGoods(request.getLocal(),
-					Arrays.asList(mHotelArrays), sHotelIdArrays, request.getRequest().getPaymentType(),
-					proxyAccount, request.getVersion(), request.getRequest().getOptions(),
-					request.getGuid());
-		}else{
+
+		int rpFrom = 1;
+		try {
+			rpFrom = hotSwitchConfigHelper.GetConfigValue("rp.from", Integer.class, 1);
+		} catch (HotSwitchClientException e) {
+			LocalMsg.error(e.getMessage(), e);
+		}
+		if (rpFrom == 1) {
+			result = getRatePlansFromGoods(request.getLocal(), Arrays.asList(mHotelArrays), sHotelIdArrays, request.getRequest()
+					.getPaymentType(), proxyAccount, request.getVersion(), request.getRequest().getOptions(), request.getGuid());
+		} else {
 			List<String> sHotelIds = new ArrayList<String>();
 			for (String[] ids : sHotelIdArrays) {
 				if (ids == null || ids.length <= 0 || ids[0] == null)
@@ -139,23 +145,20 @@ public class RatePlansService implements IRatePlansService {
 				}
 			}
 			HashMap<String, HotelRatePlan> hashHotel = new HashMap<String, HotelRatePlan>();
-			if(sHotelIds.size()<=0){
+			if (sHotelIds.size() <= 0) {
 				return result;
 			}
 			MergeHotelRatePlans(
 					result,
 					hashHotel,
-					getRatePlans(request.getLocal(), null, StringUtils.join(
-							sHotelIds, ','), request.getRequest().getPaymentType(),
-							proxyAccount, request.getVersion(), request
-									.getRequest().getOptions(), request.getGuid()));
+					getRatePlans(request.getLocal(), null, StringUtils.join(sHotelIds, ','), request.getRequest().getPaymentType(),
+							proxyAccount, request.getVersion(), request.getRequest().getOptions(), request.getGuid()));
 			if (request.getVersion() > 1.10) {
 				// 获取礼品相关信息
 				for (HotelRatePlan hotel : result) {
 					hotel.setGifts(new LinkedList<HotelGift>());
 					for (SupplierRatePlan s : hotel.getSuppliers()) {
-						List<HotelGift> list = hotelGiftRepository
-								.getHotelGiftBySHotelId(s.getHotelCode());
+						List<HotelGift> list = hotelGiftRepository.getHotelGiftBySHotelId(s.getHotelCode());
 						if (list != null && list.size() > 0)
 							hotel.getGifts().addAll(list);
 					}
@@ -165,9 +168,9 @@ public class RatePlansService implements IRatePlansService {
 
 		return result;
 	}
+
 	// 将MHotel对应的多个HotelCode的SHotel合并起来
-	private void MergeHotelRatePlans(List<HotelRatePlan> result,
-			HashMap<String, HotelRatePlan> hashHotel, List<HotelRatePlan> hotels) {
+	private void MergeHotelRatePlans(List<HotelRatePlan> result, HashMap<String, HotelRatePlan> hashHotel, List<HotelRatePlan> hotels) {
 		for (HotelRatePlan shotel : hotels) {
 			HotelRatePlan mhotel = null;
 			if (!hashHotel.containsKey(shotel.getHotelID())) {
@@ -176,15 +179,11 @@ public class RatePlansService implements IRatePlansService {
 			} else {
 				mhotel = hashHotel.get(shotel.getHotelID());
 
-				if (shotel.getSuppliers() != null
-						&& shotel.getSuppliers().size() > 0) {
+				if (shotel.getSuppliers() != null && shotel.getSuppliers().size() > 0) {
 					for (SupplierRatePlan supplier : shotel.getSuppliers()) {
 						SupplierRatePlan s = null;
-						for (SupplierRatePlan mhotelSupp : mhotel
-								.getSuppliers()) {
-							if (mhotelSupp.getHotelCode() != null
-									&& mhotelSupp.getHotelCode().equals(
-											supplier.getHotelCode()))
+						for (SupplierRatePlan mhotelSupp : mhotel.getSuppliers()) {
+							if (mhotelSupp.getHotelCode() != null && mhotelSupp.getHotelCode().equals(supplier.getHotelCode()))
 								s = mhotelSupp;
 							break;
 						}
@@ -196,20 +195,12 @@ public class RatePlansService implements IRatePlansService {
 							mhotel.getSuppliers().add(supplier);
 
 						} else {
-							for (com.elong.nb.model.bean.base.BaseBookingRule br : supplier
-									.getBookingRules()) {
+							for (com.elong.nb.model.bean.base.BaseBookingRule br : supplier.getBookingRules()) {
 								com.elong.nb.model.bean.base.BaseBookingRule br2 = null;
-								for (com.elong.nb.model.bean.base.BaseBookingRule ru : s
-										.getBookingRules()) {
-									if (ru.getDateType() == br.getDateType()
-											&& ru.getEndDate() == br
-													.getEndDate()
-											&& ru.getRoomTypeIds() == br
-													.getRoomTypeIds()
-											&& ru.getStartDate() == br
-													.getStartDate()
-											&& ru.getTypeCode() == br
-													.getTypeCode()) {
+								for (com.elong.nb.model.bean.base.BaseBookingRule ru : s.getBookingRules()) {
+									if (ru.getDateType() == br.getDateType() && ru.getEndDate() == br.getEndDate()
+											&& ru.getRoomTypeIds() == br.getRoomTypeIds() && ru.getStartDate() == br.getStartDate()
+											&& ru.getTypeCode() == br.getTypeCode()) {
 										br2 = ru;
 									}
 								}
@@ -223,8 +214,7 @@ public class RatePlansService implements IRatePlansService {
 						}
 					}
 				}
-				if (shotel.getRatePlans() != null
-						&& shotel.getRatePlans().size() > 0) {
+				if (shotel.getRatePlans() != null && shotel.getRatePlans().size() > 0) {
 					if (mhotel.getRatePlans() == null) {
 						mhotel.setRatePlans(new LinkedList<RatePlan>());
 					}
@@ -233,37 +223,35 @@ public class RatePlansService implements IRatePlansService {
 			}
 		}
 	}
-	
-	public List<HotelRatePlan> getRatePlansFromGoods(EnumLocal language,
-			List<String> mHotelIds, List<String[]> shotelIdArrs, EnumPaymentType paymentType,
-			ProxyAccount proxyInfo, double requestVersion, String options,
-			String guid){
-		List<String> hotelCodes=new LinkedList<String>();
-		Map<String,EnumPaymentType> hotelCodeFilterType=new HashMap<String, EnumPaymentType>();
-		Map<String, String> hotelCodeRule=new HashMap<String, String>();
-		Map<String,Integer> shotelCooperationTypeMap=new HashMap<String, Integer>();
-		if(shotelIdArrs!=null){
-			for(String[] shotelArr:shotelIdArrs){
-				if(shotelArr!=null){
+
+	public List<HotelRatePlan> getRatePlansFromGoods(EnumLocal language, List<String> mHotelIds, List<String[]> shotelIdArrs,
+			EnumPaymentType paymentType, ProxyAccount proxyInfo, double requestVersion, String options, String guid) {
+		List<String> hotelCodes = new LinkedList<String>();
+		Map<String, EnumPaymentType> hotelCodeFilterType = new HashMap<String, EnumPaymentType>();
+		Map<String, String> hotelCodeRule = new HashMap<String, String>();
+		Map<String, Integer> shotelCooperationTypeMap = new HashMap<String, Integer>();
+		if (shotelIdArrs != null) {
+			for (String[] shotelArr : shotelIdArrs) {
+				if (shotelArr != null) {
 					hotelCodes.addAll(Arrays.asList(shotelArr));
 				}
 			}
 		}
-		if(proxyInfo.getAgencyCommisionLevel()!=null&&proxyInfo.getAgencyCommisionLevel()!=EnumAgencyLevel.NOLIMIT){
+		if (proxyInfo.getAgencyCommisionLevel() != null && proxyInfo.getAgencyCommisionLevel() != EnumAgencyLevel.NOLIMIT) {
 			hotelCodeRule.put("AgencyCommisionLevel", String.valueOf(proxyInfo.getAgencyCommisionLevel().getValue()));
 		}
-		if(proxyInfo.getPrepayCommisionLevel()!=null&&proxyInfo.getPrepayCommisionLevel()!=EnumPrepayLevel.NOLIMIT){
+		if (proxyInfo.getPrepayCommisionLevel() != null && proxyInfo.getPrepayCommisionLevel() != EnumPrepayLevel.NOLIMIT) {
 			hotelCodeRule.put("PrepayCommisionLevel", String.valueOf(proxyInfo.getPrepayCommisionLevel().getValue()));
 		}
-		HotelCodeRuleRealResponse rule= null;
-		if(hotelCodeRule.size()>0){
-			rule= inventoryRuleRepository.getCodeRuleInfo(hotelCodeRule, proxyInfo.getOrderFrom(), hotelCodes, paymentType.getValue());
+		HotelCodeRuleRealResponse rule = null;
+		if (hotelCodeRule.size() > 0) {
+			rule = inventoryRuleRepository.getCodeRuleInfo(hotelCodeRule, proxyInfo.getOrderFrom(), hotelCodes, paymentType.getValue());
 		}
-		List<HotelIdAttr> hotelIdAttrs=new LinkedList<HotelIdAttr>();
-		for(int i=0;i<mHotelIds.size();i++){
-			List<String> showHotelCode=new LinkedList<String>(); 
-			for(String hotelCode:shotelIdArrs.get(i)){
-				int type =0;
+		List<HotelIdAttr> hotelIdAttrs = new LinkedList<HotelIdAttr>();
+		for (int i = 0; i < mHotelIds.size(); i++) {
+			List<String> showHotelCode = new LinkedList<String>();
+			for (String hotelCode : shotelIdArrs.get(i)) {
+				int type = 0;
 				MSHotelRelation hotelRelation = m_SRelationCache.getHotelRelation(hotelCode);
 				if (hotelRelation != null) {
 					type = m_SRelationCache.getCooperationTypeBySupplierID(hotelRelation.getSupplierId());
@@ -274,54 +262,55 @@ public class RatePlansService implements IRatePlansService {
 					if (type == 2) {
 						continue;
 					}
-					
+
 				}
 				shotelCooperationTypeMap.put(hotelCode, type);
-				if(rule!=null&&rule.getResultMap()!=null){
-					boolean canShowPrepay=true;
-					boolean canShowSelfpay=true;
-					if(rule.getResultMap().containsKey(hotelCode)){
-						if(rule.getResultMap().get(hotelCode).size()>0){
-							for(String ruleValue:rule.getResultMap().get(hotelCode)){
-								if(ruleValue.equals("PrepayCommisionLevel")){
-									canShowPrepay=false;
-								}else if(ruleValue.equals("AgencyCommisionLevel")){
-									canShowSelfpay=false;
+				if (rule != null && rule.getResultMap() != null) {
+					boolean canShowPrepay = true;
+					boolean canShowSelfpay = true;
+					if (rule.getResultMap().containsKey(hotelCode)) {
+						if (rule.getResultMap().get(hotelCode).size() > 0) {
+							for (String ruleValue : rule.getResultMap().get(hotelCode)) {
+								if (ruleValue.equals("PrepayCommisionLevel")) {
+									canShowPrepay = false;
+								} else if (ruleValue.equals("AgencyCommisionLevel")) {
+									canShowSelfpay = false;
 								}
 							}
-							if(!canShowPrepay&&!canShowSelfpay){
+							if (!canShowPrepay && !canShowSelfpay) {
 								continue;
-							}else if(!canShowPrepay&&paymentType==EnumPaymentType.Prepay){
+							} else if (!canShowPrepay && paymentType == EnumPaymentType.Prepay) {
 								continue;
-							}else if(!canShowSelfpay&&paymentType==EnumPaymentType.SelfPay){
+							} else if (!canShowSelfpay && paymentType == EnumPaymentType.SelfPay) {
 								continue;
-							}else{
-								if(!canShowPrepay){
+							} else {
+								if (!canShowPrepay) {
 									hotelCodeFilterType.put(hotelCode, EnumPaymentType.Prepay);
-								}else if(!canShowSelfpay){
+								} else if (!canShowSelfpay) {
 									hotelCodeFilterType.put(hotelCode, EnumPaymentType.SelfPay);
 								}
 								showHotelCode.add(hotelCode);
 							}
 						}
-					}else{
+					} else {
 						showHotelCode.add(hotelCode);
 					}
-				}else{
+				} else {
 					showHotelCode.add(hotelCode);
 				}
 			}
-			if(showHotelCode!=null&&showHotelCode.size()>0){
-				HotelIdAttr hotelIdAttr=new HotelIdAttr();
+			if (showHotelCode != null && showHotelCode.size() > 0) {
+				HotelIdAttr hotelIdAttr = new HotelIdAttr();
 				hotelIdAttr.setHotelId(mHotelIds.get(i));
 				hotelIdAttr.setHotelCodes(showHotelCode);
 				hotelIdAttrs.add(hotelIdAttr);
 			}
 		}
-		if(hotelIdAttrs!=null&&hotelIdAttrs.size()>0){
-			List<HotelRatePlan> ratePlans=this.ratePlanRepository.getRatePlans(proxyInfo, hotelIdAttrs, paymentType,hotelCodeFilterType,shotelCooperationTypeMap,language==EnumLocal.zh_CN,guid);
-			for(int i=0;i<ratePlans.size();i++){
-				for(int j=0;j<ratePlans.get(i).getSuppliers().size();j++){
+		if (hotelIdAttrs != null && hotelIdAttrs.size() > 0) {
+			List<HotelRatePlan> ratePlans = this.ratePlanRepository.getRatePlans(proxyInfo, hotelIdAttrs, paymentType, hotelCodeFilterType,
+					shotelCooperationTypeMap, language == EnumLocal.zh_CN, guid);
+			for (int i = 0; i < ratePlans.size(); i++) {
+				for (int j = 0; j < ratePlans.get(i).getSuppliers().size(); j++) {
 					EnumInvoiceMode InvoiceMode = EnumInvoiceMode.Hotel;
 					MSHotelRelation hotelRelation = m_SRelationCache
 							.getHotelRelation(ratePlans.get(i).getSuppliers().get(j).getHotelCode());
@@ -329,117 +318,114 @@ public class RatePlansService implements IRatePlansService {
 						InvoiceMode = getInvoiceMode(hotelRelation.getSupplierId());
 					}
 
-					List<MSRoomRelation> msList = m_SRelationCache
-							.getMSRoomRelation(ratePlans.get(i).getSuppliers().get(j).getHotelCode());
+					List<MSRoomRelation> msList = m_SRelationCache.getMSRoomRelation(ratePlans.get(i).getSuppliers().get(j).getHotelCode());
 					ratePlans.get(i).getSuppliers().get(j).setRooms(msList);
 					ratePlans.get(i).getSuppliers().get(j).setInvoiceMode(InvoiceMode);
 				}
-				if(StringUtils.isEmpty(options)||!options.contains("1")){
-					for(int j=0;j<ratePlans.get(i).getRatePlans().size();j++){
+				if (StringUtils.isEmpty(options) || !options.contains("1")) {
+					for (int j = 0; j < ratePlans.get(i).getRatePlans().size(); j++) {
 						ratePlans.get(i).getRatePlans().get(j).setBookingChannels(null);
 					}
 				}
 			}
 			return ratePlans;
-		}else{
+		} else {
 			return new LinkedList<HotelRatePlan>();
 		}
 	}
-	public List<HotelRatePlan> getRatePlans(EnumLocal language,
-			String mHotelId, String shotelId, EnumPaymentType paymentType,
-			ProxyAccount proxyInfo, double requestVersion, String options,
-			String guid){
-		List<String> showHotelCodes=new LinkedList<String>();
-		Map<String,EnumPaymentType> hotelCodeFilterType=new HashMap<String, EnumPaymentType>();
-		Map<String, String> hotelCodeRule=new HashMap<String, String>();
-		if(proxyInfo.getAgencyCommisionLevel()!=null&&proxyInfo.getAgencyCommisionLevel()!=EnumAgencyLevel.NOLIMIT){
+
+	public List<HotelRatePlan> getRatePlans(EnumLocal language, String mHotelId, String shotelId, EnumPaymentType paymentType,
+			ProxyAccount proxyInfo, double requestVersion, String options, String guid) {
+		List<String> showHotelCodes = new LinkedList<String>();
+		Map<String, EnumPaymentType> hotelCodeFilterType = new HashMap<String, EnumPaymentType>();
+		Map<String, String> hotelCodeRule = new HashMap<String, String>();
+		if (proxyInfo.getAgencyCommisionLevel() != null && proxyInfo.getAgencyCommisionLevel() != EnumAgencyLevel.NOLIMIT) {
 			hotelCodeRule.put("AgencyCommisionLevel", String.valueOf(proxyInfo.getAgencyCommisionLevel().getValue()));
 		}
-		if(proxyInfo.getPrepayCommisionLevel()!=null&&proxyInfo.getPrepayCommisionLevel()!=EnumPrepayLevel.NOLIMIT){
+		if (proxyInfo.getPrepayCommisionLevel() != null && proxyInfo.getPrepayCommisionLevel() != EnumPrepayLevel.NOLIMIT) {
 			hotelCodeRule.put("PrepayCommisionLevel", String.valueOf(proxyInfo.getPrepayCommisionLevel().getValue()));
 		}
-		HotelCodeRuleRealResponse rule= null;
-		if(hotelCodeRule.size()>0){
-			rule= inventoryRuleRepository.getCodeRuleInfo(hotelCodeRule, proxyInfo.getOrderFrom(), Arrays.asList(shotelId.split(",")), paymentType.getValue());
+		HotelCodeRuleRealResponse rule = null;
+		if (hotelCodeRule.size() > 0) {
+			rule = inventoryRuleRepository.getCodeRuleInfo(hotelCodeRule, proxyInfo.getOrderFrom(), Arrays.asList(shotelId.split(",")),
+					paymentType.getValue());
 		}
-		if(rule!=null&&rule.getResultMap()!=null){
-			for(String hotelCode:shotelId.split(",")){
-				boolean canShowPrepay=true;
-				boolean canShowSelfpay=true;
-				if(rule.getResultMap().containsKey(hotelCode)){
-					if(rule.getResultMap().get(hotelCode).size()>0){
-						for(String ruleValue:rule.getResultMap().get(hotelCode)){
-							if(ruleValue.equals("PrepayCommisionLevel")){
-								canShowPrepay=false;
-							}else if(ruleValue.equals("AgencyCommisionLevel")){
-								canShowSelfpay=false;
+		if (rule != null && rule.getResultMap() != null) {
+			for (String hotelCode : shotelId.split(",")) {
+				boolean canShowPrepay = true;
+				boolean canShowSelfpay = true;
+				if (rule.getResultMap().containsKey(hotelCode)) {
+					if (rule.getResultMap().get(hotelCode).size() > 0) {
+						for (String ruleValue : rule.getResultMap().get(hotelCode)) {
+							if (ruleValue.equals("PrepayCommisionLevel")) {
+								canShowPrepay = false;
+							} else if (ruleValue.equals("AgencyCommisionLevel")) {
+								canShowSelfpay = false;
 							}
 						}
-						if(!canShowPrepay&&!canShowSelfpay){
+						if (!canShowPrepay && !canShowSelfpay) {
 							continue;
-						}else if(!canShowPrepay&&paymentType==EnumPaymentType.Prepay){
+						} else if (!canShowPrepay && paymentType == EnumPaymentType.Prepay) {
 							continue;
-						}else if(!canShowSelfpay&&paymentType==EnumPaymentType.SelfPay){
+						} else if (!canShowSelfpay && paymentType == EnumPaymentType.SelfPay) {
 							continue;
-						}else{
-							if(!canShowPrepay){
+						} else {
+							if (!canShowPrepay) {
 								hotelCodeFilterType.put(hotelCode, EnumPaymentType.Prepay);
-							}else if(!canShowSelfpay){
+							} else if (!canShowSelfpay) {
 								hotelCodeFilterType.put(hotelCode, EnumPaymentType.SelfPay);
 							}
 							showHotelCodes.add(hotelCode);
 						}
 					}
-				}else{
+				} else {
 					showHotelCodes.add(hotelCode);
 				}
 			}
-		}else{
-			return getRatePlans(language,
-					mHotelId,shotelId, paymentType,proxyInfo, requestVersion,options,guid,hotelCodeFilterType);
+		} else {
+			return getRatePlans(language, mHotelId, shotelId, paymentType, proxyInfo, requestVersion, options, guid, hotelCodeFilterType);
 		}
-		if(showHotelCodes.size()<=0){
-			List<HotelRatePlan> result=new LinkedList<HotelRatePlan>();
+		if (showHotelCodes.size() <= 0) {
+			List<HotelRatePlan> result = new LinkedList<HotelRatePlan>();
 			return result;
 		}
-		return getRatePlans(language,
-				mHotelId,StringUtils.join(showHotelCodes,','), paymentType,proxyInfo, requestVersion,options,guid,hotelCodeFilterType);
+		return getRatePlans(language, mHotelId, StringUtils.join(showHotelCodes, ','), paymentType, proxyInfo, requestVersion, options,
+				guid, hotelCodeFilterType);
 	}
-	public List<HotelRatePlan> getRatePlans(EnumLocal language,
-			String mHotelId, String shotelId, EnumPaymentType paymentType,
-			ProxyAccount proxyInfo, double requestVersion, String options,
-			String guid,Map<String,EnumPaymentType> hotelCodeFilterType) {
+
+	public List<HotelRatePlan> getRatePlans(EnumLocal language, String mHotelId, String shotelId, EnumPaymentType paymentType,
+			ProxyAccount proxyInfo, double requestVersion, String options, String guid, Map<String, EnumPaymentType> hotelCodeFilterType) {
 		SearchHotelRatePlanListReq condition = new SearchHotelRatePlanListReq();
 		if (paymentType != EnumPaymentType.All) {
 			condition.setPaymentType(paymentType.getValue());
 		}
 		List<HotelRatePlan> result = new LinkedList<HotelRatePlan>();
 		List<HotelDetail> list = new LinkedList<HotelDetail>();
-		List<String> hotelCodes=Arrays.asList(shotelId.split(","));
-		if(hotelCodes.size()<=rpThreadSize){
-			int preCount=5;
-			List<String> shotelIdsList=new LinkedList<String>();
-			if(hotelCodes.size()>=preCount){
-				int count=hotelCodes.size()/preCount;
-				if(hotelCodes.size()%preCount==0){
+		List<String> hotelCodes = Arrays.asList(shotelId.split(","));
+		if (hotelCodes.size() <= rpThreadSize) {
+			int preCount = 5;
+			List<String> shotelIdsList = new LinkedList<String>();
+			if (hotelCodes.size() >= preCount) {
+				int count = hotelCodes.size() / preCount;
+				if (hotelCodes.size() % preCount == 0) {
 					count--;
 				}
-				for(int i=0;i<=count;i++){
-					int size=(i+1)*preCount<hotelCodes.size()?(i+1)*preCount:hotelCodes.size();
-					shotelIdsList.add(StringUtils.join(hotelCodes.subList(i*preCount, size), ','));
+				for (int i = 0; i <= count; i++) {
+					int size = (i + 1) * preCount < hotelCodes.size() ? (i + 1) * preCount : hotelCodes.size();
+					shotelIdsList.add(StringUtils.join(hotelCodes.subList(i * preCount, size), ','));
 				}
-			}else{
+			} else {
 				shotelIdsList.add(StringUtils.join(hotelCodes, ','));
 			}
-			for(String shotelIds:shotelIdsList){
+			for (String shotelIds : shotelIdsList) {
 				condition.setShotelId(shotelIds);
 				SearchHotelRatePlanListResp res = this.ratePlanRepository.getRatePlan(condition, guid);
-				if (res != null&&res.getResult()!=null&&res.getResult().size() > 0) {
+				if (res != null && res.getResult() != null && res.getResult().size() > 0) {
 					list.addAll(res.getResult());
 				}
 			}
-		}else{
-			RatePlanTask ratePlanTask = new RatePlanTask(hotelCodes,paymentType,ratePlanRepository, guid);
+		} else {
+			RatePlanTask ratePlanTask = new RatePlanTask(hotelCodes, paymentType, ratePlanRepository, guid);
 			ForkJoinPool forkJoinPool = new ForkJoinPool();
 			forkJoinPool.execute(ratePlanTask);
 			do {
@@ -458,19 +444,16 @@ public class RatePlansService implements IRatePlansService {
 			return result;
 		}
 		for (HotelDetail hotel : list) {
-			HotelDetail filterHotel = filterHotel(hotel,
-					proxyInfo.getSellChannel(), proxyInfo.getBookingChannel(),proxyInfo.getMemberLevel(),hotelCodeFilterType);
+			HotelDetail filterHotel = filterHotel(hotel, proxyInfo.getSellChannel(), proxyInfo.getBookingChannel(),
+					proxyInfo.getMemberLevel(), hotelCodeFilterType);
 			if (filterHotel == null) {
 				continue;
 			}
 			HotelRatePlan rp = new HotelRatePlan();
 			if (filterHotel.getHotelBaseInfo() != null) {
-				rp.setHotelID(mHotelId == null ? m_SRelationCache
-						.GetMHotelId(filterHotel.getHotelBaseInfo()
-								.getShotelId()) : mHotelId);
+				rp.setHotelID(mHotelId == null ? m_SRelationCache.GetMHotelId(filterHotel.getHotelBaseInfo().getShotelId()) : mHotelId);
 			}
-			rp.setRatePlans(getRatePlans(filterHotel, language, proxyInfo,
-					requestVersion, options));
+			rp.setRatePlans(getRatePlans(filterHotel, language, proxyInfo, requestVersion, options));
 			rp.setSuppliers(getSuppliers(filterHotel, language));
 			result.add(rp);
 		}
@@ -478,40 +461,38 @@ public class RatePlansService implements IRatePlansService {
 		return result;
 	}
 
-	private HotelDetail filterHotel(HotelDetail hotel,
-			EnumSellChannel enumSellChannel,
-			EnumBookingChannel enumBookingChannel,EnumMemberLevel enumMemberLevel,Map<String,EnumPaymentType> hotelCodeFilterType) {
+	private HotelDetail filterHotel(HotelDetail hotel, EnumSellChannel enumSellChannel, EnumBookingChannel enumBookingChannel,
+			EnumMemberLevel enumMemberLevel, Map<String, EnumPaymentType> hotelCodeFilterType) {
 		HotelDetail hotelNew = null;
 		boolean isHasCanShow = false;
 		List<RoomTypeInfo> roomBaseInfos = new LinkedList<RoomTypeInfo>();
 		for (int i = 0; i < hotel.getRoomBaseInfos().size(); i++) {
 			List<RatePlanBaseInfo> ratePlanList = new LinkedList<RatePlanBaseInfo>();
 			for (int j = 0; j < hotel.getRoomBaseInfos().get(i).getRatePlans().size(); j++) {
-				//预订渠道过滤
+				// 预订渠道过滤
 				int b = hotel.getRoomBaseInfos().get(i).getRatePlans().get(j).getBookingChannel();
-				int eb = enumBookingChannel!=null?enumBookingChannel.getValue():EnumBookingChannel.OnLine.getValue();
-				//销售渠道过滤
+				int eb = enumBookingChannel != null ? enumBookingChannel.getValue() : EnumBookingChannel.OnLine.getValue();
+				// 销售渠道过滤
 				int s = hotel.getRoomBaseInfos().get(i).getRatePlans().get(j).getRatePlanSellChannel();
-				int es = enumSellChannel!=null?enumSellChannel.getValue():EnumSellChannel.A.getValue();
-				//会员等级过滤
-				int m= hotel.getRoomBaseInfos().get(i).getRatePlans().get(j).getCustomerLevel();
-				int em=(int) Math.pow(2d, ((enumMemberLevel!=null?enumMemberLevel.getValue():EnumMemberLevel.Normal.getValue())-1));
-				boolean isCanShow = ((b & eb) == eb) && ((s & es) == es)&&((m&em)==em);
-				if(isCanShow&&hotelCodeFilterType.containsKey(hotel.getHotelBaseInfo().getShotelId())){
+				int es = enumSellChannel != null ? enumSellChannel.getValue() : EnumSellChannel.A.getValue();
+				// 会员等级过滤
+				int m = hotel.getRoomBaseInfos().get(i).getRatePlans().get(j).getCustomerLevel();
+				int em = (int) Math.pow(2d,
+						((enumMemberLevel != null ? enumMemberLevel.getValue() : EnumMemberLevel.Normal.getValue()) - 1));
+				boolean isCanShow = ((b & eb) == eb) && ((s & es) == es) && ((m & em) == em);
+				if (isCanShow && hotelCodeFilterType.containsKey(hotel.getHotelBaseInfo().getShotelId())) {
 					// 全部，仅用于检索All(0), 前台自付SelfPay(1), 预付Prepay(2);
 					EnumPaymentType payType = EnumPaymentType.Prepay;
-					RatePlanBaseInfo oldrp=hotel.getRoomBaseInfos().get(i).getRatePlans().get(j);
-					if (oldrp.getSettlementType() == null
-							|| oldrp.getSettlementType().equals("")
-							|| oldrp.getSettlementType().equals("2"))
+					RatePlanBaseInfo oldrp = hotel.getRoomBaseInfos().get(i).getRatePlans().get(j);
+					if (oldrp.getSettlementType() == null || oldrp.getSettlementType().equals("") || oldrp.getSettlementType().equals("2"))
 						payType = EnumPaymentType.Prepay;
 					else if (oldrp.getSettlementType().equals("0"))
 						payType = EnumPaymentType.All;
 					else if (oldrp.getSettlementType().equals("1"))
 						payType = EnumPaymentType.SelfPay;
-					
-					if(hotelCodeFilterType.get(hotel.getHotelBaseInfo().getShotelId())==payType){
-						isCanShow=false;
+
+					if (hotelCodeFilterType.get(hotel.getHotelBaseInfo().getShotelId()) == payType) {
+						isCanShow = false;
 					}
 				}
 				if (isCanShow) {
@@ -520,8 +501,7 @@ public class RatePlansService implements IRatePlansService {
 						hotelNew = new HotelDetail();
 						hotelNew.setHotelBaseInfo(hotel.getHotelBaseInfo());
 					}
-					ratePlanList.add(hotel.getRoomBaseInfos().get(i)
-							.getRatePlans().get(j));
+					ratePlanList.add(hotel.getRoomBaseInfos().get(i).getRatePlans().get(j));
 				}
 			}
 			if (ratePlanList.size() > 0) {
@@ -537,8 +517,7 @@ public class RatePlansService implements IRatePlansService {
 		return null;
 	}
 
-	private List<RatePlan> getRatePlans(HotelDetail hotel, EnumLocal language,
-			ProxyAccount proxyInfo, double requestVersion, String options) {
+	private List<RatePlan> getRatePlans(HotelDetail hotel, EnumLocal language, ProxyAccount proxyInfo, double requestVersion, String options) {
 		List<RatePlan> result = new LinkedList<RatePlan>();
 
 		List<Integer> levels = new LinkedList<Integer>();
@@ -547,34 +526,29 @@ public class RatePlansService implements IRatePlansService {
 			if (proxyInfo.isIsOnlyStraight()) {
 				cooperationType = 1;
 			} else {
-				if (hotel != null && hotel.getHotelBaseInfo() != null
-						&& hotel.getHotelBaseInfo().getShotelId() != null
+				if (hotel != null && hotel.getHotelBaseInfo() != null && hotel.getHotelBaseInfo().getShotelId() != null
 						&& !hotel.getHotelBaseInfo().getShotelId().isEmpty()) {
 					// 获取合作类型，是艺龙直签还是其它供应商
 					MSHotelRelation hotelRelation = m_SRelationCache.getHotelRelation(hotel.getHotelBaseInfo().getShotelId());
 					if (hotelRelation != null) {
 						int type = m_SRelationCache.getCooperationTypeBySupplierID(hotelRelation.getSupplierId());
-						cooperationType=type;
+						cooperationType = type;
 						// CooperationType=1为直签，2为非直签，0为未知
 					}
 				}
 			}
 		}
-		if (hotel == null || hotel.getRoomBaseInfos() == null
-				|| hotel.getRoomBaseInfos() == null)
+		if (hotel == null || hotel.getRoomBaseInfos() == null || hotel.getRoomBaseInfos() == null)
 			return result;
 
 		for (RoomTypeInfo roomType : hotel.getRoomBaseInfos()) {
-			if (roomType == null || roomType.getRatePlans() == null
-					|| roomType.getRatePlans() == null)
+			if (roomType == null || roomType.getRatePlans() == null || roomType.getRatePlans() == null)
 				continue;
 
 			for (RatePlanBaseInfo oldrp : roomType.getRatePlans()) {
 				// 全部，仅用于检索All(0), 前台自付SelfPay(1), 预付Prepay(2);
 				EnumPaymentType payType = EnumPaymentType.Prepay;
-				if (oldrp.getSettlementType() == null
-						|| oldrp.getSettlementType().equals("")
-						|| oldrp.getSettlementType().equals("2"))
+				if (oldrp.getSettlementType() == null || oldrp.getSettlementType().equals("") || oldrp.getSettlementType().equals("2"))
 					payType = EnumPaymentType.Prepay;
 				else if (oldrp.getSettlementType().equals("0"))
 					payType = EnumPaymentType.All;
@@ -587,8 +561,7 @@ public class RatePlansService implements IRatePlansService {
 						rp.setHotelCode(hotel.getHotelBaseInfo().getShotelId());
 					rp.setRatePlanId(oldrp.getRatePlanID());
 					// RatePlanCode = oldrp.RatePlanCode,
-					rp.setRatePlanName(language == EnumLocal.zh_CN ? oldrp
-							.getCNRatePlanName() : oldrp.getENRatePlanName());
+					rp.setRatePlanName(language == EnumLocal.zh_CN ? oldrp.getCNRatePlanName() : oldrp.getENRatePlanName());
 					rp.setRoomTypeIds(oldrp.getRatePlanRoomTypeId());
 
 					// 客人国籍类别：1-统一价；2-内宾；3-外宾；4-港澳台；5-日本
@@ -606,8 +579,8 @@ public class RatePlansService implements IRatePlansService {
 					rp.setCustomerType(gtype);
 
 					rp.setIsLimitTimeSale(oldrp.getIsLimitTimeSale() == 1);
-					boolean isHourPayRoom=ProductTypeUtils.isHourPayRoom(oldrp.getCNRatePlanName());
-					rp.setProductTypes(ParseProductType(oldrp.getProductType(),oldrp.getBookingChannel(),isHourPayRoom));
+					boolean isHourPayRoom = ProductTypeUtils.isHourPayRoom(oldrp.getCNRatePlanName());
+					rp.setProductTypes(ParseProductType(oldrp.getProductType(), oldrp.getBookingChannel(), isHourPayRoom));
 					if (oldrp.getStartTime() != null)
 						rp.setStartTime(DateUtil.getTimeString(oldrp.getStartTime()));
 					if (oldrp.getEndTime() != null)
@@ -619,10 +592,8 @@ public class RatePlansService implements IRatePlansService {
 					rp.setMinAmount(oldrp.getMinCheckinRooms());
 					rp.setPaymentType(payType);
 					rp.setDrrRules(getDrrRules(oldrp, language));
-					rp.setGuaranteeRules((payType == EnumPaymentType.SelfPay) ? getGuaranteeRules(
-							oldrp, language) : null);
-					rp.setPrepayRules((payType == EnumPaymentType.Prepay) ? getPrepayRules(
-							oldrp, language) : null);
+					rp.setGuaranteeRules((payType == EnumPaymentType.SelfPay) ? getGuaranteeRules(oldrp, language) : null);
+					rp.setPrepayRules((payType == EnumPaymentType.Prepay) ? getPrepayRules(oldrp, language) : null);
 					rp.setValueAdds(getValueAddRules(oldrp, language));
 					rp.setCooperationType(cooperationType);
 				}
@@ -641,19 +612,14 @@ public class RatePlansService implements IRatePlansService {
 
 						GetRatePlanBaseInfoRequest req = new GetRatePlanBaseInfoRequest();
 						if (hotel.getHotelBaseInfo() != null)
-							req.setHotelID(hotel.getHotelBaseInfo()
-									.getShotelId());
+							req.setHotelID(hotel.getHotelBaseInfo().getShotelId());
 						req.setRatePlanID(oldrp.getRatePlanID());
-						GetRatePlanBaseInfoResponse2 r = productForNBServiceRepository
-								.getRatePlanBaseInfo(req);
+						GetRatePlanBaseInfoResponse2 r = productForNBServiceRepository.getRatePlanBaseInfo(req);
 
-						if (r != null && r.getResult() != null
-								&& r.getResult().getResponseCode() == 0
-								&& r.getRatePlanBaseInfo() != null) {
+						if (r != null && r.getResult() != null && r.getResult().getResponseCode() == 0 && r.getRatePlanBaseInfo() != null) {
 							int c = 0;
 							if (r.getRatePlanBaseInfo().getRawBookingChannel() != null)
-								c = r.getRatePlanBaseInfo()
-										.getRawBookingChannel();
+								c = r.getRatePlanBaseInfo().getRawBookingChannel();
 
 							List<Integer> channels = new LinkedList<Integer>();
 							if ((c & 2) == 2) {
@@ -664,8 +630,7 @@ public class RatePlansService implements IRatePlansService {
 							if ((c & 16) == 16)
 								channels.add(3);
 							if (channels.size() > 0) {
-								rp.setBookingChannels(StringUtils.join(
-										channels, ','));
+								rp.setBookingChannels(StringUtils.join(channels, ','));
 							}
 						}
 					}
@@ -701,12 +666,10 @@ public class RatePlansService implements IRatePlansService {
 		return result;
 	}
 
-	private List<com.elong.nb.model.bean.base.BaseDrrRule> getDrrRules(
-			RatePlanBaseInfo oldrp, EnumLocal language) {
+	private List<com.elong.nb.model.bean.base.BaseDrrRule> getDrrRules(RatePlanBaseInfo oldrp, EnumLocal language) {
 		List<com.elong.nb.model.bean.base.BaseDrrRule> result = new LinkedList<com.elong.nb.model.bean.base.BaseDrrRule>();
 
-		if (oldrp == null || oldrp.getRatePlanDRRList() == null
-				|| oldrp.getRatePlanDRRList() == null)
+		if (oldrp == null || oldrp.getRatePlanDRRList() == null || oldrp.getRatePlanDRRList() == null)
 			return result;
 
 		for (DRRInfo rule : oldrp.getRatePlanDRRList()) {
@@ -715,26 +678,19 @@ public class RatePlansService implements IRatePlansService {
 				// Tools.ParseEnum<EnumDrrRuleCode>(rule.DRRRule.GetHashCode().ToString(),
 				// EnumDrrRuleCode.DRRBookAhead)
 				EnumDrrRuleCode drrRuleEnum = EnumDrrRuleCode.DRRBookAhead;
-				if (rule.getDRRRule() == EnumDrrRuleCode.DRRBookAhead
-						.getValue())
+				if (rule.getDRRRule() == EnumDrrRuleCode.DRRBookAhead.getValue())
 					drrRuleEnum = EnumDrrRuleCode.DRRBookAhead;
-				else if (rule.getDRRRule() == EnumDrrRuleCode.DRRCheckInWeekDay
-						.getValue())
+				else if (rule.getDRRRule() == EnumDrrRuleCode.DRRCheckInWeekDay.getValue())
 					drrRuleEnum = EnumDrrRuleCode.DRRCheckInWeekDay;
-				else if (rule.getDRRRule() == EnumDrrRuleCode.DRRStayLastNight
-						.getValue())
+				else if (rule.getDRRRule() == EnumDrrRuleCode.DRRStayLastNight.getValue())
 					drrRuleEnum = EnumDrrRuleCode.DRRStayLastNight;
-				else if (rule.getDRRRule() == EnumDrrRuleCode.DRRStayPerLastNight
-						.getValue())
+				else if (rule.getDRRRule() == EnumDrrRuleCode.DRRStayPerLastNight.getValue())
 					drrRuleEnum = EnumDrrRuleCode.DRRStayPerLastNight;
-				else if (rule.getDRRRule() == EnumDrrRuleCode.DRRStayPerRoomPerNight
-						.getValue())
+				else if (rule.getDRRRule() == EnumDrrRuleCode.DRRStayPerRoomPerNight.getValue())
 					drrRuleEnum = EnumDrrRuleCode.DRRStayPerRoomPerNight;
-				else if (rule.getDRRRule() == EnumDrrRuleCode.DRRStayTheNightAndAfter
-						.getValue())
+				else if (rule.getDRRRule() == EnumDrrRuleCode.DRRStayTheNightAndAfter.getValue())
 					drrRuleEnum = EnumDrrRuleCode.DRRStayTheNightAndAfter;
-				else if (rule.getDRRRule() == EnumDrrRuleCode.DRRStayWeekDay
-						.getValue())
+				else if (rule.getDRRRule() == EnumDrrRuleCode.DRRStayWeekDay.getValue())
 					drrRuleEnum = EnumDrrRuleCode.DRRStayWeekDay;
 				else if (rule.getDRRRule() == EnumDrrRuleCode.None.getValue())
 					drrRuleEnum = EnumDrrRuleCode.None;
@@ -743,11 +699,9 @@ public class RatePlansService implements IRatePlansService {
 				// Tools.ParseEnum<EnumDrrPreferential>(rule.MoneyOrPercent.GetHashCode().ToString(),
 				// EnumDrrPreferential.Scale)
 				EnumDrrPreferential drrPre = EnumDrrPreferential.Scale;
-				if (rule.getMoneyOrPercent() == EnumDrrPreferential.Cash
-						.getValue())
+				if (rule.getMoneyOrPercent() == EnumDrrPreferential.Cash.getValue())
 					drrPre = EnumDrrPreferential.Cash;
-				else if (rule.getMoneyOrPercent() == EnumDrrPreferential.Scale
-						.getValue())
+				else if (rule.getMoneyOrPercent() == EnumDrrPreferential.Scale.getValue())
 					drrPre = EnumDrrPreferential.Scale;
 				brule.setCashScale(drrPre);
 				brule.setDeductNum(rule.getMoneyOrPercentValue());
@@ -757,15 +711,13 @@ public class RatePlansService implements IRatePlansService {
 				EnumDateType dateType = EnumDateType.CheckInDay;
 				if (rule.getDateType() == EnumDateType.BookDay.getValue())
 					dateType = EnumDateType.BookDay;
-				else if (rule.getDateType() == EnumDateType.CheckInDay
-						.getValue())
+				else if (rule.getDateType() == EnumDateType.CheckInDay.getValue())
 					dateType = EnumDateType.CheckInDay;
 				else if (rule.getDateType() == EnumDateType.StayDay.getValue())
 					dateType = EnumDateType.StayDay;
 				brule.setDateType(dateType);
 
-				brule.setDescription(language == EnumLocal.zh_CN ? rule
-						.getCNDescription() : rule.getENDescription());
+				brule.setDescription(language == EnumLocal.zh_CN ? rule.getCNDescription() : rule.getENDescription());
 				if (rule.getStartDate() != null)
 					brule.setStartDate(rule.getStartDate());
 				if (rule.getEndDate() != null)
@@ -776,28 +728,22 @@ public class RatePlansService implements IRatePlansService {
 				EnumDrrFeeType drrFee = EnumDrrFeeType.WeekendFee;
 				if (rule.getFeeType() == EnumDrrFeeType.WeekdayFee.getValue())
 					drrFee = EnumDrrFeeType.WeekdayFee;
-				else if (rule.getFeeType() == EnumDrrFeeType.WeekendFee
-						.getValue())
+				else if (rule.getFeeType() == EnumDrrFeeType.WeekendFee.getValue())
 					drrFee = EnumDrrFeeType.WeekendFee;
 				brule.setFeeType(drrFee);
 
 				if (rule.getIsWeekEffective() != null)
 					brule.setWeekSet(getWeekSet(rule.getIsWeekEffective()));
 				if (rule.getRuleValues() != null)
-					brule.setCheckInNum(getRuleValue(rule.getRuleValues()
-							.entrySet(), "CheckInNum"));
+					brule.setCheckInNum(getRuleValue(rule.getRuleValues().entrySet(), "CheckInNum"));
 				if (rule.getRuleValues() != null)
-					brule.setDayNum(getRuleValue(rule.getRuleValues()
-							.entrySet(), "DayNum"));
+					brule.setDayNum(getRuleValue(rule.getRuleValues().entrySet(), "DayNum"));
 				if (rule.getRuleValues() != null)
-					brule.setLastDayNum(getRuleValue(rule.getRuleValues()
-							.entrySet(), "LastDayNum"));
+					brule.setLastDayNum(getRuleValue(rule.getRuleValues().entrySet(), "LastDayNum"));
 				if (rule.getRuleValues() != null)
-					brule.setEveryCheckInNum(getRuleValue(rule.getRuleValues()
-							.entrySet(), "EveryCheckInNum"));
+					brule.setEveryCheckInNum(getRuleValue(rule.getRuleValues().entrySet(), "EveryCheckInNum"));
 				if (rule.getRuleValues() != null)
-					brule.setWhichDayNum(getRuleValue(rule.getRuleValues()
-							.entrySet(), "WhichDayNum"));
+					brule.setWhichDayNum(getRuleValue(rule.getRuleValues().entrySet(), "WhichDayNum"));
 				brule.setRoomTypeIds(rule.getRoomTypeIds());
 			}
 			result.add(brule);
@@ -830,14 +776,12 @@ public class RatePlansService implements IRatePlansService {
 		// var entry = rules.FirstOrDefault(item => item.Key.ToString() == key);
 		Map.Entry<String, String> entry = null;
 		for (Map.Entry<String, String> dictEntry : rules) {
-			if (dictEntry.getKey() != null
-					&& dictEntry.getKey().toString().equals(key)) {
+			if (dictEntry.getKey() != null && dictEntry.getKey().toString().equals(key)) {
 				entry = dictEntry;
 			}
 		}
 
-		if (entry != null && entry.getKey() != null && entry.getValue() != null
-				&& !entry.getKey().toString().isEmpty()
+		if (entry != null && entry.getKey() != null && entry.getValue() != null && !entry.getKey().toString().isEmpty()
 				&& !entry.getValue().toString().isEmpty()) {
 
 			try {
@@ -854,8 +798,7 @@ public class RatePlansService implements IRatePlansService {
 		return result;
 	}
 
-	private Date getRuleValue_Date(Set<Map.Entry<String, String>> rules,
-			String key) {
+	private Date getRuleValue_Date(Set<Map.Entry<String, String>> rules, String key) {
 		if (rules == null || rules.size() <= 0)
 			return DateUtil.getMinValue();
 
@@ -863,14 +806,12 @@ public class RatePlansService implements IRatePlansService {
 		// var entry = rules.FirstOrDefault(item => item.Key.ToString() == key);
 		Map.Entry<String, String> entry = null;
 		for (Map.Entry<String, String> dictEntry : rules) {
-			if (dictEntry.getKey() != null
-					&& dictEntry.getKey().toString().equals(key)) {
+			if (dictEntry.getKey() != null && dictEntry.getKey().toString().equals(key)) {
 				entry = dictEntry;
 			}
 		}
 
-		if (entry != null && entry.getKey() != null && entry.getValue() != null
-				&& !entry.getKey().toString().isEmpty()
+		if (entry != null && entry.getKey() != null && entry.getValue() != null && !entry.getKey().toString().isEmpty()
 				&& !entry.getValue().toString().isEmpty()) {
 
 			try {
@@ -887,8 +828,7 @@ public class RatePlansService implements IRatePlansService {
 		return result;
 	}
 
-	private String getRuleValue_String(Set<Map.Entry<String, String>> rules,
-			String key) {
+	private String getRuleValue_String(Set<Map.Entry<String, String>> rules, String key) {
 		if (rules == null || rules.size() <= 0)
 			return "";
 
@@ -896,14 +836,12 @@ public class RatePlansService implements IRatePlansService {
 		// var entry = rules.FirstOrDefault(item => item.Key.ToString() == key);
 		Map.Entry<String, String> entry = null;
 		for (Map.Entry<String, String> dictEntry : rules) {
-			if (dictEntry.getKey() != null
-					&& dictEntry.getKey().toString().equals(key)) {
+			if (dictEntry.getKey() != null && dictEntry.getKey().toString().equals(key)) {
 				entry = dictEntry;
 			}
 		}
 
-		if (entry != null && entry.getKey() != null && entry.getValue() != null
-				&& !entry.getKey().toString().isEmpty()
+		if (entry != null && entry.getKey() != null && entry.getValue() != null && !entry.getKey().toString().isEmpty()
 				&& !entry.getValue().toString().isEmpty()) {
 
 			try {
@@ -920,8 +858,7 @@ public class RatePlansService implements IRatePlansService {
 		return result;
 	}
 
-	private boolean getRuleValue_bool(Set<Map.Entry<String, String>> rules,
-			String key) {
+	private boolean getRuleValue_bool(Set<Map.Entry<String, String>> rules, String key) {
 		if (rules == null || rules.size() <= 0)
 			return false;
 
@@ -929,14 +866,12 @@ public class RatePlansService implements IRatePlansService {
 		// var entry = rules.FirstOrDefault(item => item.Key.ToString() == key);
 		Map.Entry<String, String> entry = null;
 		for (Map.Entry<String, String> dictEntry : rules) {
-			if (dictEntry.getKey() != null
-					&& dictEntry.getKey().toString().equals(key)) {
+			if (dictEntry.getKey() != null && dictEntry.getKey().toString().equals(key)) {
 				entry = dictEntry;
 			}
 		}
 
-		if (entry != null && entry.getKey() != null && entry.getValue() != null
-				&& !entry.getKey().toString().isEmpty()
+		if (entry != null && entry.getKey() != null && entry.getValue() != null && !entry.getKey().toString().isEmpty()
 				&& !entry.getValue().toString().isEmpty()) {
 
 			try {
@@ -963,12 +898,12 @@ public class RatePlansService implements IRatePlansService {
 		// \d点、8:0
 		// boolean isRegex = name.matches("(//d点)|(//d://d)");
 		boolean isRegex = name.matches("(\\d点)|(\\d:\\d)");
-		if (name.contains("小时") || name.contains("钟点") || name.contains("半日房")
-				|| isRegex)
+		if (name.contains("小时") || name.contains("钟点") || name.contains("半日房") || isRegex)
 			return true;
 
 		return false;
 	}
+
 	/**
 	 * 3---限时抢购
 	 * 4--钟点房
@@ -977,14 +912,13 @@ public class RatePlansService implements IRatePlansService {
 	 * @param isHourPayRoom
 	 * @return
 	 */
-	public String ParseProductType(String strProductType, int bookingchanel,
-			boolean isHourPayRoom) {
+	public String ParseProductType(String strProductType, int bookingchanel, boolean isHourPayRoom) {
 		String productTypes = "";
-		List<String> productTypeList=new LinkedList<String>();
+		List<String> productTypeList = new LinkedList<String>();
 		int pt = Integer.parseInt("0" + strProductType);
 		if ((pt & 16) == 16)
 			productTypeList.add("3");
-			//productTypes += "3,";
+		// productTypes += "3,";
 		if (isHourPayRoom || (pt & 32) == 32)
 			productTypeList.add("4");
 		if ((bookingchanel & 2) == 0 && (bookingchanel & 16) == 16)
@@ -993,25 +927,24 @@ public class RatePlansService implements IRatePlansService {
 		if ((pt & 16384) == 16384) {
 			productTypeList.add("101");
 		}
-		if (productTypeList.size()>0) {
+		if (productTypeList.size() > 0) {
 			productTypes = StringUtils.join(productTypeList, ",");
 		} else {
-			productTypes=null;
+			productTypes = null;
 		}
 		return productTypes;
 	}
+
 	/**
 	 * 担保规则转换
 	 * @param oldrp
 	 * @param language
 	 * @return
 	 */
-	private List<com.elong.nb.model.bean.base.BaseGuaranteeRule> getGuaranteeRules(
-			RatePlanBaseInfo oldrp, EnumLocal language) {
+	private List<com.elong.nb.model.bean.base.BaseGuaranteeRule> getGuaranteeRules(RatePlanBaseInfo oldrp, EnumLocal language) {
 		List<com.elong.nb.model.bean.base.BaseGuaranteeRule> result = new LinkedList<com.elong.nb.model.bean.base.BaseGuaranteeRule>();
 
-		if (oldrp == null || oldrp.getRatePlanVouchRuleList() == null
-				|| oldrp.getRatePlanVouchRuleList() == null)
+		if (oldrp == null || oldrp.getRatePlanVouchRuleList() == null || oldrp.getRatePlanVouchRuleList() == null)
 			return result;
 
 		for (VouchInfo rule : oldrp.getRatePlanVouchRuleList()) {
@@ -1021,23 +954,18 @@ public class RatePlansService implements IRatePlansService {
 				temp.setStartDate(rule.getStartDate());
 			if (rule.getEndDate() != null)
 				temp.setEndDate(rule.getEndDate());
-			temp.setStartTime(rule.getArriveStartTime() != null ? rule
-					.getArriveStartTime() : "");
-			temp.setEndTime(rule.getArriveEndTime() != null ? rule
-					.getArriveEndTime() : "");
+			temp.setStartTime(rule.getArriveStartTime() != null ? rule.getArriveStartTime() : "");
+			temp.setEndTime(rule.getArriveEndTime() != null ? rule.getArriveEndTime() : "");
 			temp.setAmount(rule.getRoomCount());
 
 			// Tools.ParseEnum<EnumGuaranteeChangeRule>(rule.VouchChangeRule.GetHashCode().ToString(),
 			// EnumGuaranteeChangeRule.NoChange)
 			EnumGuaranteeChangeRule gcrule = EnumGuaranteeChangeRule.NoChange;
-			if (rule.getVouchChangeRule() == EnumGuaranteeChangeRule.NeedCheckin24hour
-					.getValue())
+			if (rule.getVouchChangeRule() == EnumGuaranteeChangeRule.NeedCheckin24hour.getValue())
 				gcrule = EnumGuaranteeChangeRule.NeedCheckin24hour;
-			else if (rule.getVouchChangeRule() == EnumGuaranteeChangeRule.NeedCheckinTime
-					.getValue())
+			else if (rule.getVouchChangeRule() == EnumGuaranteeChangeRule.NeedCheckinTime.getValue())
 				gcrule = EnumGuaranteeChangeRule.NeedCheckinTime;
-			else if (rule.getVouchChangeRule() == EnumGuaranteeChangeRule.NeedSomeDay
-					.getValue())
+			else if (rule.getVouchChangeRule() == EnumGuaranteeChangeRule.NeedSomeDay.getValue())
 				gcrule = EnumGuaranteeChangeRule.NeedSomeDay;
 			temp.setChangeRule(gcrule);
 
@@ -1052,16 +980,14 @@ public class RatePlansService implements IRatePlansService {
 				dateType = EnumDateType.StayDay;
 			temp.setDateType(dateType);
 
-			temp.setDescription(language == EnumLocal.zh_CN ? rule
-					.getCNDescription() : rule.getENDescription());
+			temp.setDescription(language == EnumLocal.zh_CN ? rule.getCNDescription() : rule.getENDescription());
 			temp.setIsAmountGuarantee(rule.isRoomCountVouch());
 			temp.setIsTimeGuarantee(rule.isArriveTimeVouch());
 
 			// Tools.ParseEnum<EnumGuaranteeMoneyType>(rule.VouchMoneyType.GetHashCode().ToString(),
 			// EnumGuaranteeMoneyType.FullNightCost)
 			EnumGuaranteeMoneyType moneyType = EnumGuaranteeMoneyType.FullNightCost;
-			if (rule.getVouchMoneyType() == EnumGuaranteeMoneyType.FirstNightCost
-					.getValue())
+			if (rule.getVouchMoneyType() == EnumGuaranteeMoneyType.FirstNightCost.getValue())
 				moneyType = EnumGuaranteeMoneyType.FirstNightCost;
 			temp.setGuaranteeType(moneyType);
 
@@ -1069,25 +995,19 @@ public class RatePlansService implements IRatePlansService {
 				temp.setWeekSet(getWeekSet(rule.getIsWeekEffective()));
 
 			if (rule.getRuleValues() != null) {
-				temp.setDay(getRuleValue_Date(rule.getRuleValues().entrySet(),
-						"DayNum"));
-				temp.setHour(getRuleValue(rule.getRuleValues().entrySet(),
-						"HourNum"));
-				temp.setTime(getRuleValue_String(rule.getRuleValues()
-						.entrySet(), "TimeNum"));
-				temp.setIsTomorrow(getRuleValue_bool(rule.getRuleValues()
-						.entrySet(), "IsTomorrow"));
+				temp.setDay(getRuleValue_Date(rule.getRuleValues().entrySet(), "DayNum"));
+				temp.setHour(getRuleValue(rule.getRuleValues().entrySet(), "HourNum"));
+				temp.setTime(getRuleValue_String(rule.getRuleValues().entrySet(), "TimeNum"));
+				temp.setIsTomorrow(getRuleValue_bool(rule.getRuleValues().entrySet(), "IsTomorrow"));
 			}
 
 			// 如果是无条件担保，需要将取消条款中的 最早到店时间前N小时修改成
 			// 到店日24点前N+10小时---这样就是将最早到店时间默认为14点
-			if (!temp.getIsAmountGuarantee()
-					&& !temp.getIsTimeGuarantee()
+			if (!temp.getIsAmountGuarantee() && !temp.getIsTimeGuarantee()
 					&& temp.getChangeRule() == EnumGuaranteeChangeRule.NeedCheckinTime) {
 				temp.setChangeRule(EnumGuaranteeChangeRule.NeedCheckin24hour);
 				temp.setHour(temp.getHour() + 10);
-				temp.setDescription(temp
-						.BuildDescription(language == EnumLocal.zh_CN));
+				temp.setDescription(temp.BuildDescription(language == EnumLocal.zh_CN));
 			}
 
 			result.add(temp);
@@ -1102,11 +1022,9 @@ public class RatePlansService implements IRatePlansService {
 	 * @param language
 	 * @return
 	 */
-	private List<com.elong.nb.model.bean.base.BasePrepayRule> getPrepayRules(
-			RatePlanBaseInfo oldrp, EnumLocal language) {
+	private List<com.elong.nb.model.bean.base.BasePrepayRule> getPrepayRules(RatePlanBaseInfo oldrp, EnumLocal language) {
 		List<com.elong.nb.model.bean.base.BasePrepayRule> result = new LinkedList<com.elong.nb.model.bean.base.BasePrepayRule>();
-		if (oldrp == null || oldrp.getRatePlanPrePayRuleList() == null
-				|| oldrp.getRatePlanPrePayRuleList() == null)
+		if (oldrp == null || oldrp.getRatePlanPrePayRuleList() == null || oldrp.getRatePlanPrePayRuleList() == null)
 			return result;
 
 		for (PrePayInfo rule : oldrp.getRatePlanPrePayRuleList()) {
@@ -1117,11 +1035,9 @@ public class RatePlansService implements IRatePlansService {
 
 			com.elong.nb.model.bean.base.BasePrepayRule basePrepay = new com.elong.nb.model.bean.base.BasePrepayRule();
 			EnumPrepayChangeRule prepayrule = EnumPrepayChangeRule.PrepayNoChange;
-			if (rule.getPrepayChangeRule() == EnumPrepayRule.PrepayNeedOneTime
-					.value())
+			if (rule.getPrepayChangeRule() == EnumPrepayRule.PrepayNeedOneTime.value())
 				prepayrule = EnumPrepayChangeRule.PrepayNeedOneTime;
-			else if (rule.getPrepayChangeRule() == EnumPrepayRule.PrepayNeedSomeDay
-					.value())
+			else if (rule.getPrepayChangeRule() == EnumPrepayRule.PrepayNeedSomeDay.value())
 				prepayrule = EnumPrepayChangeRule.PrepayNeedSomeDay;
 			basePrepay.setChangeRule(prepayrule);
 
@@ -1151,20 +1067,15 @@ public class RatePlansService implements IRatePlansService {
 
 			basePrepay.setDeductNumAfter(rule.getCutNumAfter());
 			basePrepay.setDeductNumBefore(rule.getCutNumBefor());
-			basePrepay.setDescription(language == EnumLocal.zh_CN ? rule
-					.getCNDescription() : rule.getENDescription());
+			basePrepay.setDescription(language == EnumLocal.zh_CN ? rule.getCNDescription() : rule.getENDescription());
 			if (rule.getIsWeekEffective() != null)
 				basePrepay.setWeekSet(getWeekSet(rule.getIsWeekEffective()));
 
 			if (rule.getRuleValues() != null) {
-				basePrepay.setHour(getRuleValue(
-						rule.getRuleValues().entrySet(), "HourNum"));
-				basePrepay.setHour2(getRuleValue(rule.getRuleValues()
-						.entrySet(), "HourNum2"));
-				basePrepay.setTime(getRuleValue_String(rule.getRuleValues()
-						.entrySet(), "TimeNum"));
-				basePrepay.setDateNum(getRuleValue_Date(rule.getRuleValues()
-						.entrySet(), "DateNum"));
+				basePrepay.setHour(getRuleValue(rule.getRuleValues().entrySet(), "HourNum"));
+				basePrepay.setHour2(getRuleValue(rule.getRuleValues().entrySet(), "HourNum2"));
+				basePrepay.setTime(getRuleValue_String(rule.getRuleValues().entrySet(), "TimeNum"));
+				basePrepay.setDateNum(getRuleValue_Date(rule.getRuleValues().entrySet(), "DateNum"));
 			}
 
 			result.add(basePrepay);
@@ -1206,19 +1117,16 @@ public class RatePlansService implements IRatePlansService {
 		return result;
 	}
 
-	private List<com.elong.nb.model.bean.base.BaseValueAddRule> getValueAddRules(
-			RatePlanBaseInfo oldrp, EnumLocal language) {
+	private List<com.elong.nb.model.bean.base.BaseValueAddRule> getValueAddRules(RatePlanBaseInfo oldrp, EnumLocal language) {
 		List<com.elong.nb.model.bean.base.BaseValueAddRule> result = new LinkedList<com.elong.nb.model.bean.base.BaseValueAddRule>();
 
-		if (oldrp == null || oldrp.getRateplanRelationAddValue() == null
-				|| oldrp.getRateplanRelationAddValue() == null)
+		if (oldrp == null || oldrp.getRateplanRelationAddValue() == null || oldrp.getRateplanRelationAddValue() == null)
 			return result;
 
 		for (AddValueInfoSimple rule : oldrp.getRateplanRelationAddValue()) {
 			com.elong.nb.model.bean.base.BaseValueAddRule baserule = new com.elong.nb.model.bean.base.BaseValueAddRule();
 
-			baserule.setDescription(getAdditionalServiceRDisciption(rule,
-					language));
+			baserule.setDescription(getAdditionalServiceRDisciption(rule, language));
 			baserule.setTypeCode(rule.getBusinessCode());
 			baserule.setIsInclude(rule.getIsInclude() == 1);
 			// 无None(0),金额Money(1),比例Percent(2)
@@ -1243,30 +1151,22 @@ public class RatePlansService implements IRatePlansService {
 			result.add(baserule);
 		}
 
-		if (oldrp == null || oldrp.getAddValuePolicyList() == null
-				|| oldrp.getAddValuePolicyList() == null)
+		if (oldrp == null || oldrp.getAddValuePolicyList() == null || oldrp.getAddValuePolicyList() == null)
 			return result;
 
 		for (AddValuePolicyInfo rule : oldrp.getAddValuePolicyList()) {
 			String cnDescription = "";
 			String enDescription = "";
 			if (rule.getStartDate() != null && rule.getEndDate() != null) {
-				cnDescription = DateUtil.getDateString(rule.getStartDate())
-						+ " - "
-						+ DateUtil.getDateString(rule.getEndDate())
-						+ ((rule.getIsInclude() == 0) ? " 不含早餐" : " 包含 "
-								+ rule.getShare() + " 份早餐");
-				enDescription = DateUtil.getDateString(rule.getStartDate())
-						+ " - "
-						+ DateUtil.getDateString(rule.getEndDate())
-						+ ((rule.getIsInclude() == 0) ? " no breakfast"
-								: " includes " + rule.getShare() + " breakfast");
+				cnDescription = DateUtil.getDateString(rule.getStartDate()) + " - " + DateUtil.getDateString(rule.getEndDate())
+						+ ((rule.getIsInclude() == 0) ? " 不含早餐" : " 包含 " + rule.getShare() + " 份早餐");
+				enDescription = DateUtil.getDateString(rule.getStartDate()) + " - " + DateUtil.getDateString(rule.getEndDate())
+						+ ((rule.getIsInclude() == 0) ? " no breakfast" : " includes " + rule.getShare() + " breakfast");
 			}
 
 			com.elong.nb.model.bean.base.BaseValueAddRule base = new com.elong.nb.model.bean.base.BaseValueAddRule();
 
-			base.setDescription(language == EnumLocal.zh_CN ? cnDescription
-					: enDescription);
+			base.setDescription(language == EnumLocal.zh_CN ? cnDescription : enDescription);
 			base.setTypeCode("99");
 			base.setIsInclude(rule.getIsInclude() == 1);
 			// 无None(0),金额Money(1),比例Percent(2)
@@ -1301,8 +1201,7 @@ public class RatePlansService implements IRatePlansService {
 		return result;
 	}
 
-	private String getAdditionalServiceRDisciption(AddValueInfoSimple addValue,
-			EnumLocal language) {
+	private String getAdditionalServiceRDisciption(AddValueInfoSimple addValue, EnumLocal language) {
 		if (addValue == null)
 			return "";
 
@@ -1314,11 +1213,9 @@ public class RatePlansService implements IRatePlansService {
 			if (addValue.getIsInclude() == 1) {
 				if (addValue.getShare() > 0)
 					if (language == EnumLocal.zh_CN) {
-						sb1.append(addValue.getShare() + "份"
-								+ addValue.getAddValueCNName() + ",");
+						sb1.append(addValue.getShare() + "份" + addValue.getAddValueCNName() + ",");
 					} else {
-						sb1.append(" " + addValue.getShare() + " "
-								+ addValue.getAddValueENName() + ",");
+						sb1.append(" " + addValue.getShare() + " " + addValue.getAddValueENName() + ",");
 					}
 				else if (language == EnumLocal.zh_CN) {
 					sb1.append(addValue.getAddValueCNName() + ",");
@@ -1345,7 +1242,7 @@ public class RatePlansService implements IRatePlansService {
 					if (language == EnumLocal.zh_CN) {
 						sb2.append("首晚房费的" + addValue.getSinglePrice() + "%,");
 					} else {
-						sb2.append(addValue.getSinglePrice()+"%"+" of the first night room rate. ,");
+						sb2.append(addValue.getSinglePrice() + "%" + " of the first night room rate. ,");
 					}
 				}
 			}
@@ -1355,8 +1252,7 @@ public class RatePlansService implements IRatePlansService {
 			if (sb1.length() != 0) {
 				String temp1 = "";
 				if (sb1.toString().contains(","))
-					temp1 = sb1.toString().substring(0,
-							sb1.toString().lastIndexOf(","));
+					temp1 = sb1.toString().substring(0, sb1.toString().lastIndexOf(","));
 				else
 					temp1 = sb1.toString();
 				sb3.append("包含" + temp1 + ";");
@@ -1365,8 +1261,7 @@ public class RatePlansService implements IRatePlansService {
 				// "单加" + sb2.ToString().TrimEnd(',')
 				String temp1 = "";
 				if (sb2.toString().contains(","))
-					temp1 = sb2.toString().substring(0,
-							sb2.toString().lastIndexOf(","));
+					temp1 = sb2.toString().substring(0, sb2.toString().lastIndexOf(","));
 				else
 					temp1 = sb2.toString();
 
@@ -1376,8 +1271,7 @@ public class RatePlansService implements IRatePlansService {
 			if (sb1.length() != 0) {
 				String temp1 = "";
 				if (sb1.toString().contains(","))
-					temp1 = sb1.toString().substring(0,
-							sb1.toString().lastIndexOf(","));
+					temp1 = sb1.toString().substring(0, sb1.toString().lastIndexOf(","));
 				else
 					temp1 = sb1.toString();
 
@@ -1386,8 +1280,7 @@ public class RatePlansService implements IRatePlansService {
 			if (sb2.length() != 0) {
 				String temp1 = "";
 				if (sb2.toString().contains(","))
-					temp1 = sb2.toString().substring(0,
-							sb2.toString().lastIndexOf(","));
+					temp1 = sb2.toString().substring(0, sb2.toString().lastIndexOf(","));
 				else
 					temp1 = sb2.toString();
 
@@ -1398,19 +1291,16 @@ public class RatePlansService implements IRatePlansService {
 		if (language == EnumLocal.zh_CN) {
 			return sb3.toString().equals("") ? "" : "附加服务：" + sb3.toString();
 		}
-		return sb3.toString().equals("") ? "" : "Other service："
-				+ sb3.toString();
+		return sb3.toString().equals("") ? "" : "Other service：" + sb3.toString();
 	}
 
-	private List<SupplierRatePlan> getSuppliers(HotelDetail hotel,
-			EnumLocal language) {
+	private List<SupplierRatePlan> getSuppliers(HotelDetail hotel, EnumLocal language) {
 		List<SupplierRatePlan> result = new LinkedList<SupplierRatePlan>();
 		if (hotel == null || hotel.getHotelBaseInfo() == null)
 			return result;
 
 		EnumInvoiceMode InvoiceMode = EnumInvoiceMode.Hotel;
-		MSHotelRelation hotelRelation = m_SRelationCache
-				.getHotelRelation(hotel.getHotelBaseInfo().getShotelId());
+		MSHotelRelation hotelRelation = m_SRelationCache.getHotelRelation(hotel.getHotelBaseInfo().getShotelId());
 		if (hotelRelation != null) {
 			InvoiceMode = getInvoiceMode(hotelRelation.getSupplierId());
 		}
@@ -1423,26 +1313,21 @@ public class RatePlansService implements IRatePlansService {
 			suprp.setHotelCode(hotel.getHotelBaseInfo().getShotelId());
 			suprp.setWeekendStart(hotel.getHotelBaseInfo().getWeekEndStart());
 			suprp.setWeekendEnd(hotel.getHotelBaseInfo().getWeekEndEnd());
-			List<MSRoomRelation> msList = m_SRelationCache
-					.getMSRoomRelation(hotel.getHotelBaseInfo().getShotelId());
+			List<MSRoomRelation> msList = m_SRelationCache.getMSRoomRelation(hotel.getHotelBaseInfo().getShotelId());
 			suprp.setRooms(msList);
 		}
 		suprp.setInvoiceMode(InvoiceMode);
 
 		result.add(suprp);
 
-		if (result.size() > 0
-				&& (result.get(0).getRooms() == null || result.get(0)
-						.getRooms().size() == 0)) {
+		if (result.size() > 0 && (result.get(0).getRooms() == null || result.get(0).getRooms().size() == 0)) {
 			result.get(0).setRooms(new LinkedList<MSRoomRelation>());
 			List<MSRoomRelation> rooms = new LinkedList<MSRoomRelation>();
 
 			List<String> ids = new LinkedList<String>();
-			if (hotel.getRoomBaseInfos() != null
-					&& hotel.getRoomBaseInfos() != null) {
+			if (hotel.getRoomBaseInfos() != null && hotel.getRoomBaseInfos() != null) {
 				for (RoomTypeInfo room : hotel.getRoomBaseInfos()) {
-					if (room.getRoomTypeId() != null
-							&& !room.getRoomTypeId().isEmpty()) {
+					if (room.getRoomTypeId() != null && !room.getRoomTypeId().isEmpty()) {
 						for (String str : room.getRoomTypeId().split(",")) {
 							ids.add(str);
 							MSRoomRelation ro = new MSRoomRelation();
@@ -1458,32 +1343,28 @@ public class RatePlansService implements IRatePlansService {
 
 		return result;
 	}
+
 	/**
 	 * 预订规则
 	 * @param hotel
 	 * @param language
 	 * @return
 	 */
-	private List<com.elong.nb.model.bean.base.BaseBookingRule> getBookingRules(
-			HotelDetail hotel, EnumLocal language) {
+	private List<com.elong.nb.model.bean.base.BaseBookingRule> getBookingRules(HotelDetail hotel, EnumLocal language) {
 		HashMap<Long, HotelBookingRule> dict = new HashMap<Long, HotelBookingRule>();
 
-		if (hotel != null && hotel.getHotelBaseInfo() != null
-				&& hotel.getHotelBaseInfo().getHotelBookingRuleList() != null
+		if (hotel != null && hotel.getHotelBaseInfo() != null && hotel.getHotelBaseInfo().getHotelBookingRuleList() != null
 				&& hotel.getHotelBaseInfo().getHotelBookingRuleList() != null) {
-			for (HotelBookingRule rule : hotel.getHotelBaseInfo()
-					.getHotelBookingRuleList()) {
+			for (HotelBookingRule rule : hotel.getHotelBaseInfo().getHotelBookingRuleList()) {
 				if (!dict.containsKey(rule.getID())) {
 					dict.put(rule.getID(), rule);
 				}
 			}
 
 		}
-		if (hotel != null && hotel.getRoomBaseInfos() != null
-				&& hotel.getRoomBaseInfos() != null) {
+		if (hotel != null && hotel.getRoomBaseInfos() != null && hotel.getRoomBaseInfos() != null) {
 			for (RoomTypeInfo room : hotel.getRoomBaseInfos()) {
-				if (room.getRoomBookingRuleList() != null
-						&& room.getRoomBookingRuleList() != null) {
+				if (room.getRoomBookingRuleList() != null && room.getRoomBookingRuleList() != null) {
 					for (HotelBookingRule rule : room.getRoomBookingRuleList()) {
 						if (!dict.containsKey(rule.getID())) {
 							dict.put(rule.getID(), rule);
@@ -1509,8 +1390,7 @@ public class RatePlansService implements IRatePlansService {
 				dateType = EnumDateType.StayDay;
 			temp.setDateType(dateType);
 
-			temp.setDescription(language == EnumLocal.zh_CN ? rule
-					.getCNDescription() : rule.getENDescription());
+			temp.setDescription(language == EnumLocal.zh_CN ? rule.getCNDescription() : rule.getENDescription());
 			if (rule.getStartDate() != null)
 				temp.setStartDate(rule.getStartDate());
 			if (rule.getEndDate() != null)
@@ -1519,30 +1399,25 @@ public class RatePlansService implements IRatePlansService {
 			temp.setEndHour(rule.getEndHour());
 			temp.setRoomTypeIds(rule.getRoomTypeID());
 			EnumBookingRule br = EnumBookingRule.NeedPhoneNo;
-			if (rule.getHotelBooKingRule() == EnumBookingRule.ForeignerNeedEnName
-					.getValue())
+			if (rule.getHotelBooKingRule() == EnumBookingRule.ForeignerNeedEnName.getValue())
 				br = EnumBookingRule.ForeignerNeedEnName;
-			else if (rule.getHotelBooKingRule() == EnumBookingRule.NeedNationality
-					.getValue())
+			else if (rule.getHotelBooKingRule() == EnumBookingRule.NeedNationality.getValue())
 				br = EnumBookingRule.NeedNationality;
-			else if (rule.getHotelBooKingRule() == EnumBookingRule.NoneRule
-					.getValue())
+			else if (rule.getHotelBooKingRule() == EnumBookingRule.NoneRule.getValue())
 				br = EnumBookingRule.NoneRule;
-			else if (rule.getHotelBooKingRule() == EnumBookingRule.PerRoomPerName
-					.getValue())
+			else if (rule.getHotelBooKingRule() == EnumBookingRule.PerRoomPerName.getValue())
 				br = EnumBookingRule.PerRoomPerName;
-			else if (rule.getHotelBooKingRule() == EnumBookingRule.RejectCheckinTime
-					.getValue())
+			else if (rule.getHotelBooKingRule() == EnumBookingRule.RejectCheckinTime.getValue())
 				br = EnumBookingRule.RejectCheckinTime;
 			temp.setTypeCode(br);
 
-			temp.setDescription(temp
-					.BuildDescription(language == EnumLocal.zh_CN));
+			temp.setDescription(temp.BuildDescription(language == EnumLocal.zh_CN));
 
 			result.add(temp);
 		}
 		return result;
 	}
+
 	/**
 	 * 发票模式
 	 * @param SupplierID
@@ -1553,22 +1428,15 @@ public class RatePlansService implements IRatePlansService {
 			GetSupplierInfoBySupplierIDRequest req = new GetSupplierInfoBySupplierIDRequest();
 			req.setSupplierID(SupplierID);
 
-			GetSupplierInfoBySupplierIDResponse response = supplierServiceRepository
-					.getSupplierInfoBySupplierID(req);
-			if (response != null && response.getResult() != null
-					&& response.getResult().getResponseCode() == 0) {
-				if (response.getSupplierBaseInfo() != null
-						&& response.getSupplierBaseInfo()
-								.getSupplierInvoiceInfo() != null) {
+			GetSupplierInfoBySupplierIDResponse response = supplierServiceRepository.getSupplierInfoBySupplierID(req);
+			if (response != null && response.getResult() != null && response.getResult().getResponseCode() == 0) {
+				if (response.getSupplierBaseInfo() != null && response.getSupplierBaseInfo().getSupplierInvoiceInfo() != null) {
 					EnumInvoiceMode invoiceMode = EnumInvoiceMode.Elong;
-					if (response.getSupplierBaseInfo().getSupplierInvoiceInfo()
-							.getInvoiceMode() == InvoiceMode.ELONG_AFTER)
+					if (response.getSupplierBaseInfo().getSupplierInvoiceInfo().getInvoiceMode() == InvoiceMode.ELONG_AFTER)
 						invoiceMode = EnumInvoiceMode.Elong;
-					else if (response.getSupplierBaseInfo()
-							.getSupplierInvoiceInfo().getInvoiceMode() == InvoiceMode.HOTEL)
+					else if (response.getSupplierBaseInfo().getSupplierInvoiceInfo().getInvoiceMode() == InvoiceMode.HOTEL)
 						invoiceMode = EnumInvoiceMode.Hotel;
-					else if (response.getSupplierBaseInfo()
-							.getSupplierInvoiceInfo().getInvoiceMode() == InvoiceMode.NO_SENSE)
+					else if (response.getSupplierBaseInfo().getSupplierInvoiceInfo().getInvoiceMode() == InvoiceMode.NO_SENSE)
 						invoiceMode = EnumInvoiceMode.NoSense;
 					return invoiceMode;
 				}
@@ -1582,18 +1450,15 @@ public class RatePlansService implements IRatePlansService {
 	}
 
 	@Override
-	public RestResponse<RatePlanResult> GetRatePlans(
-			RestRequest<RatePlanCondition> request,ProxyAccount proxyAccount) {
+	public RestResponse<RatePlanResult> GetRatePlans(RestRequest<RatePlanCondition> request, ProxyAccount proxyAccount) {
 
-		RestResponse<RatePlanResult> response = new RestResponse<RatePlanResult>(
-				request.getGuid());
-		if (request.getRequest().getPaymentType() == EnumPaymentType.Prepay
-				&& !proxyAccount.getEnabledPrepayProducts()) {
+		RestResponse<RatePlanResult> response = new RestResponse<RatePlanResult>(request.getGuid());
+		if (request.getRequest().getPaymentType() == EnumPaymentType.Prepay && !proxyAccount.getEnabledPrepayProducts()) {
 			response.setCode(ErrorCode.Data_NoPrepayProducts);
 		} else {
 			RatePlanResult res = new RatePlanResult();
 			response.setResult(res);
-			response.getResult().setHotels(getRatePlans(request,proxyAccount));
+			response.getResult().setHotels(getRatePlans(request, proxyAccount));
 		}
 		return response;
 	}

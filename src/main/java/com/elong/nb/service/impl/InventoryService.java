@@ -17,8 +17,12 @@ import java.util.concurrent.ForkJoinPool;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import com.elong.hotswitch.client.HotSwitchConfigHelper;
+import com.elong.hotswitch.client.Exception.HotSwitchClientException;
 import com.elong.nb.common.ComparableUtil;
 import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestRequest;
@@ -57,6 +61,10 @@ import edu.emory.mathcs.backport.java.util.Arrays;
 @Service
 public class InventoryService implements IInventoryService {
 
+	private static Logger logger = LogManager.getLogger(InventoryService.class);
+
+	@Resource
+	private HotSwitchConfigHelper hotSwitchConfigHelper;
 	@Resource
 	private M_SRelationCache m_SRelationCache;
 	@Resource
@@ -65,7 +73,6 @@ public class InventoryService implements IInventoryService {
 	private InventoryRuleRepository inventoryRuleRepository;
 
 	private static final int invThreadSize = Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("inv.thread.size"));
-	private static final int invFrom = Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("inv.from"));
 
 	/** 
 	 * (方法说明描述)获得库存接口 
@@ -81,6 +88,13 @@ public class InventoryService implements IInventoryService {
 		RestResponse<InventoryResult> response = new RestResponse<InventoryResult>(restRequest.getGuid());
 		InventoryResult result = new InventoryResult();
 		List<Inventory> list = null;
+
+		int invFrom = 1;
+		try {
+			invFrom = hotSwitchConfigHelper.GetConfigValue("inv.from", Integer.class, 1);
+		} catch (HotSwitchClientException e) {
+			logger.error(e.getMessage(), e);
+		}
 		if (invFrom == 1) {
 			list = getInentory(proxyAccount, restRequest.getRequest().getHotelIds(), restRequest.getRequest().getHotelCodes(), restRequest
 					.getRequest().getRoomTypeId(), restRequest.getRequest().getStartDate(), restRequest.getRequest().getEndDate(),
