@@ -51,6 +51,7 @@ public class SearchDetailRepository {
 		detailreq.setGuid(guid);
 		detailreq.setLocal(local);
 		detailreq.setVersion(10d);
+		detailreq.setProxyInfo(proxyAccount);//user服务上线兼容搜索没上，后续删掉这行代码
 		HotelDetailRequest request = new HotelDetailRequest();
 		request.setArrivalDate(arrivalDate);
 		request.setDepartureDate(departureDate);
