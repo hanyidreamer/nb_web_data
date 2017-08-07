@@ -17,7 +17,6 @@ import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.common.util.HowSwitchUtil;
 import com.elong.nb.dao.adapter.cache.M_SRelationCache;
-import com.elong.nb.dao.adapter.repository.InventoryRuleRepository;
 import com.elong.nb.dao.adapter.repository.RateRepository;
 import com.elong.nb.model.HotelIdAttr;
 import com.elong.nb.model.bean.enums.EnumPaymentType;
@@ -30,7 +29,7 @@ import com.elong.nb.rule.agent.model.RateWithRule;
 import com.elong.nb.service.IRateService;
 import com.elong.nb.util.DateUtil;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
+import java.util.Arrays;
 
 @Service
 public class RateService implements IRateService {
@@ -39,8 +38,6 @@ public class RateService implements IRateService {
 	private RateRepository rateRepository;
 	@Resource
 	private M_SRelationCache m_SRelationCache;
-	@Resource
-	private InventoryRuleRepository ruleRepository;
 
 	@Override
 	public RestResponse<RateResult> getRates(RestRequest<RateCondition> request, ProxyAccount proxyAccount) throws Exception {

@@ -32,6 +32,4 @@ public interface IInventoryService {
 	RestResponse<InventoryResult> getInventories(RestRequest<InventoryCondition> restRequest, ProxyAccount proxyAccount)
 			throws IOException, Exception;
 
-	RestResponse<InventoryResult> getInventoriesForBooking(RestRequest<InventoryCondition> restRequest, ProxyAccount proxyAccount)
-			throws Exception;
 }
