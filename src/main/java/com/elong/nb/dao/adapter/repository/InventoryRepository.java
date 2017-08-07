@@ -43,9 +43,6 @@ public class InventoryRepository {
 	@Resource(name = "webProductForPartnerServiceContract")
 	private IProductForPartnerServiceContract webProductForPartnerServiceContract;
 
-	@Resource(name = "orderProductForPartnerServiceContract")
-	private IProductForPartnerServiceContract orderProductForPartnerServiceContract;
-
 	private static final String server_ip = CommonsUtil.CONFIG_PROVIDAR.getProperty("goods.server_ip");
 	private static final int server_port = Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("goods.server_port"));
 	private static final int server_timeout = Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("goods.inv.server_timeout"));
@@ -82,14 +79,9 @@ public class InventoryRepository {
 				request.setOperatorTime(new DateTime());
 				request.setIsNeedInstantConfirm(!isForBooking);
 				log.setServiceName("getInventoryChangeDetailAndInstantConfirm");
-				// log.setRequestBody(JSON.toJSONString(request));
 				long start = System.currentTimeMillis();
-				GetInvChangeAndInstantConfirmResponse response = null;
-				if (isForBooking) {
-					response = this.orderProductForPartnerServiceContract.getInventoryChangeDetailAndInstantConfirm(request);
-				} else {
-					response = this.webProductForPartnerServiceContract.getInventoryChangeDetailAndInstantConfirm(request);
-				}
+				GetInvChangeAndInstantConfirmResponse response = this.webProductForPartnerServiceContract
+						.getInventoryChangeDetailAndInstantConfirm(request);
 				log.setElapsedTime(String.valueOf(System.currentTimeMillis() - start));
 				if (response != null && response.getResourceInvAndInstantConfirmStateList() != null
 						&& response.getResourceInvAndInstantConfirmStateList().getResourceInvAndInstantConfirmState() != null
@@ -131,7 +123,6 @@ public class InventoryRepository {
 				}
 				request.setOperatorTime(new DateTime());
 				log.setServiceName("getInventoryChangeDetail");
-				// log.setRequestBody(JSON.toJSONString(request));
 				long start = System.currentTimeMillis();
 				GetInventoryChangeDetailResponse response = this.webProductForPartnerServiceContract.getInventoryChangeDetail(request);
 				long end = System.currentTimeMillis();
