@@ -30,14 +30,9 @@ public class CommentService implements ICommentService {
 		if (proxyAccount.getEnabledCommentReadRole() == false) {
 			return result;
 		}
-		StringBuilder message = null;
 		CommentResult res = commontRepository.list(request.getRequest().getHotelId(), request.getRequest().getPageSize(), request
-				.getRequest().getPageIndex(), message, proxyAccount.getCommentUserKey());
-		if (message == null) {
-			result.setResult(res);
-		} else {
-			result.setCode(ErrorCode.Common_UnkownException + message);
-		}
+				.getRequest().getPageIndex(), proxyAccount.getCommentUserKey());
+		result.setResult(res);
 		return result;
 	}
 
@@ -58,14 +53,8 @@ public class CommentService implements ICommentService {
 			result.setCode(ErrorCode.Common_IdsFormatWrong);
 			return result;
 		}
-		StringBuilder message = null;
-		CommentSummaryResult res = commontRepository.getSumarries(request.getRequest().getHotelIds(), message,
-				proxyAccount.getCommentUserKey());
-		if (message == null) {
-			result.setResult(res);
-		} else {
-			result.setCode(ErrorCode.Common_UnkownException + message.toString());
-		}
+		CommentSummaryResult res = commontRepository.getSumarries(request.getRequest().getHotelIds(), proxyAccount.getCommentUserKey());
+		result.setResult(res);
 		return result;
 	}
 

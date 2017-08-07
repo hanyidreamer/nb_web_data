@@ -5,8 +5,6 @@
  */
 package com.elong.nb.service.impl;
 
-import java.math.BigDecimal;
-
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
@@ -48,20 +46,18 @@ public class CurrencyRateService implements ICurrencyRateService {
 	 * @see com.elong.nb.service.ICurrencyRateService#getCurrencyRate(com.elong.nb.model.bean.enums.EnumCurrencyCode)
 	 */
 	@Override
-	public RestResponse<ExchangeRateResult> getCurrencyRate(
-			RestRequest<ExchangeRateCondition> restRequest) throws Exception {
-		RestResponse<ExchangeRateResult> restResponse = new RestResponse<ExchangeRateResult>(
-				restRequest.getGuid());
+	public RestResponse<ExchangeRateResult> getCurrencyRate(RestRequest<ExchangeRateCondition> restRequest) throws Exception {
+		RestResponse<ExchangeRateResult> restResponse = new RestResponse<ExchangeRateResult>(restRequest.getGuid());
 		ExchangeRateResult result = new ExchangeRateResult();
-		if(restRequest.getRequest().getCurrencyId()==null){
+		if (restRequest.getRequest().getCurrencyId() == null) {
 			restResponse.setCode(ErrorCode.Data_CurrencyCodeRequired);
 			return restResponse;
 		}
 		double rate = currencyRateCache.getCurrencyRate(restRequest.getRequest().getCurrencyId());
-		if(rate!=0){
+		if (rate != 0) {
 			result.setExchangeRate(rate);
 			restResponse.setResult(result);
-		}else{
+		} else {
 			restResponse.setCode(ErrorCode.Data_NoCurrencyRate);
 		}
 

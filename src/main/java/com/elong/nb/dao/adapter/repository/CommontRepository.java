@@ -25,36 +25,34 @@ import com.google.gson.GsonBuilder;
 @Repository
 public class CommontRepository {
 	private static final String COMMENT_DEFAULT_USER_KEY = "981754BD6AB391343BBEB9496D821E64";
-	private static final String COMMENT_URL=CommonsUtil.CONFIG_PROVIDAR.getProperty("COMMENTURL");
+	private static final String COMMENT_URL = CommonsUtil.CONFIG_PROVIDAR.getProperty("COMMENTURL");
 	private static GsonBuilder gsonBuilder = new GsonBuilder();
-	static{
+	static {
 		gsonBuilder.registerTypeAdapter(Date.class, new DateTypeAdapter());
 	}
+
 	/**
 	 * 
 	 * @param hotelIds
-	 * @param message
 	 * @param userKey
 	 * @return
 	 */
-	public CommentSummaryResult getSumarries(String hotelIds, StringBuilder message,
-			String userKey) {
+	public CommentSummaryResult getSumarries(String hotelIds, String userKey) {
 		CommentSummaryResult result = new CommentSummaryResult();
 		if (StringUtils.isEmpty(userKey)) {
 			userKey = COMMENT_DEFAULT_USER_KEY;
 		}
-		StringBuilder sb = new StringBuilder(COMMENT_URL+"/dianping/api/GetCommentSummarys?data={UserKey:%22");
+		StringBuilder sb = new StringBuilder(COMMENT_URL + "/dianping/api/GetCommentSummarys?data={UserKey:%22");
 		sb.append(userKey);
 		sb.append("%22,BusinessType:%22H%22,ObjectIds:%22");
 		sb.append(hotelIds);
 		sb.append("%22}");
 		try {
-			long startTime=System.currentTimeMillis();
+			long startTime = System.currentTimeMillis();
 			String responseStr = HttpUtil.httpGetData(sb.toString());
-			long endTime=System.currentTimeMillis();
-			CommentSumarryResponse response = gsonBuilder.create().fromJson(responseStr,
-					CommentSumarryResponse.class);
-			int businessCode=0;
+			long endTime = System.currentTimeMillis();
+			CommentSumarryResponse response = gsonBuilder.create().fromJson(responseStr, CommentSumarryResponse.class);
+			int businessCode = 0;
 			if (response.getStatusCode() == 1 && response.getCommentSummarys() != null) {
 				result.setCommentSummaries(new ArrayList<CommentSummary>());
 				for (CommentSummaryObj c : response.getCommentSummarys()) {
@@ -67,32 +65,30 @@ public class CommontRepository {
 					result.getCommentSummaries().add(commentSummary);
 				}
 			} else {
-				message =new StringBuilder(response.getMessage());
-				businessCode=1;
+				businessCode = 1;
 			}
-			ActionLogHelper.businessLog(UUID.randomUUID().toString(), true, "GetCommentSummarys", COMMENT_URL, null, (endTime - startTime), businessCode, null,null, "");
+			ActionLogHelper.businessLog(UUID.randomUUID().toString(), true, "GetCommentSummarys", COMMENT_URL, null, (endTime - startTime),
+					businessCode, null, null, "");
 		} catch (Exception ex) {
-			message =new StringBuilder(ex.getMessage());
-			ActionLogHelper.businessLog(UUID.randomUUID().toString(), false, "GetCommentSummarys", COMMENT_URL, null, 0, 0, null,null, "");
+			ActionLogHelper.businessLog(UUID.randomUUID().toString(), false, "GetCommentSummarys", COMMENT_URL, null, 0, 0, null, null, "");
 		}
 		return result;
 	}
+
 	/**
 	 * 
 	 * @param hotelId
 	 * @param pageSize
 	 * @param pageIndex
-	 * @param message
 	 * @param userKey
 	 * @return
 	 */
-	public CommentResult list(String hotelId, int pageSize, int pageIndex,
-			StringBuilder message, String userKey) {
+	public CommentResult list(String hotelId, int pageSize, int pageIndex, String userKey) {
 		CommentResult result = new CommentResult();
 		if (StringUtils.isEmpty(userKey)) {
 			userKey = COMMENT_DEFAULT_USER_KEY;
 		}
-		StringBuilder sb = new StringBuilder(COMMENT_URL+"/dianping/api/GetCommentsByPage?data={UserKey:%22");
+		StringBuilder sb = new StringBuilder(COMMENT_URL + "/dianping/api/GetCommentsByPage?data={UserKey:%22");
 		sb.append(userKey);
 		sb.append("%22,BusinessType:%22H%22,ObjectId:%22");
 		sb.append(hotelId);
@@ -103,16 +99,16 @@ public class CommontRepository {
 		sb.append(",NeedReply:false,NeedImage:false,NeedExt:true}");
 
 		try {
-			long startTime=System.currentTimeMillis();
+			long startTime = System.currentTimeMillis();
 			String responseStr = HttpUtil.httpGetData(sb.toString());
-			long endTime=System.currentTimeMillis();
+			long endTime = System.currentTimeMillis();
 			CommentResponse response = gsonBuilder.create().fromJson(responseStr, CommentResponse.class);
-			int businessCode=0;
+			int businessCode = 0;
 			if (response.getStatusCode() == 1) {
 				result.setComments(new LinkedList<CommentInfo>());
 				result.setCount(response.getTotalNumber());
-				for(Comment c:response.getComments()){
-					CommentInfo commentInfo=new CommentInfo();
+				for (Comment c : response.getComments()) {
+					CommentInfo commentInfo = new CommentInfo();
 					commentInfo.setCommentId(c.getCommentId());
 					commentInfo.setCheckInTime(c.getCommentExt().getOrder().getCheckInTime());
 					commentInfo.setCommentType(c.getRecommend());
@@ -123,15 +119,14 @@ public class CommontRepository {
 					commentInfo.setUsefulCount(c.getUsefulCount());
 					commentInfo.setUserId(c.getCommentUser().getUserId());
 					result.getComments().add(commentInfo);
-				}	
-			}else{
-				message =new StringBuilder(response.getMessage());
-				businessCode=-1;
+				}
+			} else {
+				businessCode = -1;
 			}
-			ActionLogHelper.businessLog(UUID.randomUUID().toString(), true, "GetCommentsByPage", COMMENT_URL, null, (endTime - startTime), businessCode, null,null, "");
+			ActionLogHelper.businessLog(UUID.randomUUID().toString(), true, "GetCommentsByPage", COMMENT_URL, null, (endTime - startTime),
+					businessCode, null, null, "");
 		} catch (Exception ex) {
-			message =new StringBuilder(ex.getMessage());
-			ActionLogHelper.businessLog(UUID.randomUUID().toString(), false, "GetCommentsByPage", COMMENT_URL, null, 0, 0, null,null, "");
+			ActionLogHelper.businessLog(UUID.randomUUID().toString(), false, "GetCommentsByPage", COMMENT_URL, null, 0, 0, null, null, "");
 		}
 		return result;
 	}

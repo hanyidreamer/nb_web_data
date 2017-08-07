@@ -38,6 +38,7 @@ import com.elong.nb.service.ICurrencyRateService;
  */
 @Controller
 public class HotelCurrencyRateController {
+
 	@Resource
 	private ICurrencyRateService currencyRateService;
 
@@ -56,7 +57,7 @@ public class HotelCurrencyRateController {
 		if (restRequest != null) {
 			restResponse = currencyRateService.getCurrencyRate(restRequest);
 		}
-		return new ResponseEntity(GsonUtil.toJson(restResponse, restRequest.getVersion() == null ? 0d : restRequest.getVersion())
+		return new ResponseEntity<byte[]>(GsonUtil.toJson(restResponse, restRequest.getVersion() == null ? 0d : restRequest.getVersion())
 				.getBytes(), HttpStatus.OK);
 	}
 }

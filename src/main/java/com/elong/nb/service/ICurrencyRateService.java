@@ -5,13 +5,10 @@
  */
 package com.elong.nb.service;
 
-import java.math.BigDecimal;
-
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.model.bean.ExchangeRateCondition;
 import com.elong.nb.model.bean.ExchangeRateResult;
-import com.elong.nb.model.bean.enums.EnumCurrencyCode;
 
 /**
  * (类型功能说明描述)
@@ -28,5 +25,5 @@ import com.elong.nb.model.bean.enums.EnumCurrencyCode;
  * @since		JDK1.7
  */
 public interface ICurrencyRateService {
-	public RestResponse<ExchangeRateResult> getCurrencyRate(RestRequest<ExchangeRateCondition>restRequest) throws Exception;
+	public RestResponse<ExchangeRateResult> getCurrencyRate(RestRequest<ExchangeRateCondition> restRequest) throws Exception;
 }

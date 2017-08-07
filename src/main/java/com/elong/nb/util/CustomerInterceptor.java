@@ -18,11 +18,6 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.apache.velocity.runtime.directive.Parse;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-
-import com.ctc.wstx.stax.WstxOutputFactory;
 
 /**
  * (类型功能说明描述)

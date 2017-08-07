@@ -2,18 +2,13 @@ package com.elong.nb.data.biglog;
 
 import java.util.UUID;
 
-import net.sf.json.JSONObject;
-
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
-import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -67,26 +62,26 @@ public class LogAop {
 		log.setBusinessErrorCode((String) (request.getAttribute(Constants.ELONG_RESPONSE_CODE, ServletRequestAttributes.SCOPE_REQUEST)));
 		String responseStr = null;
 		log.setResponseBody(responseStr);
-//		if(StringUtils.equals("IncrController.getIncrDatas", handlerMethodName)){
-//			responseStr = null;
-//		}else 
-//		if (returnValue instanceof String) {
-//			responseStr = (String) returnValue;
-//		} else {
-//			@SuppressWarnings("unchecked")
-//			ResponseEntity<byte[]> resp = (ResponseEntity<byte[]>) returnValue;
-//			responseStr = new String(resp.getBody());
-//		}
-//		if(responseStr!=null){
-//			JSONObject jsStr = JSONObject.fromObject(responseStr);
-//			String code=jsStr.getString("Code");
-//			if("0".equals(code)){
-//				log.setResponseBody("");
-//			}else{
-//				log.setBusinessErrorCode(code.split("\\|")[0]);
-//				log.setResponseBody(responseStr);
-//			}
-//		}
+		// if(StringUtils.equals("IncrController.getIncrDatas", handlerMethodName)){
+		// responseStr = null;
+		// }else
+		// if (returnValue instanceof String) {
+		// responseStr = (String) returnValue;
+		// } else {
+		// @SuppressWarnings("unchecked")
+		// ResponseEntity<byte[]> resp = (ResponseEntity<byte[]>) returnValue;
+		// responseStr = new String(resp.getBody());
+		// }
+		// if(responseStr!=null){
+		// JSONObject jsStr = JSONObject.fromObject(responseStr);
+		// String code=jsStr.getString("Code");
+		// if("0".equals(code)){
+		// log.setResponseBody("");
+		// }else{
+		// log.setBusinessErrorCode(code.split("\\|")[0]);
+		// log.setResponseBody(responseStr);
+		// }
+		// }
 		Object guid = request.getAttribute(Constants.ELONG_REQUEST_REQUESTGUID, ServletRequestAttributes.SCOPE_REQUEST);
 		if (guid != null)
 			log.setUserLogType((String) guid);
@@ -112,7 +107,7 @@ public class LogAop {
 		log.setResponseBody(t.getMessage());
 		log.setException(t);
 		log.setResponseCode("-1");
-//		log.setBusinessErrorCode("-1");
+		// log.setBusinessErrorCode("-1");
 		Object guid = request.getAttribute(Constants.ELONG_REQUEST_REQUESTGUID, ServletRequestAttributes.SCOPE_REQUEST);
 		if (guid != null)
 			log.setUserLogType((String) guid);
