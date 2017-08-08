@@ -25,5 +25,7 @@ import com.elong.nb.model.bean.ExchangeRateResult;
  * @since		JDK1.7
  */
 public interface ICurrencyRateService {
+
 	public RestResponse<ExchangeRateResult> getCurrencyRate(RestRequest<ExchangeRateCondition> restRequest) throws Exception;
+
 }

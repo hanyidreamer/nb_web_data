@@ -5,7 +5,6 @@
  */
 package com.elong.nb.util;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -33,11 +32,14 @@ import org.apache.log4j.Logger;
  * @version		1.0  
  * @since		JDK1.7
  */
-public class CustomerInterceptor extends AbstractPhaseInterceptor<Message>{
-	private static Logger logger=LogManager.getLogger("generateSingleXMLLogger");
-	public CustomerInterceptor(){
+public class CustomerInterceptor extends AbstractPhaseInterceptor<Message> {
+
+	private static Logger logger = LogManager.getLogger("generateSingleXMLLogger");
+
+	public CustomerInterceptor() {
 		super(Phase.RECEIVE);
 	}
+
 	/** 
 	 * (方法说明描述) 
 	 *
@@ -49,27 +51,28 @@ public class CustomerInterceptor extends AbstractPhaseInterceptor<Message>{
 	@Override
 	public void handleMessage(Message message) throws Fault {
 		InputStream is = message.getContent(InputStream.class);
-		 if(is != null)
-             message.setContent(InputStream.class, is);
-		 ByteArrayOutputStream   baos   =   new   ByteArrayOutputStream();   
-	        int   i=-1;   
-	        try {
-				while((i=is.read())!=-1){   
-				baos.write(i);   
+		if (is != null)
+			message.setContent(InputStream.class, is);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		int i = -1;
+		try {
+			while ((i = is.read()) != -1) {
+				baos.write(i);
+			}
+			if (StringUtils.isNotBlank(baos.toString())) {
+				String data = checkXmlChar(baos.toString());
+				is = new ByteArrayInputStream(data.getBytes());
+				if (is != null) {
+					message.setContent(InputStream.class, is);
 				}
-				if(StringUtils.isNotBlank(baos.toString())){
-					String data=checkXmlChar(baos.toString());
-					is=new ByteArrayInputStream(data.getBytes());
-				 	if(is!=null){
-				 		message.setContent(InputStream.class, is);
-				 	}
-				}
-			} catch (IOException e1) {
-				logger.error("method:CustomerInterceptor", e1);
-			} 
+			}
+		} catch (IOException e1) {
+			logger.error("method:CustomerInterceptor", e1);
+		}
 	}
-	public static String checkXmlChar(String data) {  
+
+	public static String checkXmlChar(String data) {
 		return data.replace("&#x", "<![CDATA[&#x]]>");
-    }  
+	}
 
 }

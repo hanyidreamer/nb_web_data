@@ -1,6 +1,7 @@
 package com.elong.nb.model.rateplan.fornb;
 
 public class SearchHotelRatePlanListReq {
+
 	private String shotelId;
 	private Integer paymentType;
 	private String guestType = "1";
@@ -28,34 +29,44 @@ public class SearchHotelRatePlanListReq {
 	 *微信专享	PT - 1024
 	 *房型升级产品	PT - 2048
 	 */
-    private String productType="1";
+	private String productType = "1";
+
 	public String getShotelId() {
 		return shotelId;
 	}
+
 	public void setShotelId(String shotelId) {
 		this.shotelId = shotelId;
 	}
+
 	public Integer getPaymentType() {
 		return paymentType;
 	}
+
 	public void setPaymentType(Integer paymentType) {
 		this.paymentType = paymentType;
 	}
+
 	public String getGuestType() {
 		return guestType;
 	}
+
 	public void setGuestType(String guestType) {
 		this.guestType = guestType;
 	}
+
 	public String getPriceModel() {
 		return priceModel;
 	}
+
 	public void setPriceModel(String priceModel) {
 		this.priceModel = priceModel;
 	}
+
 	public String getProductType() {
 		return productType;
 	}
+
 	public void setProductType(String productType) {
 		this.productType = productType;
 	}

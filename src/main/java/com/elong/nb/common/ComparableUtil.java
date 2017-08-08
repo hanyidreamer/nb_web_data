@@ -7,7 +7,6 @@ package com.elong.nb.common;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -28,70 +27,40 @@ import java.util.Map.Entry;
  * @since		JDK1.7
  */
 public class ComparableUtil {
-	public static List<String> union(List<String>arr1,List<String>arr2){
-		List<String> aList=new ArrayList<String>();
+
+	// 求两个数组的交集
+	public static String[] intersect(String[] arr1, String[] arr2) {
+		Map<String, Boolean> map = new HashMap<String, Boolean>();
+		LinkedList<String> list = new LinkedList<String>();
 		for (String str : arr1) {
-			aList.add(str);
-		}
-		for (String str : arr2) {
-			aList.add(str);
-		}
-		return aList;
-	}
-	
-	public static List<String> intersect(List<String> arr1,List<String> arr2){
-		Map<String, Boolean>map=new HashMap<String,Boolean>();
-		List<String>list=new ArrayList<String>();
-		for (String str : arr1) {
-			if(!map.containsKey(str)){
+			if (!map.containsKey(str)) {
 				map.put(str, Boolean.FALSE);
 			}
 		}
 		for (String str : arr2) {
-			if(map.containsKey(str)){
+			if (map.containsKey(str)) {
 				map.put(str, Boolean.TRUE);
 			}
 		}
-		for(Iterator<Entry<String, Boolean>>iterator=map.entrySet().iterator();iterator.hasNext();){
-			Entry<String, Boolean>entry=(Entry<String, Boolean>)iterator.next();
-			if(entry.getValue().equals(Boolean.TRUE)){
-				list.add(entry.getKey());
+
+		for (Entry<String, Boolean> e : map.entrySet()) {
+			if (e.getValue().equals(Boolean.TRUE)) {
+				list.add(e.getKey());
 			}
 		}
-		return list;
+
+		String[] result = {};
+		return list.toArray(result);
 	}
-    //求两个数组的交集   
-    public static String[] intersect(String[] arr1, String[] arr2) {   
-        Map<String, Boolean> map = new HashMap<String, Boolean>();   
-        LinkedList<String> list = new LinkedList<String>();   
-        for (String str : arr1) {   
-            if (!map.containsKey(str)) {   
-                map.put(str, Boolean.FALSE);   
-            }   
-        }   
-        for (String str : arr2) {   
-            if (map.containsKey(str)) {   
-                map.put(str, Boolean.TRUE);   
-            }   
-        }   
-  
-        for (Entry<String, Boolean> e : map.entrySet()) {   
-            if (e.getValue().equals(Boolean.TRUE)) {   
-                list.add(e.getKey());   
-            }   
-        }   
-  
-        String[] result = {};   
-        return list.toArray(result);   
-    } 
-    //去重
-    public static List<String> convertDistinctList(List<String> list){
-	    	List<String> distinctList= new ArrayList<String>();  
-	        for(String i:list){  
-	            if(!distinctList.contains(i)){  
-	            		distinctList.add(i);  
-	            }  
-	        }  
-	    return distinctList;
-    }
+
+	// 去重
+	public static List<String> convertDistinctList(List<String> list) {
+		List<String> distinctList = new ArrayList<String>();
+		for (String i : list) {
+			if (!distinctList.contains(i)) {
+				distinctList.add(i);
+			}
+		}
+		return distinctList;
+	}
 }

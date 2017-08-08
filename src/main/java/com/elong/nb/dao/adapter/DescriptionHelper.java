@@ -12,6 +12,7 @@ import com.elong.hotel.goods.ds.thrift.MetaPrePayInfo;
 import com.elong.hotel.goods.ds.thrift.MetaVouchInfo;
 
 public class DescriptionHelper {
+
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("yy.MM.dd");
 
 	private static String getWeekSet(long timeSet) {
@@ -639,5 +640,5 @@ public class DescriptionHelper {
 		}
 		return giftContentCn.replaceAll("艺龙网", "本站").replaceAll("艺龙", "本站").replaceAll("elong", "本站");
 	}
-	
+
 }

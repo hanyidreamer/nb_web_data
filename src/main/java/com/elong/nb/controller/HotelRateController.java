@@ -54,7 +54,6 @@ public class HotelRateController {
 	}
 
 	private String validateRateRequest(RestRequest<RateCondition> restRequest, ProxyAccount proxyAccount) {
-		;
 		StringBuffer sb = new StringBuffer(ValidateUtil.validateRestRequest(restRequest, proxyAccount));
 		RateCondition req = restRequest.getRequest();
 		if (StringUtils.isBlank(restRequest.getRequest().getHotelIds()) || restRequest.getRequest().getHotelIds().split(",").length > 10) {
@@ -86,10 +85,6 @@ public class HotelRateController {
 			sb.append(ErrorCode.Common_StartDateLessThanEndDate);
 			return sb.toString();
 		}
-		// if(restRequest.getRequest().getPaymentType()==null){
-		// sb.append(ErrorCode.Common_PaymentTypeRequired);
-		// return sb.toString();
-		// }
 		/**
 		 * 如果没有预付权限还查询，则返回错误信息
 		 */

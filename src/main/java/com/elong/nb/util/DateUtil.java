@@ -8,6 +8,7 @@ import java.util.GregorianCalendar;
 import org.joda.time.DateTime;
 
 public class DateUtil {
+
 	public static DateTime toDateTime(Date date) {
 		try {
 			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
@@ -30,10 +31,6 @@ public class DateUtil {
 		return addDate(Calendar.YEAR, date, years);
 	}
 
-	public static Date addMoths(Date date, int months) {
-		return addDate(Calendar.MONTH, date, months);
-	}
-
 	public static Date addDays(Date date, int days) {
 		return addDate(Calendar.DATE, date, days);
 	}
@@ -50,12 +47,13 @@ public class DateUtil {
 		calendar.set(1970, 0, 1, 0, 0, 0);
 		return calendar.getTime();
 	}
+
 	/**
 	 * 获取日期部分
 	 * @param date
 	 * @return
 	 */
-	public static Date getDate(Date date){
+	public static Date getDate(Date date) {
 		Calendar calendar = Calendar.getInstance();
 		calendar = Calendar.getInstance();
 		calendar.setTime(date);
@@ -67,15 +65,15 @@ public class DateUtil {
 	}
 
 	private static SimpleDateFormat sdfTime = new SimpleDateFormat("HH:mm:ss");
+
 	public static String getTimeString(Date date) {
 		return sdfTime.format(date);
 	}
+
 	private static SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
+
 	public static String getDateString(Date date) {
 		return sdfDate.format(date);
 	}
-	public static String formatDate(Date date,String format) {
-		SimpleDateFormat sdf = new SimpleDateFormat(format);
-		return sdf.format(date);
-	}
+
 }

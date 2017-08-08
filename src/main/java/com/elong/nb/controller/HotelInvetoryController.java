@@ -104,11 +104,6 @@ public class HotelInvetoryController {
 			sb.append(ErrorCode.Common_StartDateLessThanEndDate);
 			return sb.toString();
 		}
-		// if (StringUtils.isBlank(restRequest.getRequest().getHotelCodes())&& StringUtils.isBlank(restRequest.getRequest().getHotelIds()))
-		// {
-		// sb.append(ErrorCode.Common_NumberIdsFormatErrorAndLessThanTen);
-		// return sb.toString();
-		// }
 		if (!StringUtils.isBlank(restRequest.getRequest().getHotelCodes())) {
 			if (restRequest.getRequest().getHotelIds().contains(",")) {
 				sb.append(ErrorCode.Common_HotelIdRequiredOnlyOne);

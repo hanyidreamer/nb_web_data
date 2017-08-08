@@ -33,6 +33,7 @@ import com.elong.nb.service.ICurrencyRateService;
  */
 @Service
 public class CurrencyRateService implements ICurrencyRateService {
+
 	@Resource
 	private CurrencyRateCache currencyRateCache;
 

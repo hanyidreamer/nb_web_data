@@ -80,6 +80,7 @@ import com.elong.nb.util.DateUtil;
 public class RatePlansService implements IRatePlansService {
 
 	private static Logger LocalMsg = LogManager.getLogger(RatePlansService.class);
+
 	@Resource
 	private RatePlanRepository ratePlanRepository;
 	@Resource

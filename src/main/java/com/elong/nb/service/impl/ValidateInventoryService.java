@@ -25,6 +25,7 @@ import com.elong.nb.util.MathUtil;
 
 @Service
 public class ValidateInventoryService implements IValidateInventoryService {
+
 	@Resource
 	private IInventoryService inventoryService;
 
