@@ -79,7 +79,7 @@ public class RateService implements IRateService {
 		return response;
 	}
 
-	public List<Rate> getRate(ProxyAccount proxyInfo, String mHotelId, String sHotelId, Date startDate, Date endDate,
+	private List<Rate> getRate(ProxyAccount proxyInfo, String mHotelId, String sHotelId, Date startDate, Date endDate,
 			EnumPaymentType paymentType, double lowestProfitPercent, String guid) throws Exception {
 		List<Rate> result = new ArrayList<Rate>();
 		// 仅提供昨天和近180天的房态数据
@@ -242,7 +242,7 @@ public class RateService implements IRateService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<Rate> getGoodsRate(ProxyAccount proxyInfo, String mhotelId, String shotelId, Date startDate, Date endDate,
+	private List<Rate> getGoodsRate(ProxyAccount proxyInfo, String mhotelId, String shotelId, Date startDate, Date endDate,
 			EnumPaymentType paymentType, double lowestProfitPercent, String guid) throws Exception {
 		List<Rate> result = new ArrayList<Rate>();
 		// 仅提供昨天和近180天的房态数据
