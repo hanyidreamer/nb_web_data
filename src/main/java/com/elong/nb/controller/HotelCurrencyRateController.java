@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.elong.nb.common.gson.GsonUtil;
 import com.elong.nb.common.model.ErrorCode;
+import com.elong.nb.common.model.ExchangeRateCondition;
+import com.elong.nb.common.model.ExchangeRateResult;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
-import com.elong.nb.model.bean.ExchangeRateCondition;
-import com.elong.nb.model.bean.ExchangeRateResult;
 import com.elong.nb.service.ICurrencyRateService;
 
 /**

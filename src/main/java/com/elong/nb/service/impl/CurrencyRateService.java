@@ -5,16 +5,14 @@
  */
 package com.elong.nb.service.impl;
 
-import javax.annotation.Resource;
-
 import org.springframework.stereotype.Service;
 
+import com.elong.nb.common.agent.ExchangeRateAgent;
 import com.elong.nb.common.model.ErrorCode;
+import com.elong.nb.common.model.ExchangeRateCondition;
+import com.elong.nb.common.model.ExchangeRateResult;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
-import com.elong.nb.dao.adapter.cache.CurrencyRateCache;
-import com.elong.nb.model.bean.ExchangeRateCondition;
-import com.elong.nb.model.bean.ExchangeRateResult;
 import com.elong.nb.service.ICurrencyRateService;
 
 /**
@@ -34,11 +32,8 @@ import com.elong.nb.service.ICurrencyRateService;
 @Service
 public class CurrencyRateService implements ICurrencyRateService {
 
-	@Resource
-	private CurrencyRateCache currencyRateCache;
-
 	/**
-	 * (方法说明描述)
+	 * 获取汇率
 	 *
 	 * @param enumCurrencyCode
 	 * @return
@@ -54,14 +49,13 @@ public class CurrencyRateService implements ICurrencyRateService {
 			restResponse.setCode(ErrorCode.Data_CurrencyCodeRequired);
 			return restResponse;
 		}
-		double rate = currencyRateCache.getCurrencyRate(restRequest.getRequest().getCurrencyId());
-		if (rate != 0) {
-			result.setExchangeRate(rate);
+		double exchangRate = ExchangeRateAgent.getExchangeRate(restRequest.getRequest().getCurrencyId());
+		if (exchangRate != 0) {
+			result.setExchangeRate(exchangRate);
 			restResponse.setResult(result);
 		} else {
 			restResponse.setCode(ErrorCode.Data_NoCurrencyRate);
 		}
-
 		return restResponse;
 	}
 

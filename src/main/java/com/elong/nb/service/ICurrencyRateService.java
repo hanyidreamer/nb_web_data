@@ -5,10 +5,10 @@
  */
 package com.elong.nb.service;
 
+import com.elong.nb.common.model.ExchangeRateCondition;
+import com.elong.nb.common.model.ExchangeRateResult;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
-import com.elong.nb.model.bean.ExchangeRateCondition;
-import com.elong.nb.model.bean.ExchangeRateResult;
 
 /**
  * (类型功能说明描述)
