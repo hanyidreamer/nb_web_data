@@ -3,7 +3,10 @@
  */
 package com.elong.nb.dao.adapter.repository;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -22,8 +25,10 @@ import com.elong.nb.checklist.CheckListUtil;
 import com.elong.nb.common.model.EnumBookingChannel;
 import com.elong.nb.common.model.EnumMemberLevel;
 import com.elong.nb.common.model.EnumSellChannel;
+import com.elong.nb.common.model.NbapiHttpRequest;
 import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.util.CommonsUtil;
+import com.elong.nb.common.util.HttpClientUtil;
 import com.elong.nb.dao.adapter.AbstractGoodsAdapter;
 import com.elong.nb.dao.adapter.RatePlanAdapter;
 import com.elong.nb.data.biglog.BigLog;
@@ -34,7 +39,7 @@ import com.elong.nb.model.rateplan.HotelRatePlan;
 import com.elong.nb.model.rateplan.fornb.RequestBase;
 import com.elong.nb.model.rateplan.fornb.SearchHotelRatePlanListReq;
 import com.elong.nb.model.rateplan.fornb.SearchHotelRatePlanListResp;
-import com.elong.nb.util.HttpUtil;
+import com.elong.springmvc_enhance.utilities.ActionLogHelper;
 import com.google.gson.Gson;
 
 /**
@@ -62,11 +67,35 @@ public class RatePlanRepository {
 		request.setRealRequest(req);
 		request.setLogId(UUID.randomUUID().toString());
 		String json = JSON.toJSONString(request);
-		DataRestResponseCommon<SearchHotelRatePlanListResp> response = HttpUtil.getDataRestResponse(RPURL, "requestJson=" + json,
-				"application/x-www-form-urlencoded", new DataRestResponseCommon<SearchHotelRatePlanListResp>(),
-				new TypeReference<DataRestResponseCommon<SearchHotelRatePlanListResp>>() {
-				});
-		return response.getRealResponse();
+
+		NbapiHttpRequest nbapiHttpRequest = new NbapiHttpRequest();
+		nbapiHttpRequest.setUrl(RPURL);
+		Map<String, Object> paramsMap = new HashMap<String, Object>(1);
+		paramsMap.put("requestJson", json);
+		nbapiHttpRequest.setParamsMap(paramsMap);
+		long startTime = System.currentTimeMillis();
+		URI uri = null;
+		try {
+			uri = new URI(RPURL);
+		} catch (URISyntaxException e) {
+			throw new IllegalArgumentException("url = " + RPURL + ",error = " + e.getMessage());
+		}
+		String reponseBody = HttpClientUtil.httpFormPost(nbapiHttpRequest);
+		TypeReference<DataRestResponseCommon<SearchHotelRatePlanListResp>> typeRefernce = new TypeReference<DataRestResponseCommon<SearchHotelRatePlanListResp>>() {
+		};
+		DataRestResponseCommon<SearchHotelRatePlanListResp> result = (DataRestResponseCommon<SearchHotelRatePlanListResp>) JSON
+				.parseObject(reponseBody, typeRefernce);
+		long endTime = System.currentTimeMillis();
+		if (result.getRealResponse() != null) {
+			int businessCode = ((com.elong.nb.model.common.ResponseBase) result.getRealResponse()).getResponseCode();
+			ActionLogHelper.businessLog(guid.toString(), true, uri.getPath(), uri.getHost(), null, (endTime - startTime), businessCode,
+					null, null, "");
+		} else {
+			ActionLogHelper.businessLog(guid.toString(), false, uri.getPath(), uri.getHost(), null, (endTime - startTime), 0,
+					result.getExceptionMsg(), null, "");
+		}
+
+		return result.getRealResponse();
 	}
 
 	public List<HotelRatePlan> getRatePlans(ProxyAccount proxyInfo, List<HotelIdAttr> hotelIdAttrs, EnumPaymentType paymentType,

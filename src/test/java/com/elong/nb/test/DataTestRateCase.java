@@ -23,11 +23,12 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.elong.nb.common.gson.DateTypeAdapter;
 import com.elong.nb.common.gson.EnumTypeAdapter;
+import com.elong.nb.common.model.NbapiHttpRequest;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
+import com.elong.nb.common.util.HttpClientUtil;
 import com.elong.nb.model.bean.Inventory;
 import com.elong.nb.model.inventory.InventoryResult;
-import com.elong.nb.util.HttpUtil;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 
@@ -44,8 +45,11 @@ public class DataTestRateCase {
 
 	static void readHtml() {
 		SimpleDateFormat sdff = new SimpleDateFormat("yyyy.MM.dd");
-		String json = HttpUtil.httpPost("http://10.39.128.39:8080/nbapi-" + sdff.format(new Date()) + "/%25%7brole%7d/_search",
-				"{\"size\":200,\"query\":{\"query_string\":{\"query\":\"methodName:getRates\",\"use_dis_max\":true}}}", null);
+		NbapiHttpRequest nbapiHttpRequest = new NbapiHttpRequest();
+		nbapiHttpRequest.setUrl("http://10.39.128.39:8080/nbapi-" + sdff.format(new Date()) + "/%25%7brole%7d/_search");
+		nbapiHttpRequest
+				.setParamStr("{\"size\":200,\"query\":{\"query_string\":{\"query\":\"methodName:getRates\",\"use_dis_max\":true}}}");
+		String json = HttpClientUtil.httpJsonPost(nbapiHttpRequest);
 		JSONObject jsonObject = JSONObject.fromObject(json);
 		String str1 = jsonObject.get("hits").toString();
 		// System.out.println(str1);
@@ -69,8 +73,14 @@ public class DataTestRateCase {
 			;
 			int length = str.lastIndexOf("\"");
 			str = str.substring(1, length);
-			String data1 = HttpUtil.httpPost(url1, str, null);
-			String data2 = HttpUtil.httpPost(url2, str, null);
+			nbapiHttpRequest = new NbapiHttpRequest();
+			nbapiHttpRequest.setUrl(url1);
+			nbapiHttpRequest.setParamStr(str);
+			String data1 = HttpClientUtil.httpJsonPost(nbapiHttpRequest);
+			nbapiHttpRequest = new NbapiHttpRequest();
+			nbapiHttpRequest.setUrl(url2);
+			nbapiHttpRequest.setParamStr(str);
+			String data2 = HttpClientUtil.httpJsonPost(nbapiHttpRequest);
 			try {
 				// RestRequest<InventoryCondition> restRequest = toReq(str,
 				// InventoryCondition.class, null);
@@ -144,8 +154,14 @@ public class DataTestRateCase {
 				while ((lineTxt = bufferedReader.readLine()) != null) {
 					if (lineTxt.startsWith("{")) {
 						String str = lineTxt;
-						String data1 = HttpUtil.httpPost(url1, str, null);
-						String data2 = HttpUtil.httpPost(url2, str, null);
+						NbapiHttpRequest nbapiHttpRequest = new NbapiHttpRequest();
+						nbapiHttpRequest.setUrl(url1);
+						nbapiHttpRequest.setParamStr(str);
+						String data1 = HttpClientUtil.httpJsonPost(nbapiHttpRequest);
+						nbapiHttpRequest = new NbapiHttpRequest();
+						nbapiHttpRequest.setUrl(url2);
+						nbapiHttpRequest.setParamStr(str);
+						String data2 = HttpClientUtil.httpJsonPost(nbapiHttpRequest);
 						try {
 							// RestRequest<InventoryCondition> restRequest = toReq(str,
 							// InventoryCondition.class, null);

@@ -9,7 +9,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 
 import com.elong.nb.common.gson.DateTypeAdapter;
+import com.elong.nb.common.model.NbapiHttpRequest;
 import com.elong.nb.common.util.CommonsUtil;
+import com.elong.nb.common.util.HttpClientUtil;
 import com.elong.nb.model.comment.Comment;
 import com.elong.nb.model.comment.CommentInfo;
 import com.elong.nb.model.comment.CommentResponse;
@@ -18,7 +20,6 @@ import com.elong.nb.model.comment.CommentSumarryResponse;
 import com.elong.nb.model.comment.CommentSummary;
 import com.elong.nb.model.comment.CommentSummaryObj;
 import com.elong.nb.model.comment.CommentSummaryResult;
-import com.elong.nb.util.HttpUtil;
 import com.elong.springmvc_enhance.utilities.ActionLogHelper;
 import com.google.gson.GsonBuilder;
 
@@ -49,7 +50,9 @@ public class CommontRepository {
 		sb.append("%22}");
 		try {
 			long startTime = System.currentTimeMillis();
-			String responseStr = HttpUtil.httpGetData(sb.toString());
+			NbapiHttpRequest nbapiHttpRequest = new NbapiHttpRequest();
+			nbapiHttpRequest.setUrl(sb.toString());
+			String responseStr = HttpClientUtil.httpGet(nbapiHttpRequest);
 			long endTime = System.currentTimeMillis();
 			CommentSumarryResponse response = gsonBuilder.create().fromJson(responseStr, CommentSumarryResponse.class);
 			int businessCode = 0;
@@ -100,7 +103,9 @@ public class CommontRepository {
 
 		try {
 			long startTime = System.currentTimeMillis();
-			String responseStr = HttpUtil.httpGetData(sb.toString());
+			NbapiHttpRequest nbapiHttpRequest = new NbapiHttpRequest();
+			nbapiHttpRequest.setUrl(sb.toString());
+			String responseStr = HttpClientUtil.httpGet(nbapiHttpRequest);
 			long endTime = System.currentTimeMillis();
 			CommentResponse response = gsonBuilder.create().fromJson(responseStr, CommentResponse.class);
 			int businessCode = 0;
