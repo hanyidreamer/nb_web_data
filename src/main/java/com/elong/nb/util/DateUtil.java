@@ -27,6 +27,12 @@ public class DateUtil {
 		}
 	}
 
+	private static SimpleDateFormat hhmmdf = new SimpleDateFormat("HH:mm");
+
+	public static Date toDateHour(String dateHour) throws Exception {
+		return hhmmdf.parse(dateHour);
+	}
+
 	public static Date addYears(Date date, int years) {
 		return addDate(Calendar.YEAR, date, years);
 	}
@@ -68,6 +74,16 @@ public class DateUtil {
 
 	public static String getTimeString(Date date) {
 		return sdfTime.format(date);
+	}
+
+	public static String getTimeString(String hourMinute, String stayTime) throws Exception {
+		Date hourMinuteDate = toDateHour(hourMinute);
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(hourMinuteDate);
+		calendar.add(Calendar.HOUR_OF_DAY, Integer.valueOf(stayTime));
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		return hhmmdf.format(new Date(calendar.getTimeInMillis()));
 	}
 
 	private static SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");

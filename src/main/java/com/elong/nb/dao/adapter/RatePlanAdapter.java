@@ -17,6 +17,7 @@ import com.elong.hotel.goods.ds.thrift.MetaHotelBookingRule;
 import com.elong.hotel.goods.ds.thrift.MetaHotelGiftModel;
 import com.elong.hotel.goods.ds.thrift.MetaHotelGiftRelationDate;
 import com.elong.hotel.goods.ds.thrift.MetaHotelInfo;
+import com.elong.hotel.goods.ds.thrift.MetaHoursRoomMsg;
 import com.elong.hotel.goods.ds.thrift.MetaMHotelBaseRpDrrGift;
 import com.elong.hotel.goods.ds.thrift.MetaPrePayInfo;
 import com.elong.hotel.goods.ds.thrift.MetaProductInfo;
@@ -384,6 +385,22 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 		// ratePlan.setGifts(metaRatePlanBaseInfo.);
 		//
 		ratePlan.setHotelCode(hotelCode);
+
+		List<MetaHoursRoomMsg> hours_room_msg_list = metaRatePlanBaseInfo.getHours_room_msg_list();
+		if (hours_room_msg_list != null && hours_room_msg_list.size() > 0) {
+			MetaHoursRoomMsg metaHoursRoomMsg = hours_room_msg_list.get(0);
+			if (metaHoursRoomMsg != null) {
+				String latestArrivalTime = metaHoursRoomMsg.getLatestArrivalTime();
+				String stayTime = metaHoursRoomMsg.getStayTime();
+				ratePlan.setEarliestToliveTime(metaHoursRoomMsg.getEarliestArrivalTime());
+				try {
+					ratePlan.setLatestToliveTime(DateUtil.getTimeString(latestArrivalTime, stayTime));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				ratePlan.setStayTime(metaHoursRoomMsg.getStayTime());
+			}
+		}
 		return ratePlan;
 
 	}

@@ -242,7 +242,7 @@ public class RatePlansService implements IRatePlansService {
 		}
 		if (hotelIdAttrs != null && hotelIdAttrs.size() > 0) {
 			List<HotelRatePlan> ratePlans = this.ratePlanRepository.getRatePlans(proxyInfo, hotelIdAttrs, paymentType, hotelCodeFilterType,
-					shotelCooperationTypeMap, language == EnumLocal.zh_CN, guid);
+					shotelCooperationTypeMap, language == EnumLocal.zh_CN, options, guid);
 			for (int i = 0; i < ratePlans.size(); i++) {
 				for (int j = 0; j < ratePlans.get(i).getSuppliers().size(); j++) {
 					EnumInvoiceMode InvoiceMode = EnumInvoiceMode.Hotel;

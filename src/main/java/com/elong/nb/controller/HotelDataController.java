@@ -56,8 +56,7 @@ public class HotelDataController {
 		}
 
 		// 调用Service
-		RestResponse<RatePlanResult> response = null;
-		response = ratePlansService.GetRatePlans(restRequest, proxyAccount);
+		RestResponse<RatePlanResult> response = ratePlansService.GetRatePlans(restRequest, proxyAccount);
 		// 反回JSON
 		return new ResponseEntity<byte[]>(GsonUtil.toJson(response, restRequest.getVersion()).getBytes(), HttpStatus.OK);
 

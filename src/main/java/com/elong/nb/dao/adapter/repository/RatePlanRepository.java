@@ -99,7 +99,8 @@ public class RatePlanRepository {
 	}
 
 	public List<HotelRatePlan> getRatePlans(ProxyAccount proxyInfo, List<HotelIdAttr> hotelIdAttrs, EnumPaymentType paymentType,
-			Map<String, EnumPaymentType> hotelCodeFilterType, Map<String, Integer> shotelCooperationTypeMap, boolean isCn, String guid) {
+			Map<String, EnumPaymentType> hotelCodeFilterType, Map<String, Integer> shotelCooperationTypeMap, boolean isCn, String options,
+			String guid) {
 		List<HotelRatePlan> ratePlans = null;
 		BigLog log = new BigLog();
 		log.setUserLogType(guid);
@@ -125,6 +126,10 @@ public class RatePlanRepository {
 		}
 		request.setPayment_type((short) paymentType.getValue());
 		request.setTraceId(guid);
+		if (options != null && options.contains("2")) {
+			// 产品类型：bitmap存储, 第0位：单独销售；第1位：打包销售；第2位：隐价产品；第3位：酒店杀价；第4位：限时抢；第5位：钟点房；第6位：团购产品;第7位：国际酒店产品；第8位：周边价格；第9位：9元/半价抢
+			request.setProduct_type(33);// 2^0+2^5=33,返回单独销售和钟点房
+		}
 		List<MetaMhotel> mhotels = new LinkedList<MetaMhotel>();
 		for (HotelIdAttr hotelIdAttr : hotelIdAttrs) {
 			int hotelId = Integer.valueOf(hotelIdAttr.getHotelId());
