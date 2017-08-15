@@ -24,7 +24,7 @@ import com.mysql.jdbc.StringUtils;
 @Repository
 public class M_SRelationCache {
 
-	private static final RedisManager redis = RedisManager.getInstance("redis_job", "redis_job");
+	private static final RedisManager redis = RedisManager.getInstance("redis_shared", "redis_shared");
 	private static Logger LocalMsg = LogManager.getLogger(M_SRelationCache.class);
 	@Resource(name = "supplierService")
 	private ISupplierServiceContract supplierServiceContract;
