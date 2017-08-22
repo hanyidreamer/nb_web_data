@@ -20,8 +20,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.alibaba.fastjson.JSON;
+import com.elong.nb.UserServiceAgent;
 import com.elong.nb.common.gson.GsonUtil;
 import com.elong.nb.common.model.ErrorCode;
+import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.model.HotelMappingRequest;
@@ -60,9 +62,12 @@ public class HotelMappingController {
 	public ResponseEntity<byte[]> hotelMapping(HttpServletRequest request) throws IOException {
 		RestRequest<HotelMappingRequest> restRequest = GsonUtil.toReq(request, HotelMappingRequest.class, null);
 		Double version = restRequest.getVersion() == null ? 0d : restRequest.getVersion();
+
+		String userName = request.getHeader("userName");
+		ProxyAccount proxyAccount = UserServiceAgent.findProxyByUsername(userName);
 		try {
 			// 检查参数
-			RestResponse<HotelMappingResponse> restResponse = syncService.checkMessage(restRequest);
+			RestResponse<HotelMappingResponse> restResponse = syncService.checkMessage(restRequest, proxyAccount);
 			logger.debug("hotelMapping,checkMessage,restResponse = " + JSON.toJSONString(restResponse));
 			if (!StringUtils.equals(restResponse.getCode(), "0")) {
 				return new ResponseEntity<byte[]>(GsonUtil.toJson(restResponse, version).getBytes(), HttpStatus.OK);

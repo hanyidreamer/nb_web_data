@@ -5,6 +5,7 @@
  */
 package com.elong.nb.service;
 
+import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.model.HotelMappingRequest;
@@ -32,7 +33,7 @@ public interface IHotelMappingService {
 	 * @param restRequest
 	 * @return
 	 */
-	public RestResponse<HotelMappingResponse> checkMessage(RestRequest<HotelMappingRequest> restRequest);
+	public RestResponse<HotelMappingResponse> checkMessage(RestRequest<HotelMappingRequest> restRequest, ProxyAccount proxyAccount);
 
 	/** 
 	 * 获取返回数据

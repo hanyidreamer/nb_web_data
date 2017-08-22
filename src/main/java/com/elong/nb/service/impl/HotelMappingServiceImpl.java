@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.elong.nb.common.model.ErrorCode;
 import com.elong.nb.common.model.NbapiHttpRequest;
+import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.common.util.HttpClientUtil;
@@ -60,9 +61,9 @@ public class HotelMappingServiceImpl implements IHotelMappingService {
 	 * @see com.elong.nb.hotelmapping.service.IHotelMappingService#checkMessage(com.elong.nb.common.model.RestRequest)    
 	 */
 	@Override
-	public RestResponse<HotelMappingResponse> checkMessage(RestRequest<HotelMappingRequest> restRequest) {
+	public RestResponse<HotelMappingResponse> checkMessage(RestRequest<HotelMappingRequest> restRequest,ProxyAccount proxyAccount) {
 		RestResponse<HotelMappingResponse> restResponse = new RestResponse<HotelMappingResponse>(restRequest.getGuid());
-		String rst = ValidateUtil.validateRestRequest(restRequest);
+		String rst = ValidateUtil.validateRestRequest(restRequest,proxyAccount);
 		if (StringUtils.isNotEmpty(rst)) {
 			restResponse.setCode(rst);
 			return restResponse;
