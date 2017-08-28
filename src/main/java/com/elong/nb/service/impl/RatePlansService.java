@@ -251,9 +251,6 @@ public class RatePlansService implements IRatePlansService {
 					if (hotelRelation != null) {
 						InvoiceMode = getInvoiceMode(hotelRelation.getSupplierId());
 					}
-
-					List<MSRoomRelation> msList = m_SRelationCache.getMSRoomRelation(ratePlans.get(i).getSuppliers().get(j).getHotelCode());
-					ratePlans.get(i).getSuppliers().get(j).setRooms(msList);
 					ratePlans.get(i).getSuppliers().get(j).setInvoiceMode(InvoiceMode);
 				}
 				if (StringUtils.isEmpty(options) || !options.contains("1")) {

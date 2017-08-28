@@ -1,6 +1,7 @@
 package com.elong.nb.dao.adapter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -52,13 +53,12 @@ import com.elong.nb.model.rateplan.HotelGift;
 import com.elong.nb.model.rateplan.HotelGiftDate;
 import com.elong.nb.model.rateplan.HotelGiftProductRelation;
 import com.elong.nb.model.rateplan.HotelRatePlan;
+import com.elong.nb.model.rateplan.MSRoomRelation;
 import com.elong.nb.model.rateplan.RatePlan;
 import com.elong.nb.model.rateplan.SupplierRatePlan;
 import com.elong.nb.model.rateplan.fornb.EnumPrepayRule;
 import com.elong.nb.model.rateplan.fornb.GiftRelation;
 import com.elong.nb.util.DateUtil;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBaseRatePlanDRRGiftResponse> {
 	private Map<String, EnumPaymentType> hotelCodeFilterType;
@@ -211,14 +211,32 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 	private SupplierRatePlan toSupplier(MetaHotelInfo hotelInfo, List<MetaRoomTypeInfo> roomBaseInfo) {
 		SupplierRatePlan supplier = new SupplierRatePlan();
 		supplier.setHotelCode(SafeConvertUtils.ToHotelId(hotelInfo.getShotel_id()));
-		// List<MSRoomRelation> msList = m_SRelationCache
-		// .getMSRoomRelation(supplier.getHotelCode());
-		// supplier.setRooms(msList);
+		supplier.setRooms(toMSRoomRelations(roomBaseInfo));
 		supplier.setWeekendEnd(hotelInfo.getWeek_end_end());
 		supplier.setWeekendStart(hotelInfo.getWeek_end_start());
 		supplier.setBookingRules(toBaseBookingRule(hotelInfo.getHotel_booking_rule_list(), roomBaseInfo));
 		return supplier;
 
+	}
+
+	/** 
+	 * 转换ms房型关系 
+	 *
+	 * @param roomBaseInfo
+	 * @return
+	 */
+	private List<MSRoomRelation> toMSRoomRelations(List<MetaRoomTypeInfo> roomBaseInfo) {
+		if (roomBaseInfo == null || roomBaseInfo.size() == 0)
+			return Collections.emptyList();
+		List<MSRoomRelation> roomRelations = new ArrayList<MSRoomRelation>();
+		for (MetaRoomTypeInfo metaRoomTypeInfo : roomBaseInfo) {
+			MSRoomRelation roomRelation = new MSRoomRelation();
+			roomRelation.setRoomId(SafeConvertUtils.ToRoomId(metaRoomTypeInfo.getMroom_type_id()));
+			roomRelation.setRoomTypeId(SafeConvertUtils.ToRoomId(metaRoomTypeInfo.getRoom_type_id()));
+			roomRelation.setStatus(metaRoomTypeInfo.getStatus() == 1);
+			roomRelations.add(roomRelation);
+		}
+		return roomRelations;
 	}
 
 	/**
