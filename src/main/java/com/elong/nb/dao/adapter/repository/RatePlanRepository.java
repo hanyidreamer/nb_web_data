@@ -133,9 +133,19 @@ public class RatePlanRepository {
 		List<MetaMhotel> mhotels = new LinkedList<MetaMhotel>();
 		for (HotelIdAttr hotelIdAttr : hotelIdAttrs) {
 			int hotelId = Integer.valueOf(hotelIdAttr.getHotelId());
-			MetaMhotel mhotel = new MetaMhotel();
-			mhotel.setMhotel_id(hotelId);
-			mhotels.add(mhotel);
+			if (hotelIdAttr.getHotelCodes() != null && hotelIdAttr.getHotelCodes().size() > 0) {
+				MetaMhotel mhotel = new MetaMhotel();
+				mhotel.setMhotel_id(hotelId);
+				mhotel.setShotel_id(new LinkedList<Integer>());
+				for (String hotelCode : hotelIdAttr.getHotelCodes()) {
+					mhotel.getShotel_id().add(Integer.valueOf(hotelCode));
+				}
+				mhotels.add(mhotel);
+			} else {
+				MetaMhotel mhotel = new MetaMhotel();
+				mhotel.setMhotel_id(hotelId);
+				mhotels.add(mhotel);
+			}
 		}
 		request.setMhotel(mhotels);
 		try {
