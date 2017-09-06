@@ -91,6 +91,8 @@ public class RatePlansService implements IRatePlansService {
 	private SupplierServiceRepository supplierServiceRepository;
 	@Resource
 	HotelGiftRepository hotelGiftRepository;
+	@Resource
+	private CommonRepository commonRepository;
 	private static final int rpThreadSize = 100;
 
 	public List<HotelRatePlan> getRatePlans(RestRequest<RatePlanCondition> request, ProxyAccount proxyAccount) {
@@ -214,9 +216,13 @@ public class RatePlansService implements IRatePlansService {
 		Map<String, EnumPaymentType> hotelCodeFilterType = new HashMap<String, EnumPaymentType>();
 		Map<String, Integer> shotelCooperationTypeMap = new HashMap<String, Integer>();
 		List<HotelIdAttr> hotelIdAttrs = new LinkedList<HotelIdAttr>();
+		Set<String> filteredSHotelIds = commonRepository.fillFilteredSHotelsIds();
 		for (int i = 0; i < mHotelIds.size(); i++) {
 			List<String> showHotelCode = new LinkedList<String>();
 			for (String hotelCode : shotelIdArrs.get(i)) {
+				if (proxyInfo.getOrderFrom() != null && proxyInfo.getOrderFrom().intValue() != 5931
+						&& filteredSHotelIds.contains(hotelCode))
+					continue;
 				int type = 0;
 				MSHotelRelation hotelRelation = m_SRelationCache.getHotelRelation(hotelCode);
 				if (hotelRelation != null) {
