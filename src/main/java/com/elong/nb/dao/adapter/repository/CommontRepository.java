@@ -91,11 +91,11 @@ public class CommontRepository {
 		if (StringUtils.isEmpty(userKey)) {
 			userKey = COMMENT_DEFAULT_USER_KEY;
 		}
-		StringBuilder sb = new StringBuilder(COMMENT_URL + "/dianping/api/GetCommentsByPage?data={UserKey:%22");
+		StringBuilder sb = new StringBuilder(COMMENT_URL + "/dianping/api/GetCommentsByPage?data={UserKey:\"");
 		sb.append(userKey);
-		sb.append("%22,BusinessType:%22H%22,ObjectId:%22");
+		sb.append("\",BusinessType:\"H\",ObjectId:\"");
 		sb.append(hotelId);
-		sb.append("%22,CommentType:0,PageSize:");
+		sb.append("\",CommentType:0,PageSize:");
 		sb.append(pageSize);
 		sb.append(",PageNumber:");
 		sb.append(pageIndex);
