@@ -43,11 +43,11 @@ public class CommontRepository {
 		if (StringUtils.isEmpty(userKey)) {
 			userKey = COMMENT_DEFAULT_USER_KEY;
 		}
-		StringBuilder sb = new StringBuilder(COMMENT_URL + "/dianping/api/GetCommentSummarys?data={UserKey:%22");
+		StringBuilder sb = new StringBuilder(COMMENT_URL + "/dianping/api/GetCommentSummarys?data={UserKey:\"");
 		sb.append(userKey);
-		sb.append("%22,BusinessType:%22H%22,ObjectIds:%22");
+		sb.append("\",BusinessType:\"H\",ObjectIds:\"");
 		sb.append(hotelIds);
-		sb.append("%22}");
+		sb.append("\"}");
 		try {
 			long startTime = System.currentTimeMillis();
 			NbapiHttpRequest nbapiHttpRequest = new NbapiHttpRequest();
