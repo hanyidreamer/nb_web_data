@@ -99,7 +99,7 @@ public class CommontRepository {
 		sb.append(pageSize);
 		sb.append(",PageNumber:");
 		sb.append(pageIndex);
-		sb.append(",NeedReply:false,NeedImage:false,NeedExt:true}");
+		sb.append(",NeedReply:false,NeedImage:true,NeedExt:true}");
 
 		try {
 			long startTime = System.currentTimeMillis();
@@ -113,6 +113,8 @@ public class CommontRepository {
 				result.setComments(new LinkedList<CommentInfo>());
 				result.setCount(response.getTotalNumber());
 				for (Comment c : response.getComments()) {
+					if (c.getSource() == 6)
+						continue;
 					CommentInfo commentInfo = new CommentInfo();
 					commentInfo.setCommentId(c.getCommentId());
 					commentInfo.setCheckInTime(c.getCommentExt().getOrder().getCheckInTime());
@@ -120,9 +122,12 @@ public class CommontRepository {
 					commentInfo.setContent(c.getContent());
 					commentInfo.setCreated(c.getCreateTime());
 					commentInfo.setNickName(c.getCommentUser().getNickName());
+					commentInfo.setRoomTypeId(c.getCommentExt().getOrder().getRoomTypeId());
 					commentInfo.setRoomName(c.getCommentExt().getOrder().getRoomTypeName());
 					commentInfo.setUsefulCount(c.getUsefulCount());
 					commentInfo.setUserId(c.getCommentUser().getUserId());
+					commentInfo.setCommentScore(c.getCommentScore());
+					commentInfo.setImages(c.getImages());
 					result.getComments().add(commentInfo);
 				}
 			} else {
