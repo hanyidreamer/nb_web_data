@@ -2,6 +2,8 @@ package com.elong.nb.checklist;
 
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -17,7 +19,9 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.elong.nb.common.checklist.Constants;
-import com.elong.springmvc_enhance.utilities.ActionLogHelper;
+import com.elong.nb.common.checklist.EnumNBLogType;
+import com.elong.nb.common.checklist.NBActionLogHelper;
+import com.elong.nb.util.ThreadLocalUtil;
 
 @Component
 @Aspect
@@ -35,9 +39,17 @@ public class ControllerAop {
 	@Before("execution(public * com.elong.nb.controller..*..*(..))")
 	public void handlerLogBefore(JoinPoint point) {
 		RequestAttributes request = RequestContextHolder.getRequestAttributes();
-		request.setAttribute(ELONG_REQUEST_STARTTIME,
-				System.currentTimeMillis(),
-				ServletRequestAttributes.SCOPE_REQUEST);
+		request.setAttribute(ELONG_REQUEST_STARTTIME, System.currentTimeMillis(), ServletRequestAttributes.SCOPE_REQUEST);
+
+		Object[] args = point.getArgs();
+		for (Object arg : args) {
+			if (arg == null)
+				continue;
+			if (arg instanceof HttpServletRequest) {
+				ThreadLocalUtil.set(Constants.ELONG_REQUEST_USERNAME, ((HttpServletRequest) arg).getHeader("userName"));
+				break;
+			}
+		}
 	}
 
 	/**
@@ -49,21 +61,18 @@ public class ControllerAop {
 	@AfterReturning(pointcut = "execution(public * com.elong.nb.controller..*..*(..))", returning = "returnValue")
 	public void handlerLogAfter(JoinPoint point, Object returnValue) {
 		RequestAttributes request = RequestContextHolder.getRequestAttributes();
-		String classFullName = ClassUtils.getShortClassName(point
-				.getSignature().getDeclaringTypeName());
+		String classFullName = ClassUtils.getShortClassName(point.getSignature().getDeclaringTypeName());
 		String methodName = point.getSignature().getName();
-		long start = (Long) request.getAttribute(ELONG_REQUEST_STARTTIME,
-				ServletRequestAttributes.SCOPE_REQUEST);
+		long start = (Long) request.getAttribute(ELONG_REQUEST_STARTTIME, ServletRequestAttributes.SCOPE_REQUEST);
 		float useTime = System.currentTimeMillis() - start;
-		Object guid = request.getAttribute(Constants.ELONG_REQUEST_REQUESTGUID,
-				ServletRequestAttributes.SCOPE_REQUEST);
+		Object guid = request.getAttribute(Constants.ELONG_REQUEST_REQUESTGUID, ServletRequestAttributes.SCOPE_REQUEST);
 		if (guid == null)
 			guid = UUID.randomUUID().toString();
-		Object businessCode=request.getAttribute(Constants.ELONG_RESPONSE_CODE, ServletRequestAttributes.SCOPE_REQUEST);
-		int code=0;
+		Object businessCode = request.getAttribute(Constants.ELONG_RESPONSE_CODE, ServletRequestAttributes.SCOPE_REQUEST);
+		int code = 0;
 		String result = null;
-		if(businessCode!=null&&!businessCode.equals("0")){
-			code=1;
+		if (businessCode != null && !businessCode.equals("0")) {
+			code = 1;
 			if (returnValue instanceof String) {
 				result = (String) returnValue;
 			} else {
@@ -71,10 +80,10 @@ public class ControllerAop {
 				ResponseEntity<byte[]> resp = (ResponseEntity<byte[]>) returnValue;
 				result = new String(resp.getBody());
 			}
-			if("getBookingData".equals(methodName)){
-				result+="|"+businessCode;
+			if ("getBookingData".equals(methodName)) {
+				result += "|" + businessCode;
 			}
-		}else if("getBookingData".equals(methodName)){
+		} else if ("getBookingData".equals(methodName)) {
 			if (returnValue instanceof String) {
 				result = (String) returnValue;
 			} else {
@@ -83,33 +92,31 @@ public class ControllerAop {
 				result = new String(resp.getBody());
 			}
 		}
-		ActionLogHelper.businessLog((String) guid, true, methodName,
-				classFullName, null, useTime, code, null, result,
-				(String) (request.getAttribute(Constants.ELONG_REQUEST_JSON,
-						ServletRequestAttributes.SCOPE_REQUEST)));
+		Object userName = ThreadLocalUtil.get(Constants.ELONG_REQUEST_USERNAME);
+		String userNameStr = userName == null ? null : (String) userName;
+		NBActionLogHelper.businessLog((String) guid, true, methodName, classFullName, null, useTime, code, null, result,
+				(String) (request.getAttribute(Constants.ELONG_REQUEST_JSON, ServletRequestAttributes.SCOPE_REQUEST)), userNameStr,
+				EnumNBLogType.OUTER_CONTROLLER);
 	}
 
 	@AfterThrowing(pointcut = "execution(public * com.elong.nb.controller..*..*(..))", throwing = "throwing")
 	public void handlerLogThrowing(JoinPoint point, Object throwing) {
 		RequestAttributes request = RequestContextHolder.getRequestAttributes();
-		String classFullName = ClassUtils.getShortClassName(point
-				.getSignature().getDeclaringTypeName());
+		String classFullName = ClassUtils.getShortClassName(point.getSignature().getDeclaringTypeName());
 		String methodName = point.getSignature().getName();
-		long start = (Long) request.getAttribute(ELONG_REQUEST_STARTTIME,
-				ServletRequestAttributes.SCOPE_REQUEST);
+		long start = (Long) request.getAttribute(ELONG_REQUEST_STARTTIME, ServletRequestAttributes.SCOPE_REQUEST);
 		float useTime = System.currentTimeMillis() - start;
-		Object guid = request.getAttribute(Constants.ELONG_REQUEST_REQUESTGUID,
-				ServletRequestAttributes.SCOPE_REQUEST);
+		Object guid = request.getAttribute(Constants.ELONG_REQUEST_REQUESTGUID, ServletRequestAttributes.SCOPE_REQUEST);
 		if (guid == null)
 			guid = UUID.randomUUID();
 		Exception e = (Exception) throwing;
 
-		ActionLogHelper.businessLog(guid.toString(), false, methodName,
-				classFullName, e, useTime, 0, e.getMessage(), null,
-				(String) (request.getAttribute(Constants.ELONG_REQUEST_JSON,
-						ServletRequestAttributes.SCOPE_REQUEST)));
-		logger.info((String) (request.getAttribute(Constants.ELONG_REQUEST_JSON,
-				ServletRequestAttributes.SCOPE_REQUEST)),e);
+		Object userName = ThreadLocalUtil.get(Constants.ELONG_REQUEST_USERNAME);
+		String userNameStr = userName == null ? null : (String) userName;
+		NBActionLogHelper.businessLog(guid.toString(), false, methodName, classFullName, e, useTime, 0, e.getMessage(), null,
+				(String) (request.getAttribute(Constants.ELONG_REQUEST_JSON, ServletRequestAttributes.SCOPE_REQUEST)), userNameStr,
+				EnumNBLogType.OUTER_CONTROLLER);
+		logger.info((String) (request.getAttribute(Constants.ELONG_REQUEST_JSON, ServletRequestAttributes.SCOPE_REQUEST)), e);
 	}
 
 	// ----------------------------controller end-------------------------------

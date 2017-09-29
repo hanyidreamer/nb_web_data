@@ -8,6 +8,9 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 
+import com.elong.nb.common.checklist.Constants;
+import com.elong.nb.common.checklist.EnumNBLogType;
+import com.elong.nb.common.checklist.NBActionLogHelper;
 import com.elong.nb.common.gson.DateTypeAdapter;
 import com.elong.nb.common.model.NbapiHttpRequest;
 import com.elong.nb.common.util.CommonsUtil;
@@ -20,7 +23,7 @@ import com.elong.nb.model.comment.CommentSumarryResponse;
 import com.elong.nb.model.comment.CommentSummary;
 import com.elong.nb.model.comment.CommentSummaryObj;
 import com.elong.nb.model.comment.CommentSummaryResult;
-import com.elong.springmvc_enhance.utilities.ActionLogHelper;
+import com.elong.nb.util.ThreadLocalUtil;
 import com.google.gson.GsonBuilder;
 
 @Repository
@@ -39,6 +42,9 @@ public class CommontRepository {
 	 * @return
 	 */
 	public CommentSummaryResult getSumarries(String hotelIds, String userKey) {
+		Object userName = ThreadLocalUtil.get(Constants.ELONG_REQUEST_USERNAME);
+		String userNameStr = userName == null ? null : (String) userName;
+
 		CommentSummaryResult result = new CommentSummaryResult();
 		if (StringUtils.isEmpty(userKey)) {
 			userKey = COMMENT_DEFAULT_USER_KEY;
@@ -70,10 +76,11 @@ public class CommontRepository {
 			} else {
 				businessCode = 1;
 			}
-			ActionLogHelper.businessLog(UUID.randomUUID().toString(), true, "GetCommentSummarys", COMMENT_URL, null, (endTime - startTime),
-					businessCode, null, null, "");
+			NBActionLogHelper.businessLog(UUID.randomUUID().toString(), true, "GetCommentSummarys", COMMENT_URL, null,
+					(endTime - startTime), businessCode, null, null, "", userNameStr, EnumNBLogType.DAO);
 		} catch (Exception ex) {
-			ActionLogHelper.businessLog(UUID.randomUUID().toString(), false, "GetCommentSummarys", COMMENT_URL, null, 0, 0, null, null, "");
+			NBActionLogHelper.businessLog(UUID.randomUUID().toString(), false, "GetCommentSummarys", COMMENT_URL, null, 0, 0, null, null,
+					"", userNameStr, EnumNBLogType.DAO);
 		}
 		return result;
 	}
@@ -87,6 +94,9 @@ public class CommontRepository {
 	 * @return
 	 */
 	public CommentResult list(String hotelId, int pageSize, int pageIndex, String userKey) {
+		Object userName = ThreadLocalUtil.get(Constants.ELONG_REQUEST_USERNAME);
+		String userNameStr = userName == null ? null : (String) userName;
+
 		CommentResult result = new CommentResult();
 		if (StringUtils.isEmpty(userKey)) {
 			userKey = COMMENT_DEFAULT_USER_KEY;
@@ -133,10 +143,11 @@ public class CommontRepository {
 			} else {
 				businessCode = -1;
 			}
-			ActionLogHelper.businessLog(UUID.randomUUID().toString(), true, "GetCommentsByPage", COMMENT_URL, null, (endTime - startTime),
-					businessCode, null, null, "");
+			NBActionLogHelper.businessLog(UUID.randomUUID().toString(), true, "GetCommentsByPage", COMMENT_URL, null,
+					(endTime - startTime), businessCode, null, null, "", userNameStr, EnumNBLogType.DAO);
 		} catch (Exception ex) {
-			ActionLogHelper.businessLog(UUID.randomUUID().toString(), false, "GetCommentsByPage", COMMENT_URL, null, 0, 0, null, null, "");
+			NBActionLogHelper.businessLog(UUID.randomUUID().toString(), false, "GetCommentsByPage", COMMENT_URL, null, 0, 0, null, null,
+					"", userNameStr, EnumNBLogType.DAO);
 		}
 		return result;
 	}

@@ -22,6 +22,9 @@ import com.elong.hotel.goods.ds.thrift.GetBaseRatePlanDRRGiftResponse;
 import com.elong.hotel.goods.ds.thrift.MetaMhotel;
 import com.elong.nb.agent.thrift.utils.ThriftUtils;
 import com.elong.nb.checklist.CheckListUtil;
+import com.elong.nb.common.checklist.Constants;
+import com.elong.nb.common.checklist.EnumNBLogType;
+import com.elong.nb.common.checklist.NBActionLogHelper;
 import com.elong.nb.common.model.EnumBookingChannel;
 import com.elong.nb.common.model.EnumMemberLevel;
 import com.elong.nb.common.model.EnumSellChannel;
@@ -39,7 +42,7 @@ import com.elong.nb.model.rateplan.HotelRatePlan;
 import com.elong.nb.model.rateplan.fornb.RequestBase;
 import com.elong.nb.model.rateplan.fornb.SearchHotelRatePlanListReq;
 import com.elong.nb.model.rateplan.fornb.SearchHotelRatePlanListResp;
-import com.elong.springmvc_enhance.utilities.ActionLogHelper;
+import com.elong.nb.util.ThreadLocalUtil;
 import com.google.gson.Gson;
 
 /**
@@ -86,13 +89,16 @@ public class RatePlanRepository {
 		DataRestResponseCommon<SearchHotelRatePlanListResp> result = (DataRestResponseCommon<SearchHotelRatePlanListResp>) JSON
 				.parseObject(reponseBody, typeRefernce);
 		long endTime = System.currentTimeMillis();
+
+		Object userName = ThreadLocalUtil.get(Constants.ELONG_REQUEST_USERNAME);
+		String userNameStr = userName == null ? null : (String) userName;
 		if (result.getRealResponse() != null) {
 			int businessCode = ((com.elong.nb.model.common.ResponseBase) result.getRealResponse()).getResponseCode();
-			ActionLogHelper.businessLog(guid.toString(), true, uri.getPath(), uri.getHost(), null, (endTime - startTime), businessCode,
-					null, null, "");
+			NBActionLogHelper.businessLog(guid.toString(), true, uri.getPath(), uri.getHost(), null, (endTime - startTime), businessCode,
+					null, null, "", userNameStr, EnumNBLogType.DAO);
 		} else {
-			ActionLogHelper.businessLog(guid.toString(), false, uri.getPath(), uri.getHost(), null, (endTime - startTime), 0,
-					result.getExceptionMsg(), null, "");
+			NBActionLogHelper.businessLog(guid.toString(), false, uri.getPath(), uri.getHost(), null, (endTime - startTime), 0,
+					result.getExceptionMsg(), null, "", userNameStr, EnumNBLogType.DAO);
 		}
 
 		return result.getRealResponse();
