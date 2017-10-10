@@ -618,19 +618,24 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 				drrRule.setFeeType(drrFee);
 				drrRule.setWeekSet(getWeekSet(metaDRRInfo.getIs_week_effective()));
 				if (metaDRRInfo.getRuleValues() != null) {
-					if (metaDRRInfo.getRuleValues().containsKey("CheckInNum")) {
+					if (metaDRRInfo.getRuleValues().containsKey("CheckInNum")
+							&& StringUtils.isNotEmpty(metaDRRInfo.getRuleValues().get("CheckInNum"))) {
 						drrRule.setCheckInNum(Integer.valueOf(metaDRRInfo.getRuleValues().get("CheckInNum")));
 					}
-					if (metaDRRInfo.getRuleValues().containsKey("DayNum")) {
+					if (metaDRRInfo.getRuleValues().containsKey("DayNum")
+							&& StringUtils.isNotEmpty(metaDRRInfo.getRuleValues().get("DayNum"))) {
 						drrRule.setDayNum(Integer.valueOf(metaDRRInfo.getRuleValues().get("DayNum")));
 					}
-					if (metaDRRInfo.getRuleValues().containsKey("LastDayNum")) {
+					if (metaDRRInfo.getRuleValues().containsKey("LastDayNum")
+							&& StringUtils.isNotEmpty(metaDRRInfo.getRuleValues().get("LastDayNum"))) {
 						drrRule.setLastDayNum(Integer.valueOf(metaDRRInfo.getRuleValues().get("LastDayNum")));
 					}
-					if (metaDRRInfo.getRuleValues().containsKey("EveryCheckInNum")) {
+					if (metaDRRInfo.getRuleValues().containsKey("EveryCheckInNum")
+							&& StringUtils.isNotEmpty(metaDRRInfo.getRuleValues().get("EveryCheckInNum"))) {
 						drrRule.setEveryCheckInNum(Integer.valueOf(metaDRRInfo.getRuleValues().get("EveryCheckInNum")));
 					}
-					if (metaDRRInfo.getRuleValues().containsKey("WhichDayNum")) {
+					if (metaDRRInfo.getRuleValues().containsKey("WhichDayNum")
+							&& StringUtils.isNotEmpty(metaDRRInfo.getRuleValues().get("WhichDayNum"))) {
 						drrRule.setWhichDayNum(Integer.valueOf(metaDRRInfo.getRuleValues().get("WhichDayNum")));
 					}
 				}
