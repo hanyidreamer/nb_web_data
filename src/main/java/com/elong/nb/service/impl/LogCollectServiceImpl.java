@@ -56,7 +56,7 @@ public class LogCollectServiceImpl implements LogCollectService {
 		DataRatePlanStatistic statisticModel = new DataRatePlanStatistic();
 		statisticModel.setBusiness_type(BUSINESS_TYPE);
 		statisticModel.setLog_time(DateUtils.convertDate(new Date(), "yyyy-MM-dd HH:mm:ss"));
-		statisticModel.setProxyId(proxyAccount.getProxyId());
+		statisticModel.setProxyId(proxyAccount.getOrderFrom() + "");
 		int rateplanSize = 0, roomTrueSize = 0, roomFalseSize = 0;
 		RatePlanResult ratePlanResult = response.getResult();
 		if (ratePlanResult == null || ratePlanResult.getHotels() == null) {
