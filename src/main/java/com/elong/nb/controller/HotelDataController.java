@@ -24,12 +24,17 @@ import com.elong.nb.common.util.ValidateUtil;
 import com.elong.nb.model.rateplan.RatePlanCondition;
 import com.elong.nb.model.rateplan.RatePlanResult;
 import com.elong.nb.service.IRatePlansService;
+import com.elong.nb.service.LogCollectService;
 import com.google.gson.TypeAdapter;
 
 @Controller
 public class HotelDataController {
+
 	@Resource
 	private IRatePlansService ratePlansService;
+
+	@Resource
+	private LogCollectService logCollectService;
 
 	// 获取产品
 	@SuppressWarnings("rawtypes")
@@ -57,9 +62,10 @@ public class HotelDataController {
 
 		// 调用Service
 		RestResponse<RatePlanResult> response = ratePlansService.GetRatePlans(restRequest, proxyAccount);
+		// 记业务监控日志
+		logCollectService.writeRateplanLog(proxyAccount, response);
 		// 反回JSON
 		return new ResponseEntity<byte[]>(GsonUtil.toJson(response, restRequest.getVersion()).getBytes(), HttpStatus.OK);
-
 	}
 
 	private String validateRatePlanRequest(RestRequest<RatePlanCondition> restRequest, ProxyAccount proxyAccount) {
