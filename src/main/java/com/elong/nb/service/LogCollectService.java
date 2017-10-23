@@ -7,6 +7,7 @@ package com.elong.nb.service;
 
 import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestResponse;
+import com.elong.nb.model.inventory.InventoryResult;
 import com.elong.nb.model.rateplan.RatePlanResult;
 
 /**
@@ -32,5 +33,13 @@ public interface LogCollectService {
 	 * @param response
 	 */
 	public void writeRateplanLog(ProxyAccount proxyAccount, RestResponse<RatePlanResult> response);
+	
+	/** 
+	 * 库存接口查询业务监控日志收集 
+	 *
+	 * @param proxyAccount
+	 * @param response
+	 */
+	public void writeInventoryLog(ProxyAccount proxyAccount, RestResponse<InventoryResult> response);
 
 }

@@ -12,10 +12,13 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSON;
+import com.elong.nb.DataInventoryPlanStatistic;
 import com.elong.nb.DataRatePlanStatistic;
 import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestResponse;
 import com.elong.nb.common.util.DateUtils;
+import com.elong.nb.model.bean.Inventory;
+import com.elong.nb.model.inventory.InventoryResult;
 import com.elong.nb.model.rateplan.HotelRatePlan;
 import com.elong.nb.model.rateplan.MSRoomRelation;
 import com.elong.nb.model.rateplan.RatePlanResult;
@@ -54,7 +57,7 @@ public class LogCollectServiceImpl implements LogCollectService {
 	@Override
 	public void writeRateplanLog(ProxyAccount proxyAccount, RestResponse<RatePlanResult> response) {
 		DataRatePlanStatistic statisticModel = new DataRatePlanStatistic();
-		statisticModel.setBusiness_type(BUSINESS_TYPE);
+		statisticModel.setBusiness_type(BUSINESS_TYPE + "_rp");
 		statisticModel.setLog_time(DateUtils.convertDate(new Date(), "yyyy-MM-dd HH:mm:ss"));
 		statisticModel.setProxyId(proxyAccount.getOrderFrom() + "");
 		int rateplanSize = 0, roomTrueSize = 0, roomFalseSize = 0;
@@ -92,6 +95,44 @@ public class LogCollectServiceImpl implements LogCollectService {
 		statisticModel.setRatePlanSize(rateplanSize);
 		statisticModel.setRoomTrueSize(roomTrueSize);
 		statisticModel.setRoomFalseSize(roomFalseSize);
+		minitorLogger.info(JSON.toJSONString(statisticModel));
+	}
+
+	/** 
+	 * 库存接口查询业务监控日志收集  
+	 *
+	 * @param proxyAccount
+	 * @param response 
+	 *
+	 * @see com.elong.nb.service.LogCollectService#writeInventoryLog(com.elong.nb.common.model.ProxyAccount, com.elong.nb.common.model.RestResponse)    
+	 */
+	@Override
+	public void writeInventoryLog(ProxyAccount proxyAccount, RestResponse<InventoryResult> response) {
+		DataInventoryPlanStatistic statisticModel = new DataInventoryPlanStatistic();
+		statisticModel.setBusiness_type(BUSINESS_TYPE + "_inv");
+		statisticModel.setLog_time(DateUtils.convertDate(new Date(), "yyyy-MM-dd HH:mm:ss"));
+		statisticModel.setInvProxyId(proxyAccount.getOrderFrom() + "");
+		int invSize = 0, invTrueSize = 0, invFalseSize = 0;
+		InventoryResult inventoryResult = response.getResult();
+		if (inventoryResult == null || inventoryResult.getInventories() == null) {
+			statisticModel.setInvSize(0);
+			statisticModel.setInvTrueSize(0);
+			statisticModel.setInvFalseSize(0);
+			minitorLogger.info(JSON.toJSONString(statisticModel));
+			return;
+		}
+		List<Inventory> invList = inventoryResult.getInventories();
+		invSize = invList.size();
+		for (Inventory inventory : invList) {
+			if (inventory.isStatus()) {
+				++invTrueSize;
+			} else {
+				++invFalseSize;
+			}
+		}
+		statisticModel.setInvSize(invSize);
+		statisticModel.setInvTrueSize(invTrueSize);
+		statisticModel.setInvFalseSize(invFalseSize);
 		minitorLogger.info(JSON.toJSONString(statisticModel));
 	}
 

@@ -23,13 +23,19 @@ import com.elong.nb.model.inventory.ValidateInventoryCondition;
 import com.elong.nb.model.inventory.ValidateInventoryResult;
 import com.elong.nb.service.IInventoryService;
 import com.elong.nb.service.IValidateInventoryService;
+import com.elong.nb.service.LogCollectService;
 
 @Controller
 public class HotelInvetoryController {
+
 	@Resource
 	private IInventoryService inventoryService;
+
 	@Resource
 	private IValidateInventoryService validateInventoryService;
+
+	@Resource
+	private LogCollectService logCollectService;
 
 	@RequestMapping(value = "/api/Hotel/GetInventories", method = RequestMethod.POST)
 	public ResponseEntity<byte[]> getInventories(HttpServletRequest request) throws Exception {
@@ -52,6 +58,8 @@ public class HotelInvetoryController {
 					.getBytes(), HttpStatus.OK);
 		}
 		RestResponse<InventoryResult> response = this.inventoryService.getInventories(restRequest, proxyAccount);
+		// 记业务监控日志
+		logCollectService.writeInventoryLog(proxyAccount, response);
 		return new ResponseEntity<byte[]>(GsonUtil.toJson(response, restRequest.getVersion()).getBytes(), HttpStatus.OK);
 
 	}
