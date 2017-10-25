@@ -384,7 +384,7 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 		}
 		ratePlan.setCustomerLevel(lev);
 		ratePlan.setCooperationType(shotelCooperationTypeMap.get(hotelCode));
-		// 客人国籍类别：1-统一价；2-内宾；3-外宾；4-港澳台；5-日本
+		// 客人国籍类别：1-统一价；2-内宾；3-外宾；4-港澳台；5-日本；6-中宾
 		EnumGuestTypeCode gtype = EnumGuestTypeCode.Chinese;
 		if (metaRatePlanBaseInfo.getPrice_type().equals("1"))
 			gtype = EnumGuestTypeCode.All;
@@ -396,6 +396,8 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 			gtype = EnumGuestTypeCode.HongKong;
 		else if (metaRatePlanBaseInfo.getPrice_type().equals("5"))
 			gtype = EnumGuestTypeCode.Japanese;
+		else if (metaRatePlanBaseInfo.getPrice_type().equals("6"))
+			gtype = EnumGuestTypeCode.ChinaGuest;
 		ratePlan.setCustomerType(gtype);
 		ratePlan.setDrrRules(drrRuleList);
 		ratePlan.setEndTime(DateUtil.getTimeString(new Date(metaRatePlanBaseInfo.getEnd_time() - 28800000)));

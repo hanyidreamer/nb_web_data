@@ -439,6 +439,8 @@ public class RatePlansService implements IRatePlansService {
 						gtype = EnumGuestTypeCode.HongKong;
 					else if (oldrp.getPriceType().equals("5"))
 						gtype = EnumGuestTypeCode.Japanese;
+					else if (oldrp.getPriceType().equals("6"))
+						gtype = EnumGuestTypeCode.ChinaGuest;
 					rp.setCustomerType(gtype);
 
 					rp.setIsLimitTimeSale(oldrp.getIsLimitTimeSale() == 1);
