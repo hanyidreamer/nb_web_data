@@ -227,6 +227,7 @@ public class RatePlansService implements IRatePlansService {
 						&& filteredSHotelIds.contains(hotelCode))
 					continue;
 				String cooperationType = hotelCodeCoopTypeMap.get(hotelCode);
+				cooperationType = StringUtils.isEmpty(cooperationType) ? "0" : cooperationType;
 				if (proxyInfo.isIsOnlyStraight()) {
 					// 只保留艺龙直签，其他供应商的rp都过滤
 					// CooperationType=1为直签，2为非直签，0为未知
@@ -253,7 +254,10 @@ public class RatePlansService implements IRatePlansService {
 					EnumInvoiceMode InvoiceMode = EnumInvoiceMode.Hotel;
 					String hotelCode = ratePlans.get(i).getSuppliers().get(j).getHotelCode();
 					Map<String, String> hotelCodeSupplierMap = HotelDataServiceAgent.getSupplierIdByShotelId(new String[] { hotelCode });
-					InvoiceMode = getInvoiceMode(Integer.valueOf(hotelCodeSupplierMap.get(hotelCode)));
+					String supplierId = hotelCodeSupplierMap.get(hotelCode);
+					if(StringUtils.isNoneEmpty(supplierId)){
+						InvoiceMode = getInvoiceMode(Integer.valueOf(hotelCodeSupplierMap.get(hotelCode)));
+					}
 					ratePlans.get(i).getSuppliers().get(j).setInvoiceMode(InvoiceMode);
 				}
 				if (StringUtils.isEmpty(options) || !options.contains("1")) {
