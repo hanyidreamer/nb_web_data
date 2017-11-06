@@ -117,14 +117,6 @@ public class InventoryService implements IInventoryService {
 		if (endDate.getTime() > DateUtil.getDate(DateUtil.addDays(new Date(), days)).getTime()) {
 			endDate = DateUtil.getDate(DateUtil.addDays(new Date(), days));
 		}
-		String[] shotelIdsUnderSupplier = null;
-		if (StringUtils.isNotBlank(proxyInfo.getSupplier())) {
-			List<String> list = this.m_SRelationCache.getSupplierHotels(proxyInfo.getSupplier().trim().split(","));// 获取供应商下的hotelcode
-			if (list != null) {
-				String tmp = StringUtils.join(list, ',');
-				shotelIdsUnderSupplier = tmp.split(",");
-			}
-		}
 		String[] mHotelIdArray = null;
 		List<String[]> sHotelIdArrays = null;
 		if (StringUtils.isNotBlank(hotelCodeString)) {
@@ -137,13 +129,6 @@ public class InventoryService implements IInventoryService {
 			String tmp = StringUtils.join(hotelIdList, ',');
 			mHotelIdArray = tmp.split(",");
 			sHotelIdArrays = m_SRelationCache.getSHotelIds(mHotelIdArray);
-		}
-		// 如果代理商有供应商限制，则只取其有权限的供应商下的s酒店
-		if (shotelIdsUnderSupplier != null) {
-			for (int i = 0; i < mHotelIdArray.length; i++) {
-				String[] intersectHotelCode = ComparableUtil.intersect(sHotelIdArrays.get(i), shotelIdsUnderSupplier);
-				sHotelIdArrays.set(i, intersectHotelCode);
-			}
 		}
 
 		List<MSHotelIdRelation> relationList = new LinkedList<MSHotelIdRelation>();
@@ -213,14 +198,6 @@ public class InventoryService implements IInventoryService {
 		if (endDate.getTime() > DateUtil.getDate(DateUtil.addDays(new Date(), days)).getTime()) {
 			endDate = DateUtil.getDate(DateUtil.addDays(new Date(), days));
 		}
-		String[] shotelIdsUnderSupplier = null;
-		if (StringUtils.isNotBlank(proxyInfo.getSupplier())) {
-			List<String> list = this.m_SRelationCache.getSupplierHotels(proxyInfo.getSupplier().trim().split(","));// 获取供应商下的hotelcode
-			if (list != null) {
-				String tmp = StringUtils.join(list, ',');
-				shotelIdsUnderSupplier = tmp.split(",");
-			}
-		}
 		if (StringUtils.isNotEmpty(hotelId)) {
 			hotelId = hotelId.replaceAll(" ", "");
 		}
@@ -237,13 +214,6 @@ public class InventoryService implements IInventoryService {
 			String tmp = StringUtils.join(hotelIdList, ',');
 			mHotelIdArray = tmp.split(",");
 			sHotelIdArrays = m_SRelationCache.getSHotelIds(mHotelIdArray);
-		}
-		// 如果代理商有供应商限制，则只取其有权限的供应商下的s酒店
-		if (shotelIdsUnderSupplier != null) {
-			for (int i = 0; i < mHotelIdArray.length; i++) {
-				String[] intersectHotelCode = ComparableUtil.intersect(sHotelIdArrays.get(i), shotelIdsUnderSupplier);
-				sHotelIdArrays.set(i, intersectHotelCode);
-			}
 		}
 		Map<String, List<String>> hotelMap = new HashMap<String, List<String>>();
 		for (int index = 0; index < mHotelIdArray.length; index++) {

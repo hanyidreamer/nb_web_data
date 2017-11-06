@@ -28,9 +28,6 @@ public class M_SRelationCache {
 	private static Logger LocalMsg = LogManager.getLogger(M_SRelationCache.class);
 	@Resource(name = "supplierService")
 	private ISupplierServiceContract supplierServiceContract;
-	public List<String> getSupplierHotels(String[] supplier) {
-		return redis.hashMGet(RedisKeyConst.CacheKey_KEY_SupplierMap, supplier);
-	}
 
 	/**
 	 * 获取hotelCode
@@ -39,7 +36,7 @@ public class M_SRelationCache {
 	 * @return
 	 * @throws Exception 
 	 */
-	public List<String[]> getSHotelIds(String[] mHotelIds){
+	public List<String[]> getSHotelIds(String[] mHotelIds) {
 		List<String[]> result = new ArrayList<String[]>();
 		List<String> rst = redis.hashMGet(RedisKeyConst.CacheKey_KEY_ID_M_S, mHotelIds);
 		for (int i = 0; i < mHotelIds.length; i++) {
@@ -51,6 +48,7 @@ public class M_SRelationCache {
 		}
 		return result;
 	}
+
 	public MSHotelRelation getHotelRelation(String sHotelId) {
 		ICacheKey cacheKey = RedisKeyConst.CacheKey_KEY_Hotel_S_M;
 		if (!redis.exists(cacheKey)) {
@@ -90,11 +88,11 @@ public class M_SRelationCache {
 				GetSupplierInfoBySupplierIDResponse response = supplierServiceContract.getSupplierInfoBySupplierID(req);
 				if (response != null && response.getResult() != null && response.getResult().getResponseCode() == 0
 						&& response.getSupplierBaseInfo() != null) {
-					int cooperationType=response.getSupplierBaseInfo().getCooperationType();
-					//cooperationType=1、3，为艺龙直签酒店
-					if(cooperationType==1||cooperationType==3){
+					int cooperationType = response.getSupplierBaseInfo().getCooperationType();
+					// cooperationType=1、3，为艺龙直签酒店
+					if (cooperationType == 1 || cooperationType == 3) {
 						type = 1;
-					}else{
+					} else {
 						type = 2;
 					}
 				}
