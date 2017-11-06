@@ -251,11 +251,9 @@ public class RatePlansService implements IRatePlansService {
 			for (int i = 0; i < ratePlans.size(); i++) {
 				for (int j = 0; j < ratePlans.get(i).getSuppliers().size(); j++) {
 					EnumInvoiceMode InvoiceMode = EnumInvoiceMode.Hotel;
-					MSHotelRelation hotelRelation = m_SRelationCache
-							.getHotelRelation(ratePlans.get(i).getSuppliers().get(j).getHotelCode());//TODO suht
-					if (hotelRelation != null) {
-						InvoiceMode = getInvoiceMode(hotelRelation.getSupplierId());
-					}
+					String hotelCode = ratePlans.get(i).getSuppliers().get(j).getHotelCode();
+					Map<String, String> hotelCodeSupplierMap = HotelDataServiceAgent.getSupplierIdByShotelId(new String[] { hotelCode });
+					InvoiceMode = getInvoiceMode(Integer.valueOf(hotelCodeSupplierMap.get(hotelCode)));
 					ratePlans.get(i).getSuppliers().get(j).setInvoiceMode(InvoiceMode);
 				}
 				if (StringUtils.isEmpty(options) || !options.contains("1")) {
