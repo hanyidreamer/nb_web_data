@@ -72,6 +72,7 @@ import com.elong.nb.model.rateplan.fornb.RoomTypeInfo;
 import com.elong.nb.model.rateplan.fornb.SearchHotelRatePlanListReq;
 import com.elong.nb.model.rateplan.fornb.SearchHotelRatePlanListResp;
 import com.elong.nb.model.rateplan.fornb.VouchInfo;
+import com.elong.nb.ms.agent.HotelDataServiceAgent;
 import com.elong.nb.service.IRatePlansService;
 import com.elong.nb.service.task.RatePlanTask;
 import com.elong.nb.util.DateUtil;
@@ -219,24 +220,22 @@ public class RatePlansService implements IRatePlansService {
 		Set<String> filteredSHotelIds = commonRepository.fillFilteredSHotelsIds();
 		for (int i = 0; i < mHotelIds.size(); i++) {
 			List<String> showHotelCode = new LinkedList<String>();
-			for (String hotelCode : shotelIdArrs.get(i)) {
+			String[] sHotelIds = shotelIdArrs.get(i);
+			Map<String, String> hotelCodeCoopTypeMap = HotelDataServiceAgent.getCooperationTypeByHotelCode(sHotelIds);
+			for (String hotelCode : sHotelIds) {
 				if (proxyInfo.getOrderFrom() != null && proxyInfo.getOrderFrom().intValue() != 5931
 						&& filteredSHotelIds.contains(hotelCode))
 					continue;
-				int type = 0;
-				MSHotelRelation hotelRelation = m_SRelationCache.getHotelRelation(hotelCode);
-				if (hotelRelation != null) {
-					type = m_SRelationCache.getCooperationTypeBySupplierID(hotelRelation.getSupplierId());
-				}
+				String cooperationType = hotelCodeCoopTypeMap.get(hotelCode);
 				if (proxyInfo.isIsOnlyStraight()) {
 					// 只保留艺龙直签，其他供应商的rp都过滤
 					// CooperationType=1为直签，2为非直签，0为未知
-					if (type == 2) {
+					if ("2".equals(cooperationType)) {
 						continue;
 					}
 
 				}
-				shotelCooperationTypeMap.put(hotelCode, type);
+				shotelCooperationTypeMap.put(hotelCode, Integer.valueOf(cooperationType));
 				showHotelCode.add(hotelCode);
 			}
 			if (showHotelCode != null && showHotelCode.size() > 0) {
@@ -253,7 +252,7 @@ public class RatePlansService implements IRatePlansService {
 				for (int j = 0; j < ratePlans.get(i).getSuppliers().size(); j++) {
 					EnumInvoiceMode InvoiceMode = EnumInvoiceMode.Hotel;
 					MSHotelRelation hotelRelation = m_SRelationCache
-							.getHotelRelation(ratePlans.get(i).getSuppliers().get(j).getHotelCode());
+							.getHotelRelation(ratePlans.get(i).getSuppliers().get(j).getHotelCode());//TODO suht
 					if (hotelRelation != null) {
 						InvoiceMode = getInvoiceMode(hotelRelation.getSupplierId());
 					}
