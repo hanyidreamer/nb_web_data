@@ -54,7 +54,6 @@ import com.elong.nb.model.bean.enums.EnumPrepayCutPayment;
 import com.elong.nb.model.bean.enums.EnumValueAddPriceOption;
 import com.elong.nb.model.rateplan.HotelGift;
 import com.elong.nb.model.rateplan.HotelRatePlan;
-import com.elong.nb.model.rateplan.MSHotelRelation;
 import com.elong.nb.model.rateplan.MSRoomRelation;
 import com.elong.nb.model.rateplan.RatePlan;
 import com.elong.nb.model.rateplan.RatePlanCondition;
@@ -120,11 +119,13 @@ public class RatePlansService implements IRatePlansService {
 				for (String shotelId : ids) {
 					if (proxyAccount.isIsOnlyStraight()) {
 						// 只保留艺龙直签，其他供应商的rp都过滤
-						MSHotelRelation hotelRelation = m_SRelationCache.getHotelRelation(shotelId);
-						if (hotelRelation != null) {
-							int type = m_SRelationCache.getCooperationTypeBySupplierID(hotelRelation.getSupplierId());
+						Map<String, String> hotelCodeCoopTypeMap = HotelDataServiceAgent
+								.getCooperationTypeByHotelCode(new String[] { shotelId });
+						String cooperationTypeStr = hotelCodeCoopTypeMap.get(shotelId);
+						if (StringUtils.isNotEmpty(cooperationTypeStr)) {
+							int cooperationType = Integer.valueOf(cooperationTypeStr);
 							// CooperationType=1为直签，2为非直签，0为未知
-							if (type == 2) {
+							if (cooperationType == 2) {
 								continue;
 							}
 						}
@@ -255,7 +256,7 @@ public class RatePlansService implements IRatePlansService {
 					String hotelCode = ratePlans.get(i).getSuppliers().get(j).getHotelCode();
 					Map<String, String> hotelCodeSupplierMap = HotelDataServiceAgent.getSupplierIdByShotelId(new String[] { hotelCode });
 					String supplierId = hotelCodeSupplierMap.get(hotelCode);
-					if(StringUtils.isNoneEmpty(supplierId)){
+					if (StringUtils.isNoneEmpty(supplierId)) {
 						InvoiceMode = getInvoiceMode(Integer.valueOf(hotelCodeSupplierMap.get(hotelCode)));
 					}
 					ratePlans.get(i).getSuppliers().get(j).setInvoiceMode(InvoiceMode);
@@ -330,7 +331,7 @@ public class RatePlansService implements IRatePlansService {
 			}
 			HotelRatePlan rp = new HotelRatePlan();
 			if (filterHotel.getHotelBaseInfo() != null) {
-				rp.setHotelID(mHotelId == null ? m_SRelationCache.GetMHotelId(filterHotel.getHotelBaseInfo().getShotelId()) : mHotelId);
+				rp.setHotelID(mHotelId == null ? m_SRelationCache.getMHotelId(filterHotel.getHotelBaseInfo().getShotelId()) : mHotelId);
 			}
 			rp.setRatePlans(getRatePlans(filterHotel, language, proxyInfo, requestVersion, options));
 			rp.setSuppliers(getSuppliers(filterHotel, language));
@@ -392,12 +393,13 @@ public class RatePlansService implements IRatePlansService {
 			} else {
 				if (hotel != null && hotel.getHotelBaseInfo() != null && hotel.getHotelBaseInfo().getShotelId() != null
 						&& !hotel.getHotelBaseInfo().getShotelId().isEmpty()) {
-					// 获取合作类型，是艺龙直签还是其它供应商
-					MSHotelRelation hotelRelation = m_SRelationCache.getHotelRelation(hotel.getHotelBaseInfo().getShotelId());
-					if (hotelRelation != null) {
-						int type = m_SRelationCache.getCooperationTypeBySupplierID(hotelRelation.getSupplierId());
-						cooperationType = type;
+					String hotelCode = hotel.getHotelBaseInfo().getShotelId();
+					Map<String, String> hotelCodeCoopTypeMap = HotelDataServiceAgent
+							.getCooperationTypeByHotelCode(new String[] { hotelCode });
+					String cooperationTypeStr = hotelCodeCoopTypeMap.get(hotelCode);
+					if (StringUtils.isNotEmpty(cooperationTypeStr)) {
 						// CooperationType=1为直签，2为非直签，0为未知
+						cooperationType = Integer.valueOf(cooperationType);
 					}
 				}
 			}
@@ -1166,9 +1168,11 @@ public class RatePlansService implements IRatePlansService {
 			return result;
 
 		EnumInvoiceMode InvoiceMode = EnumInvoiceMode.Hotel;
-		MSHotelRelation hotelRelation = m_SRelationCache.getHotelRelation(hotel.getHotelBaseInfo().getShotelId());
-		if (hotelRelation != null) {
-			InvoiceMode = getInvoiceMode(hotelRelation.getSupplierId());
+		String hotelCode = hotel.getHotelBaseInfo().getShotelId();
+		Map<String, String> hotelCodeSupplierIdMap = HotelDataServiceAgent.getSupplierIdByShotelId(new String[] { hotelCode });
+		String supplierIdStr = hotelCodeSupplierIdMap.get(hotelCode);
+		if (StringUtils.isNotEmpty(supplierIdStr)) {
+			InvoiceMode = getInvoiceMode(Integer.valueOf(supplierIdStr));
 		}
 
 		SupplierRatePlan suprp = new SupplierRatePlan();
