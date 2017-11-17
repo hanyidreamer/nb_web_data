@@ -202,18 +202,19 @@ public class InventoryService implements IInventoryService {
 			hotelId = hotelId.replaceAll(" ", "");
 		}
 		String[] mHotelIdArray = null;
-		List<String[]> sHotelIdArrays = null;
+		List<String[]> sHotelIdArrays = new ArrayList<String[]>();
 		if (StringUtils.isNotBlank(hotelCodeString)) {
 			hotelCodeString = hotelCodeString.replaceAll(" ", "");
 			mHotelIdArray = new String[] { hotelId };
-			sHotelIdArrays = new ArrayList<String[]>();
 			String[] hotelCodes = hotelCodeString.split(",");
 			sHotelIdArrays.add(hotelCodes);
 		} else {
 			List<String> hotelIdList = ComparableUtil.convertDistinctList(Arrays.asList(hotelId.split(",")));
 			String tmp = StringUtils.join(hotelIdList, ',');
 			mHotelIdArray = tmp.split(",");
-			sHotelIdArrays = m_SRelationCache.getSHotelIds(mHotelIdArray);
+			for (int i = 0; i < mHotelIdArray.length; i++) {
+				sHotelIdArrays.add(new String[] {});
+			}
 		}
 		Map<String, List<String>> hotelMap = new HashMap<String, List<String>>();
 		for (int index = 0; index < mHotelIdArray.length; index++) {

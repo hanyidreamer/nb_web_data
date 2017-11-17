@@ -1,6 +1,7 @@
 package com.elong.nb.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,8 +29,6 @@ import com.elong.nb.rule.agent.enums.EnumSystem;
 import com.elong.nb.rule.agent.model.RateWithRule;
 import com.elong.nb.service.IRateService;
 import com.elong.nb.util.DateUtil;
-
-import java.util.Arrays;
 
 @Service
 public class RateService implements IRateService {
@@ -257,44 +256,39 @@ public class RateService implements IRateService {
 		startDate = DateUtil.getDate(startDate);
 		endDate = DateUtil.getDate(endDate);
 		String[] mHotelIdArray = null;
-		List<String[]> sHotelIdArrays = null;
 		if (StringUtils.isNotEmpty(mhotelId)) {
 			mhotelId = mhotelId.replaceAll(" ", "");
 		}
-		List<String> hotelCodeList = new LinkedList<String>();
 		List<HotelIdAttr> hotelIdAttrs = new LinkedList<HotelIdAttr>();
 		if (StringUtils.isBlank(shotelId)) {
 			mHotelIdArray = mhotelId.split(",");
-			sHotelIdArrays = m_SRelationCache.getSHotelIds(mHotelIdArray);
-			if (sHotelIdArrays != null) {
-				int arraySize = sHotelIdArrays.size();
-				for (int i = 0; i < arraySize; i++) {
-					if (sHotelIdArrays.get(i) != null) {
-						HotelIdAttr hotelIdAttr = new HotelIdAttr();
-						hotelIdAttr.setHotelId(mHotelIdArray[i]);
-						List<String> list = Arrays.asList(sHotelIdArrays.get(i));
-						// 商品库限制问题 暂不传入
-						// hotelIdAttr.setHotelCodes(list);
-						hotelCodeList.addAll(list);
-						hotelIdAttrs.add(hotelIdAttr);
-					}
-				}
+			for (int i = 0; i < mHotelIdArray.length; i++) {
+				HotelIdAttr hotelIdAttr = new HotelIdAttr();
+				hotelIdAttr.setHotelId(mHotelIdArray[i]);
+				hotelIdAttrs.add(hotelIdAttr);
 			}
 		} else {
 			HotelIdAttr hotelIdAttr = new HotelIdAttr();
 			hotelIdAttr.setHotelId(mhotelId);
 			List<String> list = Arrays.asList(shotelId.replaceAll(" ", "").split(","));
 			hotelIdAttr.setHotelCodes(list);
-			hotelCodeList.addAll(list);
 			hotelIdAttrs.add(hotelIdAttr);
-		}
-		SettlementPriceRuleCommon settlementCommon = null;
-		// 预付及现付需要返回底价的价格数据
-		if (paymentType == EnumPaymentType.All || paymentType == EnumPaymentType.Prepay || proxyInfo.getEnableReturnAgentcyRateCost()) {
-			settlementCommon = new SettlementPriceRuleCommon(proxyInfo, hotelCodeList, EnumSystem.Data);
 		}
 		List<Rate> response = this.rateRepository.getRates(proxyInfo, hotelIdAttrs, startDate, endDate, paymentType, guid);
 		Date validDate = DateUtil.addYears(DateUtil.getDate(new Date()), 1);
+
+		List<String> hotelCodeList = new ArrayList<String>();
+		for (Rate item : response) {
+			String hotelCode = item.getHotelCode();
+			if (hotelCodeList.contains(hotelCode))
+				continue;
+			hotelCodeList.add(hotelCode);
+		}
+		// 预付及现付需要返回底价的价格数据
+		SettlementPriceRuleCommon settlementCommon = null;
+		if (paymentType == EnumPaymentType.All || paymentType == EnumPaymentType.Prepay || proxyInfo.getEnableReturnAgentcyRateCost()) {
+			settlementCommon = new SettlementPriceRuleCommon(proxyInfo, hotelCodeList, EnumSystem.Data);
+		}
 		for (Rate item : response) {
 			Date rateEndDate = item.getEndDate();
 			if (rateEndDate.getTime() > validDate.getTime()) {
