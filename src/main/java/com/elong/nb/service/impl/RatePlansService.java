@@ -250,21 +250,37 @@ public class RatePlansService implements IRatePlansService {
 		if (hotelIdAttrs != null && hotelIdAttrs.size() > 0) {
 			List<HotelRatePlan> ratePlans = this.ratePlanRepository.getRatePlans(proxyInfo, hotelIdAttrs, paymentType, hotelCodeFilterType,
 					shotelCooperationTypeMap, language == EnumLocal.zh_CN, options, guid);
-			for (int i = 0; i < ratePlans.size(); i++) {
-				for (int j = 0; j < ratePlans.get(i).getSuppliers().size(); j++) {
-					EnumInvoiceMode InvoiceMode = EnumInvoiceMode.Hotel;
-					String hotelCode = ratePlans.get(i).getSuppliers().get(j).getHotelCode();
-					Map<String, String> hotelCodeSupplierMap = HotelDataServiceAgent.getSupplierIdByShotelId(new String[] { hotelCode });
-					String supplierId = hotelCodeSupplierMap.get(hotelCode);
-					if (StringUtils.isNoneEmpty(supplierId)) {
-						InvoiceMode = getInvoiceMode(Integer.valueOf(hotelCodeSupplierMap.get(hotelCode)));
+			// supplier上发票模式，取该supplier下所有预付rateplan上数量多的发票模式
+			boolean isBookingChannelEmpty = StringUtils.isEmpty(options) || !options.contains("1");
+			Map<String, Integer> hotelCodeInvoiceModeMap = new HashMap<String, Integer>();
+			for (HotelRatePlan hotelRatePlan : ratePlans) {
+				List<RatePlan> ratePlanList = hotelRatePlan.getRatePlans();
+				if (ratePlanList == null || ratePlanList.size() == 0)
+					continue;
+				for (RatePlan ratePlan : ratePlanList) {
+					if (isBookingChannelEmpty) {
+						ratePlan.setBookingChannels(null);
 					}
-					ratePlans.get(i).getSuppliers().get(j).setInvoiceMode(InvoiceMode);
+					if (EnumPaymentType.Prepay != ratePlan.getPaymentType())
+						continue;
+					String key = ratePlan.getHotelCode() + "_" + ratePlan.getInvoiceMode().toString();
+					Integer count = hotelCodeInvoiceModeMap.get(key);
+					count = (count == null) ? 0 : count;
+					hotelCodeInvoiceModeMap.put(key, count + 1);
 				}
-				if (StringUtils.isEmpty(options) || !options.contains("1")) {
-					for (int j = 0; j < ratePlans.get(i).getRatePlans().size(); j++) {
-						ratePlans.get(i).getRatePlans().get(j).setBookingChannels(null);
-					}
+			}
+			for (HotelRatePlan hotelRatePlan : ratePlans) {
+				List<SupplierRatePlan> supplierList = hotelRatePlan.getSuppliers();
+				if (supplierList == null || supplierList.size() == 0)
+					continue;
+				for (SupplierRatePlan supplier : supplierList) {
+					String hotelInvoiceKey = supplier.getHotelCode() + "_" + EnumInvoiceMode.Hotel.toString();
+					Integer hotelInvoiceCount = hotelCodeInvoiceModeMap.get(hotelInvoiceKey);
+					hotelInvoiceCount = (hotelInvoiceCount == null) ? 0 : hotelInvoiceCount;
+					String elongInvoiceKey = supplier.getHotelCode() + "_" + EnumInvoiceMode.Elong.toString();
+					Integer elongInvoiceCount = hotelCodeInvoiceModeMap.get(elongInvoiceKey);
+					elongInvoiceCount = (elongInvoiceCount == null) ? 0 : elongInvoiceCount;
+					supplier.setInvoiceMode(hotelInvoiceCount >= elongInvoiceCount ? EnumInvoiceMode.Hotel : EnumInvoiceMode.Elong);
 				}
 			}
 			return ratePlans;
