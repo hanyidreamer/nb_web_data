@@ -249,8 +249,10 @@ public class RatePlansService implements IRatePlansService {
 				while (iter.hasNext()) {
 					RatePlan ratePlan = iter.next();
 					// 过滤直签
-					if (proxyInfo.isIsOnlyStraight() && ratePlan.getCooperationType() == 2)
+					if (proxyInfo.isIsOnlyStraight() && ratePlan.getCooperationType() == 2){
+						iter.remove();
 						continue;
+					}
 					if (isBookingChannelEmpty) {
 						ratePlan.setBookingChannels(null);
 					}
