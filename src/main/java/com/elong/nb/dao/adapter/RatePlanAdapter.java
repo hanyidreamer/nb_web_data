@@ -61,9 +61,9 @@ import com.elong.nb.model.rateplan.fornb.GiftRelation;
 import com.elong.nb.util.DateUtil;
 
 public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBaseRatePlanDRRGiftResponse> {
+
 	private Map<String, EnumPaymentType> hotelCodeFilterType;
-	private Map<String, Integer> shotelCooperationTypeMap;
-	// private static M_SRelationCache m_SRelationCache=new M_SRelationCache();
+
 	private boolean isCn;
 
 	@Override
@@ -88,10 +88,14 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 							Map<Integer, List<GiftRelation>> giftRelationMap = new HashMap<Integer, List<GiftRelation>>();
 							Map<Integer, List<String>> roomTypesrpRelation = new HashMap<Integer, List<String>>();
 							Map<Integer, Integer> invoiceModeMap = new HashMap<Integer, Integer>();
+							Map<Integer, Integer> cooperationTypeMap = new HashMap<Integer, Integer>();
 							if (metaSHotelBaseRpDrrGift.getRoom_base_infos() != null) {
 								for (MetaRoomTypeInfo metaRoomTypeInfo : metaSHotelBaseRpDrrGift.getRoom_base_infos()) {
 									String roomTypeId = SafeConvertUtils.ToRoomId(metaRoomTypeInfo.getRoom_type_id());
 									for (MetaProductInfo metaProductInfo : metaRoomTypeInfo.getProducts()) {
+										// 商品库返回的直签类型
+										cooperationTypeMap.put(metaProductInfo.getRate_plan_id(),
+												(int) metaProductInfo.getCooperation_type_convert());
 										invoiceModeMap.put(metaProductInfo.getRate_plan_id(), metaProductInfo.getInvoice_mode());
 										if (roomTypesrpRelation.containsKey(metaProductInfo.getRate_plan_id())) {
 											roomTypesrpRelation.get(metaProductInfo.getRate_plan_id()).add(roomTypeId);
@@ -180,6 +184,8 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 									RatePlan ratePlan = toRatePlan(metaRatePlanBaseInfo, hotelCode, drrRuleList, roomTypeIds);
 									Integer productInvoiceMode = invoiceModeMap.get(metaRatePlanBaseInfo.getRate_plan_id());
 									ratePlan.setInvoiceMode(getInvoiceMode(productInvoiceMode));
+									Integer cooperationType = cooperationTypeMap.get(metaRatePlanBaseInfo.getRate_plan_id());
+									ratePlan.setCooperationType(cooperationType);
 									hotelRatePlan.getRatePlans().add(ratePlan);
 								}
 							}
@@ -383,7 +389,6 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 			lev[i] = levels.get(i);
 		}
 		ratePlan.setCustomerLevel(lev);
-		ratePlan.setCooperationType(shotelCooperationTypeMap.get(hotelCode));
 		// 客人国籍类别：1-统一价；2-内宾；3-外宾；4-港澳台；5-日本；6-中宾
 		EnumGuestTypeCode gtype = EnumGuestTypeCode.Chinese;
 		if (metaRatePlanBaseInfo.getPrice_type().equals("1"))
@@ -1038,9 +1043,8 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 	}
 
 	@Override
-	public void setFilter(Map<String, EnumPaymentType> hotelCodeFilterType, Map<String, Integer> shotelCooperationTypeMap, boolean isCn) {
+	public void setFilter(Map<String, EnumPaymentType> hotelCodeFilterType, boolean isCn) {
 		this.hotelCodeFilterType = hotelCodeFilterType;
-		this.shotelCooperationTypeMap = shotelCooperationTypeMap;
 		this.isCn = isCn;
 	}
 

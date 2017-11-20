@@ -105,7 +105,7 @@ public class RatePlanRepository {
 	}
 
 	public List<HotelRatePlan> getRatePlans(ProxyAccount proxyInfo, List<HotelIdAttr> hotelIdAttrs, EnumPaymentType paymentType,
-			Map<String, EnumPaymentType> hotelCodeFilterType, Map<String, Integer> shotelCooperationTypeMap, boolean isCn, String options,
+			Map<String, EnumPaymentType> hotelCodeFilterType, boolean isCn, String options,
 			String guid) {
 		List<HotelRatePlan> ratePlans = null;
 		BigLog log = new BigLog();
@@ -160,14 +160,11 @@ public class RatePlanRepository {
 			long end = System.currentTimeMillis();
 			log.setElapsedTime(String.valueOf(end - start));
 			Gson gson = new Gson();
-			// System.out.println(gson.toJson(response));
-			// System.out.println(gson.toJson(request));
 			if (response != null && response.return_code == 0) {
 				AbstractGoodsAdapter<HotelRatePlan, GetBaseRatePlanDRRGiftResponse> adapter = new RatePlanAdapter();
-				adapter.setFilter(hotelCodeFilterType, shotelCooperationTypeMap, isCn);
+				adapter.setFilter(hotelCodeFilterType, isCn);
 				ratePlans = adapter.toNBObject(response);
 			} else if (response.return_code > 0) {
-				// Gson gson=new Gson();
 				log.setRequestBody(gson.toJson(request));
 				log.setBusinessErrorCode(String.valueOf(response.return_code));
 				log.setExceptionMsg(response.getReturn_msg());

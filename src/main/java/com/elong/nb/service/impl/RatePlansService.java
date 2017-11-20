@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -216,28 +217,15 @@ public class RatePlansService implements IRatePlansService {
 	public List<HotelRatePlan> getRatePlansFromGoods(EnumLocal language, List<String> mHotelIds, List<String[]> shotelIdArrs,
 			EnumPaymentType paymentType, ProxyAccount proxyInfo, double requestVersion, String options, String guid) {
 		Map<String, EnumPaymentType> hotelCodeFilterType = new HashMap<String, EnumPaymentType>();
-		Map<String, Integer> shotelCooperationTypeMap = new HashMap<String, Integer>();
 		List<HotelIdAttr> hotelIdAttrs = new LinkedList<HotelIdAttr>();
 		Set<String> filteredSHotelIds = commonRepository.fillFilteredSHotelsIds();
 		for (int i = 0; i < mHotelIds.size(); i++) {
 			List<String> showHotelCode = new LinkedList<String>();
 			String[] sHotelIds = shotelIdArrs.get(i);
-			Map<String, String> hotelCodeCoopTypeMap = HotelDataServiceAgent.getCooperationTypeByHotelCode(sHotelIds);
 			for (String hotelCode : sHotelIds) {
 				if (proxyInfo.getOrderFrom() != null && proxyInfo.getOrderFrom().intValue() != 5931
 						&& filteredSHotelIds.contains(hotelCode))
 					continue;
-				String cooperationType = hotelCodeCoopTypeMap.get(hotelCode);
-				cooperationType = StringUtils.isEmpty(cooperationType) ? "0" : cooperationType;
-				if (proxyInfo.isIsOnlyStraight()) {
-					// 只保留艺龙直签，其他供应商的rp都过滤
-					// CooperationType=1为直签，2为非直签，0为未知
-					if ("2".equals(cooperationType)) {
-						continue;
-					}
-
-				}
-				shotelCooperationTypeMap.put(hotelCode, Integer.valueOf(cooperationType));
 				showHotelCode.add(hotelCode);
 			}
 			if (showHotelCode != null && showHotelCode.size() > 0) {
@@ -249,7 +237,7 @@ public class RatePlansService implements IRatePlansService {
 		}
 		if (hotelIdAttrs != null && hotelIdAttrs.size() > 0) {
 			List<HotelRatePlan> ratePlans = this.ratePlanRepository.getRatePlans(proxyInfo, hotelIdAttrs, paymentType, hotelCodeFilterType,
-					shotelCooperationTypeMap, language == EnumLocal.zh_CN, options, guid);
+					language == EnumLocal.zh_CN, options, guid);
 			// supplier上发票模式，取该supplier下所有预付rateplan上数量多的发票模式
 			boolean isBookingChannelEmpty = StringUtils.isEmpty(options) || !options.contains("1");
 			Map<String, Integer> hotelCodeInvoiceModeMap = new HashMap<String, Integer>();
@@ -257,10 +245,16 @@ public class RatePlansService implements IRatePlansService {
 				List<RatePlan> ratePlanList = hotelRatePlan.getRatePlans();
 				if (ratePlanList == null || ratePlanList.size() == 0)
 					continue;
-				for (RatePlan ratePlan : ratePlanList) {
+				Iterator<RatePlan> iter = ratePlanList.iterator();
+				while (iter.hasNext()) {
+					RatePlan ratePlan = iter.next();
+					// 过滤直签
+					if (proxyInfo.isIsOnlyStraight() && ratePlan.getCooperationType() == 2)
+						continue;
 					if (isBookingChannelEmpty) {
 						ratePlan.setBookingChannels(null);
 					}
+
 					if (EnumPaymentType.Prepay != ratePlan.getPaymentType())
 						continue;
 					String key = ratePlan.getHotelCode() + "_" + ratePlan.getInvoiceMode().toString();

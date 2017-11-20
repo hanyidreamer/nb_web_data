@@ -9,6 +9,5 @@ public abstract class AbstractGoodsAdapter<E, T> {
 
 	public abstract List<E> toNBObject(T goodsObject);
 
-	public abstract void setFilter(Map<String, EnumPaymentType> hotelCodeFilterType, Map<String, Integer> shotelCooperationTypeMap,
-			boolean isCn);
+	public abstract void setFilter(Map<String, EnumPaymentType> hotelCodeFilterType, boolean isCn);
 }

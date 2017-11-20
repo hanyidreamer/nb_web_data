@@ -87,7 +87,7 @@ public class RateAdapter extends AbstractGoodsAdapter<Rate, GetBasePrice4NbRespo
 	}
 
 	@Override
-	public void setFilter(Map<String, EnumPaymentType> hotelCodeFilterType, Map<String, Integer> shotelCooperationTypeMap, boolean isCn) {
+	public void setFilter(Map<String, EnumPaymentType> hotelCodeFilterType, boolean isCn) {
 
 	}
 
