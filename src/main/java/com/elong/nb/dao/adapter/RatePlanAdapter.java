@@ -698,16 +698,20 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 				guaranteeRule.setGuaranteeType(moneyType);
 				guaranteeRule.setWeekSet(getWeekSet(metaVouchInfo.getIs_week_effective()));
 				if (metaVouchInfo.getRule_values() != null) {
-					if (metaVouchInfo.getRule_values().containsKey("DayNum")) {
+					if (metaVouchInfo.getRule_values().containsKey("DayNum")
+							&& StringUtils.isNotEmpty(metaVouchInfo.getRule_values().get("DayNum"))) {
 						guaranteeRule.setDay(DateUtil.toDate(metaVouchInfo.getRule_values().get("DayNum")));
 					}
-					if (metaVouchInfo.getRule_values().containsKey("HourNum")) {
+					if (metaVouchInfo.getRule_values().containsKey("HourNum")
+							&& StringUtils.isNotEmpty(metaVouchInfo.getRule_values().get("HourNum"))) {
 						guaranteeRule.setHour(Integer.valueOf(metaVouchInfo.getRule_values().get("HourNum")));
 					}
-					if (metaVouchInfo.getRule_values().containsKey("TimeNum")) {
+					if (metaVouchInfo.getRule_values().containsKey("TimeNum")
+							&& StringUtils.isNotEmpty(metaVouchInfo.getRule_values().get("TimeNum"))) {
 						guaranteeRule.setTime(metaVouchInfo.getRule_values().get("TimeNum"));
 					}
-					if (metaVouchInfo.getRule_values().containsKey("IsTomorrow")) {
+					if (metaVouchInfo.getRule_values().containsKey("IsTomorrow")
+							&& StringUtils.isNotEmpty(metaVouchInfo.getRule_values().get("IsTomorrow"))) {
 						guaranteeRule.setIsTomorrow("1".equals(metaVouchInfo.getRule_values().get("IsTomorrow")));
 					}
 				}
@@ -775,10 +779,12 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 				basePrepay.setDescription(DescriptionHelper.prepayDescription(metaPrePayInfo, isCn));
 				basePrepay.setWeekSet(getWeekSet(metaPrePayInfo.getIs_week_effective()));
 				if (metaPrePayInfo.getRule_values() != null) {
-					if (metaPrePayInfo.getRule_values().containsKey("HourNum")) {
+					if (metaPrePayInfo.getRule_values().containsKey("HourNum")
+							&& StringUtils.isNotEmpty(metaPrePayInfo.getRule_values().get("HourNum"))) {
 						basePrepay.setHour(Integer.valueOf(metaPrePayInfo.getRule_values().get("HourNum")));
 					}
-					if (metaPrePayInfo.getRule_values().containsKey("HourNum2")) {
+					if (metaPrePayInfo.getRule_values().containsKey("HourNum2")
+							&& StringUtils.isNotEmpty(metaPrePayInfo.getRule_values().get("HourNum2"))) {
 						basePrepay.setHour2(Integer.valueOf(metaPrePayInfo.getRule_values().get("HourNum2")));
 					}
 					if (metaPrePayInfo.getRule_values().containsKey("TimeNum")) {
