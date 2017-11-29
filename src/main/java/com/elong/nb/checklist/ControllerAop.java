@@ -116,7 +116,7 @@ public class ControllerAop {
 		NBActionLogHelper.businessLog(guid.toString(), false, methodName, classFullName, e, useTime, 0, e.getMessage(), null,
 				(String) (request.getAttribute(Constants.ELONG_REQUEST_JSON, ServletRequestAttributes.SCOPE_REQUEST)), userNameStr,
 				EnumNBLogType.OUTER_CONTROLLER);
-		logger.info((String) (request.getAttribute(Constants.ELONG_REQUEST_JSON, ServletRequestAttributes.SCOPE_REQUEST)), e);
+		logger.error((String) (request.getAttribute(Constants.ELONG_REQUEST_JSON, ServletRequestAttributes.SCOPE_REQUEST)), e);
 	}
 
 	// ----------------------------controller end-------------------------------
