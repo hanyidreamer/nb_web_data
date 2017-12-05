@@ -1195,8 +1195,6 @@ public class RatePlansService implements IRatePlansService {
 			suprp.setHotelCode(hotel.getHotelBaseInfo().getShotelId());
 			suprp.setWeekendStart(hotel.getHotelBaseInfo().getWeekEndStart());
 			suprp.setWeekendEnd(hotel.getHotelBaseInfo().getWeekEndEnd());
-			List<MSRoomRelation> msList = m_SRelationCache.getMSRoomRelation(hotel.getHotelBaseInfo().getShotelId());
-			suprp.setRooms(msList);
 		}
 		suprp.setInvoiceMode(InvoiceMode);
 
