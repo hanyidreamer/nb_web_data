@@ -500,12 +500,12 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 		List<TimeRushRule> timeRushRuleList = new ArrayList<TimeRushRule>();
 		for (TimeRushPolicy goodsTimeRushPolicy : goodsTimeRushPolicyList) {
 			TimeRushRule timeRushRule = new TimeRushRule();
-			timeRushRule.setBookingStartTime(new Date(goodsTimeRushPolicy.getBooking_start_time()));
-			timeRushRule.setBookingEndTime(new Date(goodsTimeRushPolicy.getBooking_end_time()));
-			timeRushRule.setStartDate(new Date(goodsTimeRushPolicy.getStart_date()));
-			timeRushRule.setEndDate(new Date(goodsTimeRushPolicy.getEnd_state()));
-			timeRushRule.setStartTime(new Date(goodsTimeRushPolicy.getStart_time()));
-			timeRushRule.setEndTime(new Date(goodsTimeRushPolicy.getEnd_time()));
+			timeRushRule.setBookingStartTime(new Date(1000 * goodsTimeRushPolicy.getBooking_start_time()));
+			timeRushRule.setBookingEndTime(new Date(1000 * goodsTimeRushPolicy.getBooking_end_time()));
+			timeRushRule.setStartDate(new Date(1000 * goodsTimeRushPolicy.getStart_date()));
+			timeRushRule.setEndDate(new Date(1000 * goodsTimeRushPolicy.getEnd_state()));
+			timeRushRule.setStartTime(new Date(1000 * goodsTimeRushPolicy.getStart_time()));
+			timeRushRule.setEndTime(new Date(1000 * goodsTimeRushPolicy.getEnd_time()));
 			timeRushRuleList.add(timeRushRule);
 		}
 		return timeRushRuleList;
