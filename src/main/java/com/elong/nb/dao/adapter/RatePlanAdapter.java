@@ -352,7 +352,8 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 				isHourPayRoom));
 		ratePlan.setRatePlanId(metaRatePlanBaseInfo.getRate_plan_id());
 		ratePlan.setRatePlanName(isCn ? metaRatePlanBaseInfo.getCn_rate_plan_name() : metaRatePlanBaseInfo.getEn_rate_plan_name());
-		ratePlan.setRatePlanName(ratePlan.getRatePlanName() + metaRatePlanBaseInfo.getRp_sub_title());// 副标题合并到RP名称上
+		String rpSubTitle = metaRatePlanBaseInfo.getRp_sub_title();
+		ratePlan.setRatePlanName(ratePlan.getRatePlanName() + (StringUtils.isNotEmpty(rpSubTitle) ? rpSubTitle : ""));// 副标题合并到RP名称上
 		ratePlan.setRoomTypeIds(roomTypeIds);
 		ratePlan.setStartTime(DateUtil.getTimeString(new Date(metaRatePlanBaseInfo.getStart_time() - 28800000)));
 		ratePlan.setValueAdds(toValueAdd(metaRatePlanBaseInfo.getAdd_value_policy_list(),
