@@ -26,6 +26,7 @@ import com.elong.hotel.goods.ds.thrift.MetaRatePlanBaseInfo;
 import com.elong.hotel.goods.ds.thrift.MetaRoomTypeInfo;
 import com.elong.hotel.goods.ds.thrift.MetaSHotelBaseRpDrrGift;
 import com.elong.hotel.goods.ds.thrift.MetaVouchInfo;
+import com.elong.hotel.goods.ds.thrift.TimeRushPolicy;
 import com.elong.nb.common.util.ProductTypeUtils;
 import com.elong.nb.common.util.SafeConvertUtils;
 import com.elong.nb.model.bean.base.BaseBookingRule;
@@ -56,6 +57,7 @@ import com.elong.nb.model.rateplan.HotelRatePlan;
 import com.elong.nb.model.rateplan.MSRoomRelation;
 import com.elong.nb.model.rateplan.RatePlan;
 import com.elong.nb.model.rateplan.SupplierRatePlan;
+import com.elong.nb.model.rateplan.TimeRushRule;
 import com.elong.nb.model.rateplan.fornb.EnumPrepayRule;
 import com.elong.nb.model.rateplan.fornb.GiftRelation;
 import com.elong.nb.util.DateUtil;
@@ -350,6 +352,7 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 				isHourPayRoom));
 		ratePlan.setRatePlanId(metaRatePlanBaseInfo.getRate_plan_id());
 		ratePlan.setRatePlanName(isCn ? metaRatePlanBaseInfo.getCn_rate_plan_name() : metaRatePlanBaseInfo.getEn_rate_plan_name());
+		ratePlan.setRatePlanName(ratePlan.getRatePlanName() + metaRatePlanBaseInfo.getRp_sub_title());// 副标题合并到RP名称上
 		ratePlan.setRoomTypeIds(roomTypeIds);
 		ratePlan.setStartTime(DateUtil.getTimeString(new Date(metaRatePlanBaseInfo.getStart_time() - 28800000)));
 		ratePlan.setValueAdds(toValueAdd(metaRatePlanBaseInfo.getAdd_value_policy_list(),
@@ -426,8 +429,85 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 				ratePlan.setStayTime(metaHoursRoomMsg.getStayTime());
 			}
 		}
+		// 限时抢规则、适用人群
+		ratePlan.setTimeRushRuleList(toTimeRushRules(metaRatePlanBaseInfo.getTime_rush_policy_list()));
+		ratePlan.setGuestType(toGuestType(metaRatePlanBaseInfo.getGuest_type()));
+		ratePlan.setGuestTypeExtendCh(metaRatePlanBaseInfo.getGuest_type_extend_ch());
+		ratePlan.setGuestTypeExtendEn(metaRatePlanBaseInfo.getGuest_type_extend_en());
+		// x项目属性设置, 004001:入住人数, 050001:入住性别, 013001:床型, 011000:楼层, 012001:朝向, 014001:自定义
+		Map<String, String> xProperties = metaRatePlanBaseInfo.getX_properties();
+		if (xProperties != null && xProperties.size() > 0) {
+			ratePlan.setxStayPeopleNum(xProperties.get("004001"));
+			ratePlan.setxStaySex(xProperties.get("050001"));
+			ratePlan.setxBedType(xProperties.get("013001"));
+			ratePlan.setxFloor(xProperties.get("011000"));
+			ratePlan.setxOrientation(xProperties.get("012001"));
+			ratePlan.setxUserDefined(xProperties.get("014001"));
+		}
 		return ratePlan;
+	}
 
+	/** 
+	 * 商品库适用人群 转换为 分销适用人群
+	 * 
+	 * @param goodsGuestType 适用人群,二进制位表示:
+	 * 	0:不限,1:持中国身份证的居民,2:持回乡证的港澳人士,3:持台胞证的台湾人士,4:持中国护照的侨胞,
+	 * 	5:持大陆工作证/居留许可的外籍人士,6:持非中国护照的外籍人士,7:其他
+	 * @return
+	 */
+	private int toGuestType(int goodsGuestType) {
+		if (isGuestType(goodsGuestType, 0))
+			return 0;
+		if (isGuestType(goodsGuestType, 1))
+			return 1;
+		if (isGuestType(goodsGuestType, 2))
+			return 2;
+		if (isGuestType(goodsGuestType, 3))
+			return 3;
+		if (isGuestType(goodsGuestType, 4))
+			return 4;
+		if (isGuestType(goodsGuestType, 5))
+			return 5;
+		if (isGuestType(goodsGuestType, 6))
+			return 6;
+		if (isGuestType(goodsGuestType, 7))
+			return 7;
+		return 7;
+	}
+
+	/** 
+	 * 商品库适用人群 转换判断
+	 *
+	 * @param goodsGuestType
+	 * @param position 所在二进制位数
+	 * @return
+	 */
+	private boolean isGuestType(int goodsGuestType, int position) {
+		int decimalVal = (int) Math.pow(2, position);
+		return (goodsGuestType & decimalVal) == decimalVal;
+	}
+
+	/** 
+	 * 商品库限时抢规则 转换为 分销限时抢规则
+	 *
+	 * @param goodsTimeRushPolicyList
+	 * @return
+	 */
+	private List<TimeRushRule> toTimeRushRules(List<TimeRushPolicy> goodsTimeRushPolicyList) {
+		if (goodsTimeRushPolicyList == null || goodsTimeRushPolicyList.size() == 0)
+			return Collections.emptyList();
+		List<TimeRushRule> timeRushRuleList = new ArrayList<TimeRushRule>();
+		for (TimeRushPolicy goodsTimeRushPolicy : goodsTimeRushPolicyList) {
+			TimeRushRule timeRushRule = new TimeRushRule();
+			timeRushRule.setBookingStartTime(new Date(goodsTimeRushPolicy.getBooking_start_time()));
+			timeRushRule.setBookingEndTime(new Date(goodsTimeRushPolicy.getBooking_end_time()));
+			timeRushRule.setStartDate(new Date(goodsTimeRushPolicy.getStart_date()));
+			timeRushRule.setEndDate(new Date(goodsTimeRushPolicy.getEnd_state()));
+			timeRushRule.setStartTime(new Date(goodsTimeRushPolicy.getStart_time()));
+			timeRushRule.setEndTime(new Date(goodsTimeRushPolicy.getEnd_time()));
+			timeRushRuleList.add(timeRushRule);
+		}
+		return timeRushRuleList;
 	}
 
 	public String bitMaskIntToString(long bitSum) {
@@ -1039,6 +1119,10 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 		// 买一送一 productType值是2的14次方
 		if ((pt & 16384) == 16384) {
 			productTypeList.add("101");
+		}
+		// 床位房 productType值是2的26次方
+		if ((pt & 67108864) == 67108864) {
+			productTypeList.add("25");
 		}
 		if (productTypeList.size() > 0) {
 			productTypes = StringUtils.join(productTypeList, ",");
