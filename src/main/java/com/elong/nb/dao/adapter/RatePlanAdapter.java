@@ -456,24 +456,24 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 	 * 	5:持大陆工作证/居留许可的外籍人士,6:持非中国护照的外籍人士,7:其他
 	 * @return
 	 */
-	private int toGuestType(int goodsGuestType) {
+	private String toGuestType(int goodsGuestType) {
 		if (isGuestType(goodsGuestType, 0))
-			return 0;
+			return "0";
 		if (isGuestType(goodsGuestType, 1))
-			return 1;
+			return "1";
 		if (isGuestType(goodsGuestType, 2))
-			return 2;
+			return "2";
 		if (isGuestType(goodsGuestType, 3))
-			return 3;
+			return "3";
 		if (isGuestType(goodsGuestType, 4))
-			return 4;
+			return "4";
 		if (isGuestType(goodsGuestType, 5))
-			return 5;
+			return "5";
 		if (isGuestType(goodsGuestType, 6))
-			return 6;
+			return "6";
 		if (isGuestType(goodsGuestType, 7))
-			return 7;
-		return 7;
+			return "7";
+		return null;
 	}
 
 	/** 
