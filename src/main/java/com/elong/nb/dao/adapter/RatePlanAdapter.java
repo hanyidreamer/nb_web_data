@@ -433,17 +433,17 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 		// 限时抢规则、适用人群
 		ratePlan.setTimeRushRuleList(toTimeRushRules(metaRatePlanBaseInfo.getTime_rush_policy_list()));
 		ratePlan.setGuestType(toGuestType(metaRatePlanBaseInfo.getGuest_type()));
-		ratePlan.setGuestTypeExtendCh(metaRatePlanBaseInfo.getGuest_type_extend_ch());
-		ratePlan.setGuestTypeExtendEn(metaRatePlanBaseInfo.getGuest_type_extend_en());
+		ratePlan.setGuestTypeExtendCh(metaRatePlanBaseInfo.getGuest_type_extend_ch() == null ? "" : metaRatePlanBaseInfo
+				.getGuest_type_extend_ch());
 		// x项目属性设置, 004001:入住人数, 050001:入住性别, 013001:床型, 011000:楼层, 012001:朝向, 014001:自定义
 		Map<String, String> xProperties = metaRatePlanBaseInfo.getX_properties();
 		if (xProperties != null && xProperties.size() > 0) {
-			ratePlan.setxStayPeopleNum(xProperties.get("004001"));
-			ratePlan.setxStaySex(xProperties.get("050001"));
-			ratePlan.setxBedType(xProperties.get("013001"));
-			ratePlan.setxFloor(xProperties.get("011000"));
-			ratePlan.setxOrientation(xProperties.get("012001"));
-			ratePlan.setxUserDefined(xProperties.get("014001"));
+			ratePlan.setxStayPeopleNum(xProperties.get("004001") == null ? "" : xProperties.get("004001"));
+			ratePlan.setxStaySex(xProperties.get("050001") == null ? "" : xProperties.get("050001"));
+			ratePlan.setxBedType(xProperties.get("013001") == null ? "" : xProperties.get("013001"));
+			ratePlan.setxFloor(xProperties.get("011000") == null ? "" : xProperties.get("011000"));
+			ratePlan.setxOrientation(xProperties.get("012001") == null ? "" : xProperties.get("012001"));
+			ratePlan.setxUserDefined(xProperties.get("014001") == null ? "" : xProperties.get("014001"));
 		}
 		return ratePlan;
 	}
@@ -457,23 +457,32 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 	 * @return
 	 */
 	private String toGuestType(int goodsGuestType) {
-		if (isGuestType(goodsGuestType, 0))
-			return "0";
-		if (isGuestType(goodsGuestType, 1))
-			return "1";
-		if (isGuestType(goodsGuestType, 2))
-			return "2";
-		if (isGuestType(goodsGuestType, 3))
-			return "3";
-		if (isGuestType(goodsGuestType, 4))
-			return "4";
-		if (isGuestType(goodsGuestType, 5))
-			return "5";
-		if (isGuestType(goodsGuestType, 6))
-			return "6";
-		if (isGuestType(goodsGuestType, 7))
-			return "7";
-		return null;
+		List<String> guestTypes = new ArrayList<String>();
+		if (isGuestType(goodsGuestType, 0)) {
+			guestTypes.add("0");
+		}
+		if (isGuestType(goodsGuestType, 1)) {
+			guestTypes.add("1");
+		}
+		if (isGuestType(goodsGuestType, 2)) {
+			guestTypes.add("2");
+		}
+		if (isGuestType(goodsGuestType, 3)) {
+			guestTypes.add("3");
+		}
+		if (isGuestType(goodsGuestType, 4)) {
+			guestTypes.add("4");
+		}
+		if (isGuestType(goodsGuestType, 5)) {
+			guestTypes.add("5");
+		}
+		if (isGuestType(goodsGuestType, 6)) {
+			guestTypes.add("6");
+		}
+		if (isGuestType(goodsGuestType, 7)) {
+			guestTypes.add("7");
+		}
+		return StringUtils.join(guestTypes, ",");
 	}
 
 	/** 
