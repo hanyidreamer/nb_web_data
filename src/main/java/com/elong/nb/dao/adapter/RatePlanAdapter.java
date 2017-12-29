@@ -433,7 +433,8 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 		// 限时抢规则、适用人群
 		ratePlan.setTimeRushRuleList(toTimeRushRules(metaRatePlanBaseInfo.getTime_rush_policy_list()));
 		ratePlan.setGuestType(toGuestType(metaRatePlanBaseInfo.getGuest_type()));
-		ratePlan.setGuestTypeExtendCh(metaRatePlanBaseInfo.getGuest_type_extend_ch());
+		ratePlan.setGuestTypeExtendCh(StringUtils.isEmpty(metaRatePlanBaseInfo.getGuest_type_extend_ch()) ? null : metaRatePlanBaseInfo
+				.getGuest_type_extend_ch());
 		// x项目属性设置, 004001:入住人数, 050001:入住性别, 013001:床型, 011000:楼层, 012001:朝向, 014001:自定义
 		Map<String, String> xProperties = metaRatePlanBaseInfo.getX_properties();
 		if (xProperties != null && xProperties.size() > 0) {
