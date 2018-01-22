@@ -68,6 +68,8 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 
 	private boolean isCn;
 
+	private double requestVersion;
+
 	@Override
 	public List<HotelRatePlan> toNBObject(GetBaseRatePlanDRRGiftResponse goodsObject) {
 		if (goodsObject.getReturn_code() == 0) {
@@ -784,8 +786,12 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 				guaranteeRule.setIsTimeGuarantee(metaVouchInfo.isIs_arrive_time_vouch());
 
 				EnumGuaranteeMoneyType moneyType = EnumGuaranteeMoneyType.FullNightCost;
-				if (metaVouchInfo.getVouch_money_type() == EnumGuaranteeMoneyType.FirstNightCost.getValue())
+				if (metaVouchInfo.getVouch_money_type() == EnumGuaranteeMoneyType.FirstNightCost.getValue()) {
 					moneyType = EnumGuaranteeMoneyType.FirstNightCost;
+				}
+				if (requestVersion >= 1.34d) {
+					moneyType = EnumGuaranteeMoneyType.PartNightCost;
+				}
 				guaranteeRule.setGuaranteeType(moneyType);
 				guaranteeRule.setWeekSet(getWeekSet(metaVouchInfo.getIs_week_effective()));
 				if (metaVouchInfo.getRule_values() != null) {
@@ -1144,9 +1150,10 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 	}
 
 	@Override
-	public void setFilter(Map<String, EnumPaymentType> hotelCodeFilterType, boolean isCn) {
+	public void setFilter(Map<String, EnumPaymentType> hotelCodeFilterType, boolean isCn, double requestVersion) {
 		this.hotelCodeFilterType = hotelCodeFilterType;
 		this.isCn = isCn;
+		this.requestVersion = requestVersion;
 	}
 
 }

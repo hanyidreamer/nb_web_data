@@ -73,7 +73,7 @@ public class RatePlansService implements IRatePlansService {
 		}
 		if (hotelIdAttrs != null && hotelIdAttrs.size() > 0) {
 			List<HotelRatePlan> ratePlans = this.ratePlanRepository.getRatePlans(proxyInfo, hotelIdAttrs, paymentType, hotelCodeFilterType,
-					language == EnumLocal.zh_CN, options, guid);
+					language == EnumLocal.zh_CN, options, guid, requestVersion);
 			// supplier上发票模式，取该supplier下所有预付rateplan上数量多的发票模式
 			boolean isBookingChannelEmpty = StringUtils.isEmpty(options) || !options.contains("1");
 			Map<String, Integer> hotelCodeInvoiceModeMap = new HashMap<String, Integer>();
