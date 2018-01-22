@@ -80,17 +80,6 @@ public class ControllerAop {
 				ResponseEntity<byte[]> resp = (ResponseEntity<byte[]>) returnValue;
 				result = new String(resp.getBody());
 			}
-			if ("getBookingData".equals(methodName)) {
-				result += "|" + businessCode;
-			}
-		} else if ("getBookingData".equals(methodName)) {
-			if (returnValue instanceof String) {
-				result = (String) returnValue;
-			} else {
-				@SuppressWarnings("unchecked")
-				ResponseEntity<byte[]> resp = (ResponseEntity<byte[]>) returnValue;
-				result = new String(resp.getBody());
-			}
 		}
 		Object userName = ThreadLocalUtil.get(Constants.ELONG_REQUEST_USERNAME);
 		String userNameStr = userName == null ? null : (String) userName;

@@ -13,7 +13,6 @@
        	   http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
 
 	<context:component-scan base-package="com.elong.nb.**"></context:component-scan>
-	<import resource="service-agent.xml" />
 	<aop:aspectj-autoproxy proxy-target-class="true" />
 	<!-- 以下一行配置为JavaDoc站点，必须保留！！！切记！！！如果更改或servlet.xml，请务必保留下行 -->
 	<mvc:annotation-driven />

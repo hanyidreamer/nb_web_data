@@ -3,46 +3,29 @@
  */
 package com.elong.nb.dao.adapter.repository;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
 import com.elong.hotel.goods.ds.thrift.GetBaseRatePlanDRRGiftRequest;
 import com.elong.hotel.goods.ds.thrift.GetBaseRatePlanDRRGiftResponse;
 import com.elong.hotel.goods.ds.thrift.MetaMhotel;
 import com.elong.nb.agent.thrift.utils.ThriftUtils;
 import com.elong.nb.checklist.CheckListUtil;
-import com.elong.nb.common.checklist.Constants;
-import com.elong.nb.common.checklist.EnumNBLogType;
-import com.elong.nb.common.checklist.NBActionLogHelper;
 import com.elong.nb.common.model.EnumBookingChannel;
 import com.elong.nb.common.model.EnumMemberLevel;
 import com.elong.nb.common.model.EnumSellChannel;
-import com.elong.nb.common.model.NbapiHttpRequest;
 import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.util.CommonsUtil;
-import com.elong.nb.common.util.HttpClientUtil;
 import com.elong.nb.dao.adapter.AbstractGoodsAdapter;
 import com.elong.nb.dao.adapter.RatePlanAdapter;
 import com.elong.nb.data.biglog.BigLog;
 import com.elong.nb.model.HotelIdAttr;
 import com.elong.nb.model.bean.enums.EnumPaymentType;
-import com.elong.nb.model.common.DataRestResponseCommon;
 import com.elong.nb.model.rateplan.HotelRatePlan;
-import com.elong.nb.model.rateplan.fornb.RequestBase;
-import com.elong.nb.model.rateplan.fornb.SearchHotelRatePlanListReq;
-import com.elong.nb.model.rateplan.fornb.SearchHotelRatePlanListResp;
-import com.elong.nb.util.ThreadLocalUtil;
 import com.google.gson.Gson;
 
 /**
@@ -55,54 +38,6 @@ public class RatePlanRepository {
 	private static final String server_ip = CommonsUtil.CONFIG_PROVIDAR.getProperty("goods.server_ip");
 	private static final int server_port = Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("goods.server_port"));
 	private static int server_timeout = Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("goods.rp.server_timeout"));
-	private final static String RPURL = getServerUrl("/rest/com/elong/hotel/product/entity/req/forpartner/nbapi/SearchHotelRatePlanListReq");
-
-	private static String getServerUrl(String query) {
-		String serverURL = CommonsUtil.CONFIG_PROVIDAR.getProperty("rp.url");
-		if (StringUtils.isBlank(serverURL)) {
-			throw new RuntimeException("Inner Error:RP URL为空，请联系管理员检查配置");
-		}
-		return serverURL + query;
-	}
-
-	public SearchHotelRatePlanListResp getRatePlan(SearchHotelRatePlanListReq req, String guid) {
-		RequestBase<SearchHotelRatePlanListReq> request = new RequestBase<SearchHotelRatePlanListReq>();
-		request.setRealRequest(req);
-		request.setLogId(UUID.randomUUID().toString());
-		String json = JSON.toJSONString(request);
-
-		NbapiHttpRequest nbapiHttpRequest = new NbapiHttpRequest();
-		nbapiHttpRequest.setUrl(RPURL);
-		Map<String, Object> paramsMap = new HashMap<String, Object>(1);
-		paramsMap.put("requestJson", json);
-		nbapiHttpRequest.setParamsMap(paramsMap);
-		long startTime = System.currentTimeMillis();
-		URI uri = null;
-		try {
-			uri = new URI(RPURL);
-		} catch (URISyntaxException e) {
-			throw new IllegalArgumentException("url = " + RPURL + ",error = " + e.getMessage());
-		}
-		String reponseBody = HttpClientUtil.httpFormPost(nbapiHttpRequest);
-		TypeReference<DataRestResponseCommon<SearchHotelRatePlanListResp>> typeRefernce = new TypeReference<DataRestResponseCommon<SearchHotelRatePlanListResp>>() {
-		};
-		DataRestResponseCommon<SearchHotelRatePlanListResp> result = (DataRestResponseCommon<SearchHotelRatePlanListResp>) JSON
-				.parseObject(reponseBody, typeRefernce);
-		long endTime = System.currentTimeMillis();
-
-		Object userName = ThreadLocalUtil.get(Constants.ELONG_REQUEST_USERNAME);
-		String userNameStr = userName == null ? null : (String) userName;
-		if (result.getRealResponse() != null) {
-			int businessCode = ((com.elong.nb.model.common.ResponseBase) result.getRealResponse()).getResponseCode();
-			NBActionLogHelper.businessLog(guid.toString(), true, uri.getPath(), uri.getHost(), null, (endTime - startTime), businessCode,
-					null, null, "", userNameStr, EnumNBLogType.DAO);
-		} else {
-			NBActionLogHelper.businessLog(guid.toString(), false, uri.getPath(), uri.getHost(), null, (endTime - startTime), 0,
-					result.getExceptionMsg(), null, "", userNameStr, EnumNBLogType.DAO);
-		}
-
-		return result.getRealResponse();
-	}
 
 	public List<HotelRatePlan> getRatePlans(ProxyAccount proxyInfo, List<HotelIdAttr> hotelIdAttrs, EnumPaymentType paymentType,
 			Map<String, EnumPaymentType> hotelCodeFilterType, boolean isCn, String options,

@@ -5,18 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import org.joda.time.DateTime;
-
 public class DateUtil {
-
-	public static DateTime toDateTime(Date date) {
-		try {
-			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-			return XsdDateTimeConverter.unmarshal(df.format(date));
-		} catch (Exception e) {
-			return new DateTime();
-		}
-	}
 
 	public static Date toDate(String date) {
 		try {

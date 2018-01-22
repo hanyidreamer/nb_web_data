@@ -5,11 +5,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
-import javax.annotation.Resource;
-
-import org.joda.time.DateTime;
 import org.springframework.stereotype.Repository;
 
 import com.elong.common.util.StringUtils;
@@ -21,13 +17,6 @@ import com.elong.hotel.searchagent.thrift.dss.MhotelDetail;
 import com.elong.hotel.searchagent.thrift.dss.ShotelAttr;
 import com.elong.hotel.searchagent.thrift.dss.ShotelDetail;
 import com.elong.hotel.searchagent.thrift.dss.SroomDetail;
-import com.elong.nb.agent.ProductForPartnerServiceContract.GetInvChangeAndInstantConfirmRequest;
-import com.elong.nb.agent.ProductForPartnerServiceContract.GetInvChangeAndInstantConfirmResponse;
-import com.elong.nb.agent.ProductForPartnerServiceContract.GetInventoryChangeDetailRequest;
-import com.elong.nb.agent.ProductForPartnerServiceContract.GetInventoryChangeDetailResponse;
-import com.elong.nb.agent.ProductForPartnerServiceContract.IProductForPartnerServiceContract;
-import com.elong.nb.agent.ProductForPartnerServiceContract.ResourceInvAndInstantConfirmState;
-import com.elong.nb.agent.ProductForPartnerServiceContract.ResourceInventoryState;
 import com.elong.nb.agent.thrift.utils.ThriftUtils;
 import com.elong.nb.checklist.CheckListUtil;
 import com.elong.nb.common.util.CommonsUtil;
@@ -40,130 +29,9 @@ import com.google.gson.Gson;
 @Repository
 public class InventoryRepository {
 
-	@Resource(name = "webProductForPartnerServiceContract")
-	private IProductForPartnerServiceContract webProductForPartnerServiceContract;
-
 	private static final String server_ip = CommonsUtil.CONFIG_PROVIDAR.getProperty("goods.server_ip");
 	private static final int server_port = Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("goods.server_port"));
 	private static final int server_timeout = Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("goods.inv.server_timeout"));
-
-	/**
-	 * 获取库存
-	 * @param mHotelId
-	 * @param sHotelId
-	 * @param roomTypeId
-	 * @param startDate
-	 * @param endDate
-	 * @param isNeedInstantConfirm
-	 * @return
-	 */
-	public List<Inventory> getInventorys(String mHotelId, String sHotelId, String roomTypeId, Date startDate, Date endDate,
-			boolean isNeedInstantConfirm, boolean isForBooking, String guid) {
-		List<Inventory> inventorys = new LinkedList<Inventory>();
-
-		BigLog log = new BigLog();
-		try {
-			log.setUserLogType(guid);
-			log.setAppName("IProductForPartnerServiceContract");
-			log.setTraceId(UUID.randomUUID().toString());
-			log.setSpan("1.1");
-			// 需要即时确认的库存
-			if (isNeedInstantConfirm) {
-				GetInvChangeAndInstantConfirmRequest request = new GetInvChangeAndInstantConfirmRequest();
-				request.setHotelID(sHotelId);
-				request.setBeginTime(DateUtil.toDateTime(startDate));
-				request.setEndTime(DateUtil.toDateTime(endDate));
-				if (StringUtils.isNotBlank(roomTypeId)) {
-					request.setRoomTypeIDs(roomTypeId);
-				}
-				request.setOperatorTime(new DateTime());
-				request.setIsNeedInstantConfirm(!isForBooking);
-				log.setServiceName("getInventoryChangeDetailAndInstantConfirm");
-				long start = System.currentTimeMillis();
-				GetInvChangeAndInstantConfirmResponse response = this.webProductForPartnerServiceContract
-						.getInventoryChangeDetailAndInstantConfirm(request);
-				log.setElapsedTime(String.valueOf(System.currentTimeMillis() - start));
-				if (response != null && response.getResourceInvAndInstantConfirmStateList() != null
-						&& response.getResourceInvAndInstantConfirmStateList().getResourceInvAndInstantConfirmState() != null
-						&& response.getResourceInvAndInstantConfirmStateList().getResourceInvAndInstantConfirmState().size() > 0) {
-					log.setBusinessErrorCode("0");
-					log.setResponseBody("IP:" + response.getResult().getApplicationServerIP() + "time:"
-							+ response.getResult().getUsedMillionSecond());
-					for (ResourceInvAndInstantConfirmState item : response.getResourceInvAndInstantConfirmStateList()
-							.getResourceInvAndInstantConfirmState()) {
-						Inventory inv = new Inventory();
-						inv.setHotelID(mHotelId);
-						inv.setStartDate(item.getBeginDate().toDate());
-						inv.setEndDate(item.getEndDate().toDate());
-						inv.setStartTime(item.getBeginTime());
-						inv.setEndTime(item.getEndTime());
-						inv.setAvailableAmount(item.getAvailableAmount());
-						inv.setAvailableDate(item.getAvailableTime().toDate());
-						inv.setRoomTypeID(item.getRoomTypeID());
-						inv.setStatus(item.getStatus() == 0);
-						inv.setOverBooking(item.getIsOverBooking());
-						inv.setHotelCode(item.getHotelID());
-						inv.setIsInstantConfirm(item.isIsInstantConfirm());
-						inv.setIC_BeginTime(item.getICBeginTime());
-						inv.setIC_EndTime(item.getICEndTime());
-						convertInventory(inv);
-						inventorys.add(inv);
-					}
-				} else {
-					inventorys = new ArrayList<Inventory>();
-				}
-
-			} else {
-				GetInventoryChangeDetailRequest request = new GetInventoryChangeDetailRequest();
-				request.setHotelID(sHotelId);
-				request.setBeginTime(DateUtil.toDateTime(startDate));
-				request.setEndTime(DateUtil.toDateTime(endDate));
-				if (StringUtils.isNotBlank(roomTypeId)) {
-					request.setRoomTypeIDs(roomTypeId);
-				}
-				request.setOperatorTime(new DateTime());
-				log.setServiceName("getInventoryChangeDetail");
-				long start = System.currentTimeMillis();
-				GetInventoryChangeDetailResponse response = this.webProductForPartnerServiceContract.getInventoryChangeDetail(request);
-				long end = System.currentTimeMillis();
-				log.setElapsedTime(String.valueOf(end - start));
-				if (response != null && response.getResourceInventoryStateList() != null
-						&& response.getResourceInventoryStateList().getResourceInventoryState() != null
-						&& response.getResourceInventoryStateList().getResourceInventoryState().size() > 0) {
-					log.setBusinessErrorCode("0");
-					if (response.getResult() != null) {
-						log.setResponseBody("IP:" + response.getResult().getApplicationServerIP() + "time:"
-								+ response.getResult().getUsedMillionSecond());
-					}
-					for (ResourceInventoryState item : response.getResourceInventoryStateList().getResourceInventoryState()) {
-						Inventory inv = new Inventory();
-						inv.setHotelID(mHotelId);
-						inv.setStartDate(item.getBeginDate().toDate());
-						inv.setEndDate(item.getEndDate().toDate());
-						inv.setStartTime(item.getBeginTime());
-						inv.setEndTime(item.getEndTime());
-						inv.setAvailableDate(item.getAvailableTime().toDate());
-						inv.setRoomTypeID(item.getRoomTypeID());
-						inv.setStatus(item.getStatus() == 0);
-						inv.setAvailableAmount(item.getAvailableAmount());
-						inv.setOverBooking(item.getIsOverBooking());
-						inv.setHotelCode(item.getHotelID());
-						convertInventory(inv);
-						inventorys.add(inv);
-					}
-				} else {
-					inventorys = new ArrayList<Inventory>();
-				}
-			}
-		} catch (Exception ex) {
-			log.setException(ex);
-			log.setExceptionMsg(ex.getMessage());
-			CheckListUtil.error(log);
-			throw new RuntimeException("Inventory", ex);
-		}
-		CheckListUtil.info(log);
-		return inventorys;
-	}
 
 	/**
 	 * 获取库存接口(商品库)
