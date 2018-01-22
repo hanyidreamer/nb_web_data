@@ -9,38 +9,16 @@
 			<param name="ConversionPattern" value="[%d{yyyy-MM-dd HH:mm:ss.SSS\} %-5p] [%t] (%c{1}:%L) %m%n" />
 		</layout>
 	</appender>
-	<!--nbminitor appender -->
-	<appender name="MinitorAppender" class="com.elong.common.util.log.ElongDailyRollingFileAppender">
-		<param name="File" value="${catalina.home}/logs/minitor/nb_web_data_minitor.log" />
-		<param name="DatePattern" value="'.'yyyy-MM-dd-HH-mm" />
-		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="%m%n" />
-		</layout>
+	<!-- httpclient日志输出文件 -->
+	<appender name="httpClientLogAppender" class="com.elong.common.util.log.ElongDailyRollingFileAppender">
+		<param name="File" value="${catalina.home}/logs/httpclientutil.log"/>
+		<param name="DatePattern" value="'.'yyyy-MM-dd"/>
+		<layout  class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d %p [%c] - %m%n"/>
+	    </layout>
 		<filter class="org.apache.log4j.varia.LevelRangeFilter">
 			<param name="LevelMin" value="INFO" />
 		</filter>
-	</appender>
-	<!-- hotswitch日志输出文件 -->
-	<appender name="hotswitchAppender" class="com.elong.common.util.log.ElongDailyRollingFileAppender">
-		<param name="File" value="${catalina.home}/logs/hotswitchClient.log" />
-		<param name="DatePattern" value="'.'yyyy-MM-dd" />
-		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="%d %p [%c] - %m%n" />
-		</layout>
-		<filter class="org.apache.log4j.varia.LevelRangeFilter">
-			<param name="LevelMin" value="INFO" />
-		</filter>
-	</appender>
-	<!-- kafka -->
-	<appender name="sendMonitor" class="org.apache.log4j.DailyRollingFileAppender">
-		<param name="file" value="${catalina.home}/logs/kafka.log" />
-		<param name="DatePattern" value="'.'yyyy-MM-dd-HH'.log'" />
-		<param name="Append" value="true" />
-		<param name="encoding" value="utf-8" />
-		<param name="threshold" value="info" />
-		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="%m%n" />
-		</layout>
 	</appender>
 	<!--actionLogEntity appender -->
 	<appender name="actionLogEntityAppender" class="com.elong.common.util.log.ElongDailyRollingFileAppender">
@@ -53,18 +31,11 @@
 			<param name="LevelMin" value="INFO" />
 		</filter>
 	</appender>
-	<logger name="kafka" additivity="false">
-		<level value="info" />
-		<appender-ref ref="sendMonitor" />
-	</logger>
-	<logger name="MinitorLogger" additivity="false">
-		<level value="INFO" />
-		<appender-ref ref="MinitorAppender" />
-	</logger>
-	<logger name="HotSwitchClient" additivity="false">
-		<level value="INFO" />
-		<appender-ref ref="hotswitchAppender" />
-	</logger>
+	
+	<category name="httpClientLogLogger" additivity="false">
+		<level value="INFO"/>
+		<appender-ref ref="httpClientLogAppender" />  
+	</category>
 	<category name="actionLogEntityLogger" additivity="false">
 		<level value="INFO" />
 		<appender-ref ref="actionLogEntityAppender" />
