@@ -432,8 +432,11 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 				ratePlan.setStayTime(metaHoursRoomMsg.getStayTime());
 			}
 		}
-		// 限时抢规则、适用人群
-		ratePlan.setTimeRushRuleList(toTimeRushRules(metaRatePlanBaseInfo.getTime_rush_policy_list()));
+		// 限时抢产品才有限时抢规则
+		int pt = Integer.parseInt("0" + metaRatePlanBaseInfo.getProduct_type());
+		if ((pt & 16) == 16) {
+			ratePlan.setTimeRushRuleList(toTimeRushRules(metaRatePlanBaseInfo.getTime_rush_policy_list()));
+		}
 		ratePlan.setGuestType(toGuestType(metaRatePlanBaseInfo.getGuest_type()));
 		ratePlan.setGuestTypeExtendCh(StringUtils.isEmpty(metaRatePlanBaseInfo.getGuest_type_extend_ch()) ? null : metaRatePlanBaseInfo
 				.getGuest_type_extend_ch());
