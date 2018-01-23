@@ -788,7 +788,7 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 					moneyType = EnumGuaranteeMoneyType.FirstNightCost;
 				}
 				if (requestVersion >= 1.34d) {
-					moneyType = EnumGuaranteeMoneyType.PartNightCost;
+					moneyType = EnumGuaranteeMoneyType.SingleNightCost;
 				}
 				guaranteeRule.setGuaranteeType(moneyType);
 				guaranteeRule.setDescription(DescriptionHelper.vouchInfoDescription(metaVouchInfo, isCn, moneyType));

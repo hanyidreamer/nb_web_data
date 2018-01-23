@@ -391,8 +391,8 @@ public class DescriptionHelper {
 					vouchMoneyType = "第一晚房费";
 				} else if (moneyType == EnumGuaranteeMoneyType.FullNightCost) {
 					vouchMoneyType = "全额房费";
-				} else if (moneyType == EnumGuaranteeMoneyType.PartNightCost) {
-					vouchMoneyType = "部分房费";
+				} else if (moneyType == EnumGuaranteeMoneyType.SingleNightCost) {
+					vouchMoneyType = "单晚房费";
 				}
 				res.append("，需要您提供").append(vouchType).append("担保。预订后无法变更取消，如未入住，将扣除").append(vouchMoneyType).append("作为违约金。");
 			} else {
@@ -419,8 +419,8 @@ public class DescriptionHelper {
 					vouchMoneyType = "first night room rate";
 				} else if (moneyType == EnumGuaranteeMoneyType.FullNightCost) {
 					vouchMoneyType = "full room rate";
-				} else if (moneyType == EnumGuaranteeMoneyType.PartNightCost) {
-					vouchMoneyType = "part room rate";
+				} else if (moneyType == EnumGuaranteeMoneyType.SingleNightCost) {
+					vouchMoneyType = "single night room rate";
 				}
 				res.append(vouchMoneyType).append(" to your credit card.");
 			}
@@ -456,8 +456,8 @@ public class DescriptionHelper {
 					vouchMoneyType = "第一晚房费";
 				} else if (moneyType == EnumGuaranteeMoneyType.FullNightCost) {
 					vouchMoneyType = "全额房费";
-				} else if (moneyType == EnumGuaranteeMoneyType.PartNightCost) {
-					vouchMoneyType = "部分房费";
+				} else if (moneyType == EnumGuaranteeMoneyType.SingleNightCost) {
+					vouchMoneyType = "单晚房费";
 				}
 				res.append("，需要您提供").append(vouchType).append("担保。").append("在").append(metaVouchInfo.getRule_values().get("DayNum"))
 						.append("日").append(metaVouchInfo.getRule_values().get("TimeNum")).append("点前可以变更取消，之后无法变更取消，").append("如未入住，将扣除")
@@ -490,8 +490,8 @@ public class DescriptionHelper {
 					vouchMoneyType = "first night room rate";
 				} else if (moneyType == EnumGuaranteeMoneyType.FullNightCost) {
 					vouchMoneyType = "full room rate";
-				} else if (moneyType == EnumGuaranteeMoneyType.PartNightCost) {
-					vouchMoneyType = "part room rate";
+				} else if (moneyType == EnumGuaranteeMoneyType.SingleNightCost) {
+					vouchMoneyType = "single night room rate";
 				}
 				res.append(vouchMoneyType).append(" to your credit card.");
 			}
@@ -527,8 +527,8 @@ public class DescriptionHelper {
 					vouchMoneyType = "第一晚房费";
 				} else if (moneyType == EnumGuaranteeMoneyType.FullNightCost) {
 					vouchMoneyType = "全额房费";
-				} else if (moneyType == EnumGuaranteeMoneyType.PartNightCost) {
-					vouchMoneyType = "部分房费";
+				} else if (moneyType == EnumGuaranteeMoneyType.SingleNightCost) {
+					vouchMoneyType = "单晚房费";
 				}
 				res.append("，需要您提供").append(vouchType).append("担保。").append("客人最早到店").append(metaVouchInfo.getRule_values().get("HourNum"))
 						.append("小时前可以变更取消，之后无法变更取消，").append("如未入住，将扣除").append(vouchMoneyType).append("作为违约金。");
@@ -560,8 +560,8 @@ public class DescriptionHelper {
 					vouchMoneyType = "first night room rate";
 				} else if (moneyType == EnumGuaranteeMoneyType.FullNightCost) {
 					vouchMoneyType = "full room rate";
-				} else if (moneyType == EnumGuaranteeMoneyType.PartNightCost) {
-					vouchMoneyType = "part room rate";
+				} else if (moneyType == EnumGuaranteeMoneyType.SingleNightCost) {
+					vouchMoneyType = "single night room rate";
 				}
 				res.append(vouchMoneyType).append(" to your credit card.");
 			}
@@ -597,8 +597,8 @@ public class DescriptionHelper {
 					vouchMoneyType = "第一晚房费";
 				} else if (moneyType == EnumGuaranteeMoneyType.FullNightCost) {
 					vouchMoneyType = "全额房费";
-				} else if (moneyType == EnumGuaranteeMoneyType.PartNightCost) {
-					vouchMoneyType = "部分房费";
+				} else if (moneyType == EnumGuaranteeMoneyType.SingleNightCost) {
+					vouchMoneyType = "单晚房费";
 				}
 				res.append("，需要您提供").append(vouchType).append("担保。").append("客人入住日").append(metaVouchInfo.getRule_values().get("HourNum"))
 						.append("小时前可以变更取消，之后无法变更取消，").append("如未入住，将扣除").append(vouchMoneyType).append("作为违约金。");
@@ -630,8 +630,8 @@ public class DescriptionHelper {
 					vouchMoneyType = "first night room rate";
 				} else if (moneyType == EnumGuaranteeMoneyType.FullNightCost) {
 					vouchMoneyType = "full room rate";
-				} else if (moneyType == EnumGuaranteeMoneyType.PartNightCost) {
-					vouchMoneyType = "part room rate";
+				} else if (moneyType == EnumGuaranteeMoneyType.SingleNightCost) {
+					vouchMoneyType = "single night room rate";
 				}
 				res.append(vouchMoneyType).append(" to your credit card.");
 			}
