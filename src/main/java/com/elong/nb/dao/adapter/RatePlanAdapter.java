@@ -787,7 +787,7 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 				if (metaVouchInfo.getVouch_money_type() == EnumGuaranteeMoneyType.FirstNightCost.getValue()) {
 					moneyType = EnumGuaranteeMoneyType.FirstNightCost;
 				}
-				if (requestVersion >= 1.34d) {
+				if (requestVersion >= 1.50d) {
 					moneyType = EnumGuaranteeMoneyType.SingleNightCost;
 				}
 				guaranteeRule.setGuaranteeType(moneyType);
