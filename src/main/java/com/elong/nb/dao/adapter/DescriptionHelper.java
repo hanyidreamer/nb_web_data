@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.elong.hotel.goods.ds.thrift.MetaDRRInfo;
 import com.elong.hotel.goods.ds.thrift.MetaPrePayInfo;
 import com.elong.hotel.goods.ds.thrift.MetaVouchInfo;
+import com.elong.nb.model.bean.enums.EnumGuaranteeMoneyType;
 
 public class DescriptionHelper {
 
@@ -356,7 +357,7 @@ public class DescriptionHelper {
 	 * @param isCn
 	 * @return
 	 */
-	public static String vouchInfoDescription(MetaVouchInfo metaVouchInfo, boolean isCn) {
+	public static String vouchInfoDescription(MetaVouchInfo metaVouchInfo, boolean isCn, EnumGuaranteeMoneyType moneyType) {
 		StringBuilder res = new StringBuilder();
 		switch (metaVouchInfo.getVouch_change_rule()) {
 		case 1:
@@ -386,10 +387,12 @@ public class DescriptionHelper {
 					}
 				}
 				String vouchMoneyType = "";
-				if (metaVouchInfo.getVouch_money_type() == 1) {
+				if (moneyType == EnumGuaranteeMoneyType.FirstNightCost) {
 					vouchMoneyType = "第一晚房费";
-				} else if (metaVouchInfo.getVouch_money_type() == 2) {
+				} else if (moneyType == EnumGuaranteeMoneyType.FullNightCost) {
 					vouchMoneyType = "全额房费";
+				} else if (moneyType == EnumGuaranteeMoneyType.PartNightCost) {
+					vouchMoneyType = "部分房费";
 				}
 				res.append("，需要您提供").append(vouchType).append("担保。预订后无法变更取消，如未入住，将扣除").append(vouchMoneyType).append("作为违约金。");
 			} else {
@@ -412,10 +415,12 @@ public class DescriptionHelper {
 				}
 				res.append("credit card information is required for guarantee. Once the booking is confirmed, it allows no cancellation or change.If you fail to check in, eLong is authorized to charge ");
 				String vouchMoneyType = "";
-				if (metaVouchInfo.getVouch_money_type() == 1) {
+				if (moneyType == EnumGuaranteeMoneyType.FirstNightCost) {
 					vouchMoneyType = "first night room rate";
-				} else if (metaVouchInfo.getVouch_money_type() == 2) {
+				} else if (moneyType == EnumGuaranteeMoneyType.FullNightCost) {
 					vouchMoneyType = "full room rate";
+				} else if (moneyType == EnumGuaranteeMoneyType.PartNightCost) {
+					vouchMoneyType = "part room rate";
 				}
 				res.append(vouchMoneyType).append(" to your credit card.");
 			}
@@ -447,10 +452,12 @@ public class DescriptionHelper {
 					}
 				}
 				String vouchMoneyType = "";
-				if (metaVouchInfo.getVouch_money_type() == 1) {
+				if (moneyType == EnumGuaranteeMoneyType.FirstNightCost) {
 					vouchMoneyType = "第一晚房费";
-				} else if (metaVouchInfo.getVouch_money_type() == 2) {
+				} else if (moneyType == EnumGuaranteeMoneyType.FullNightCost) {
 					vouchMoneyType = "全额房费";
+				} else if (moneyType == EnumGuaranteeMoneyType.PartNightCost) {
+					vouchMoneyType = "部分房费";
 				}
 				res.append("，需要您提供").append(vouchType).append("担保。").append("在").append(metaVouchInfo.getRule_values().get("DayNum"))
 						.append("日").append(metaVouchInfo.getRule_values().get("TimeNum")).append("点前可以变更取消，之后无法变更取消，").append("如未入住，将扣除")
@@ -479,10 +486,12 @@ public class DescriptionHelper {
 						.append(metaVouchInfo.getRule_values().get("DayNum"))
 						.append(".If you fail to check in, eLong is authorized to charge ");
 				String vouchMoneyType = "";
-				if (metaVouchInfo.getVouch_money_type() == 1) {
+				if (moneyType == EnumGuaranteeMoneyType.FirstNightCost) {
 					vouchMoneyType = "first night room rate";
-				} else if (metaVouchInfo.getVouch_money_type() == 2) {
+				} else if (moneyType == EnumGuaranteeMoneyType.FullNightCost) {
 					vouchMoneyType = "full room rate";
+				} else if (moneyType == EnumGuaranteeMoneyType.PartNightCost) {
+					vouchMoneyType = "part room rate";
 				}
 				res.append(vouchMoneyType).append(" to your credit card.");
 			}
@@ -514,10 +523,12 @@ public class DescriptionHelper {
 					}
 				}
 				String vouchMoneyType = "";
-				if (metaVouchInfo.getVouch_money_type() == 1) {
+				if (moneyType == EnumGuaranteeMoneyType.FirstNightCost) {
 					vouchMoneyType = "第一晚房费";
-				} else if (metaVouchInfo.getVouch_money_type() == 2) {
+				} else if (moneyType == EnumGuaranteeMoneyType.FullNightCost) {
 					vouchMoneyType = "全额房费";
+				} else if (moneyType == EnumGuaranteeMoneyType.PartNightCost) {
+					vouchMoneyType = "部分房费";
 				}
 				res.append("，需要您提供").append(vouchType).append("担保。").append("客人最早到店").append(metaVouchInfo.getRule_values().get("HourNum"))
 						.append("小时前可以变更取消，之后无法变更取消，").append("如未入住，将扣除").append(vouchMoneyType).append("作为违约金。");
@@ -545,10 +556,12 @@ public class DescriptionHelper {
 						.append(", ").append(metaVouchInfo.getRule_values().get("DayNum"))
 						.append(".If you fail to check in, eLong is authorized to charge ");
 				String vouchMoneyType = "";
-				if (metaVouchInfo.getVouch_money_type() == 1) {
+				if (moneyType == EnumGuaranteeMoneyType.FirstNightCost) {
 					vouchMoneyType = "first night room rate";
-				} else if (metaVouchInfo.getVouch_money_type() == 2) {
+				} else if (moneyType == EnumGuaranteeMoneyType.FullNightCost) {
 					vouchMoneyType = "full room rate";
+				} else if (moneyType == EnumGuaranteeMoneyType.PartNightCost) {
+					vouchMoneyType = "part room rate";
 				}
 				res.append(vouchMoneyType).append(" to your credit card.");
 			}
@@ -580,10 +593,12 @@ public class DescriptionHelper {
 					}
 				}
 				String vouchMoneyType = "";
-				if (metaVouchInfo.getVouch_money_type() == 1) {
+				if (moneyType == EnumGuaranteeMoneyType.FirstNightCost) {
 					vouchMoneyType = "第一晚房费";
-				} else if (metaVouchInfo.getVouch_money_type() == 2) {
+				} else if (moneyType == EnumGuaranteeMoneyType.FullNightCost) {
 					vouchMoneyType = "全额房费";
+				} else if (moneyType == EnumGuaranteeMoneyType.PartNightCost) {
+					vouchMoneyType = "部分房费";
 				}
 				res.append("，需要您提供").append(vouchType).append("担保。").append("客人入住日").append(metaVouchInfo.getRule_values().get("HourNum"))
 						.append("小时前可以变更取消，之后无法变更取消，").append("如未入住，将扣除").append(vouchMoneyType).append("作为违约金。");
@@ -611,10 +626,12 @@ public class DescriptionHelper {
 						.append(metaVouchInfo.getRule_values().get("DayNum"))
 						.append(".If you fail to check in, eLong is authorized to charge ");
 				String vouchMoneyType = "";
-				if (metaVouchInfo.getVouch_money_type() == 1) {
+				if (moneyType == EnumGuaranteeMoneyType.FirstNightCost) {
 					vouchMoneyType = "first night room rate";
-				} else if (metaVouchInfo.getVouch_money_type() == 2) {
+				} else if (moneyType == EnumGuaranteeMoneyType.FullNightCost) {
 					vouchMoneyType = "full room rate";
+				} else if (moneyType == EnumGuaranteeMoneyType.PartNightCost) {
+					vouchMoneyType = "part room rate";
 				}
 				res.append(vouchMoneyType).append(" to your credit card.");
 			}

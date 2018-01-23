@@ -780,8 +780,6 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 				else if (metaVouchInfo.getDate_type() == EnumDateType.StayDay.getValue())
 					dateType = EnumDateType.StayDay;
 				guaranteeRule.setDateType(dateType);
-
-				guaranteeRule.setDescription(DescriptionHelper.vouchInfoDescription(metaVouchInfo, isCn));
 				guaranteeRule.setIsAmountGuarantee(metaVouchInfo.isIs_room_count_vouch());
 				guaranteeRule.setIsTimeGuarantee(metaVouchInfo.isIs_arrive_time_vouch());
 
@@ -793,6 +791,7 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 					moneyType = EnumGuaranteeMoneyType.PartNightCost;
 				}
 				guaranteeRule.setGuaranteeType(moneyType);
+				guaranteeRule.setDescription(DescriptionHelper.vouchInfoDescription(metaVouchInfo, isCn, moneyType));
 				guaranteeRule.setWeekSet(getWeekSet(metaVouchInfo.getIs_week_effective()));
 				if (metaVouchInfo.getRule_values() != null) {
 					if (metaVouchInfo.getRule_values().containsKey("DayNum")
