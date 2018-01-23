@@ -512,15 +512,27 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 		List<TimeRushRule> timeRushRuleList = new ArrayList<TimeRushRule>();
 		for (TimeRushPolicy goodsTimeRushPolicy : goodsTimeRushPolicyList) {
 			TimeRushRule timeRushRule = new TimeRushRule();
-			timeRushRule.setBookingStartTime(new Date(1000 * goodsTimeRushPolicy.getBooking_start_time()));
-			timeRushRule.setBookingEndTime(new Date(1000 * goodsTimeRushPolicy.getBooking_end_time()));
+			timeRushRule.setBookingStartTime(toTimeStr(goodsTimeRushPolicy.getBooking_start_time()));
+			timeRushRule.setBookingEndTime(toTimeStr(goodsTimeRushPolicy.getBooking_end_time()));
 			timeRushRule.setStartDate(new Date(1000 * goodsTimeRushPolicy.getStart_date()));
 			timeRushRule.setEndDate(new Date(1000 * goodsTimeRushPolicy.getEnd_state()));
-			timeRushRule.setStartTime(new Date(1000 * goodsTimeRushPolicy.getStart_time()));
-			timeRushRule.setEndTime(new Date(1000 * goodsTimeRushPolicy.getEnd_time()));
+			timeRushRule.setStartTime(toTimeStr(goodsTimeRushPolicy.getStart_time()));
+			timeRushRule.setEndTime(toTimeStr(goodsTimeRushPolicy.getEnd_time()));
 			timeRushRuleList.add(timeRushRule);
 		}
 		return timeRushRuleList;
+	}
+
+	private String toTimeStr(long seconds) {
+		long temp = 0;
+		StringBuffer sb = new StringBuffer();
+		temp = seconds / 3600;
+		sb.append((temp < 10) ? "0" + temp + ":" : "" + temp + ":");
+		temp = seconds % 3600 / 60;
+		sb.append((temp < 10) ? "0" + temp + ":" : "" + temp + ":");
+		temp = seconds % 3600 % 60;
+		sb.append((temp < 10) ? "0" + temp : "" + temp);
+		return sb.toString();
 	}
 
 	public String bitMaskIntToString(long bitSum) {
