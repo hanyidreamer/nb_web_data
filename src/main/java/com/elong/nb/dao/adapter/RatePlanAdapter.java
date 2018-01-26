@@ -799,12 +799,16 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 				guaranteeRule.setIsTimeGuarantee(metaVouchInfo.isIs_arrive_time_vouch());
 
 				EnumGuaranteeMoneyType moneyType = EnumGuaranteeMoneyType.FullNightCost;
-				if (metaVouchInfo.getVouch_money_type() == EnumGuaranteeMoneyType.FirstNightCost.getValue()) {
+				if (metaVouchInfo.getVouch_money_type() == EnumGuaranteeMoneyType.FullNightCost.getValue()) {
+					moneyType = EnumGuaranteeMoneyType.FullNightCost;
+				} else if (metaVouchInfo.getVouch_money_type() == EnumGuaranteeMoneyType.FirstNightCost.getValue()) {
 					moneyType = EnumGuaranteeMoneyType.FirstNightCost;
+				} else {
+					if (requestVersion >= 1.50d) {
+						moneyType = EnumGuaranteeMoneyType.SingleNightCost;
+					}
 				}
-				if (requestVersion >= 1.50d) {
-					moneyType = EnumGuaranteeMoneyType.SingleNightCost;
-				}
+
 				guaranteeRule.setGuaranteeType(moneyType);
 				guaranteeRule.setDescription(DescriptionHelper.vouchInfoDescription(metaVouchInfo, isCn, moneyType));
 				guaranteeRule.setWeekSet(getWeekSet(metaVouchInfo.getIs_week_effective()));
