@@ -1,6 +1,7 @@
 package com.elong.nb.dao.adapter.repository;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,6 +42,8 @@ public class RateRepository {
 	 */
 	public List<Rate> getRates(ProxyAccount proxyInfo, List<HotelIdAttr> hotelIdAttrs, Date startDate, Date endDate,
 			EnumPaymentType paymentType, String guid) {
+		if (startDate.after(endDate))
+			return Collections.emptyList();
 		List<Rate> rates = null;
 		BigLog log = new BigLog();
 		log.setUserLogType(guid);
