@@ -8,10 +8,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
-import com.alibaba.fastjson.JSON;
 import com.elong.hotel.goods.ds.thrift.GetBaseRatePlanDRRGiftRequest;
 import com.elong.hotel.goods.ds.thrift.GetBaseRatePlanDRRGiftResponse;
 import com.elong.hotel.goods.ds.thrift.MetaMhotel;
@@ -38,8 +36,6 @@ import com.google.gson.Gson;
  */
 @Repository
 public class RatePlanRepository {
-
-	private Logger logger = Logger.getLogger(RatePlanRepository.class);
 
 	private static final String server_ip = CommonsUtil.CONFIG_PROVIDAR.getProperty("goods.server_ip");
 	private static final int server_port = Integer.valueOf(CommonsUtil.CONFIG_PROVIDAR.getProperty("goods.server_port"));
@@ -96,7 +92,6 @@ public class RatePlanRepository {
 		}
 		request.setMhotel(mhotels);
 		try {
-			logger.info("traceId = " + guid + ",goods Request = " + JSON.toJSONString(request));
 			long start = System.currentTimeMillis();
 			GetBaseRatePlanDRRGiftResponse response = ThriftUtils.getMetaRatePlanDrrGift(request, server_ip, server_port, server_timeout);
 			long end = System.currentTimeMillis();
