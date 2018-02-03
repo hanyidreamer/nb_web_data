@@ -18,6 +18,7 @@ import com.elong.hotel.goods.ds.thrift.MetaHotelBookingRule;
 import com.elong.hotel.goods.ds.thrift.MetaHotelGiftModel;
 import com.elong.hotel.goods.ds.thrift.MetaHotelGiftRelationDate;
 import com.elong.hotel.goods.ds.thrift.MetaHotelInfo;
+import com.elong.hotel.goods.ds.thrift.MetaHotelServiceTimePolicyInfo;
 import com.elong.hotel.goods.ds.thrift.MetaHoursRoomMsg;
 import com.elong.hotel.goods.ds.thrift.MetaMHotelBaseRpDrrGift;
 import com.elong.hotel.goods.ds.thrift.MetaPrePayInfo;
@@ -56,6 +57,7 @@ import com.elong.nb.model.rateplan.HotelGiftProductRelation;
 import com.elong.nb.model.rateplan.HotelRatePlan;
 import com.elong.nb.model.rateplan.MSRoomRelation;
 import com.elong.nb.model.rateplan.RatePlan;
+import com.elong.nb.model.rateplan.ServiceTimePolicyInfo;
 import com.elong.nb.model.rateplan.SupplierRatePlan;
 import com.elong.nb.model.rateplan.TimeRushRule;
 import com.elong.nb.model.rateplan.fornb.EnumPrepayRule;
@@ -337,6 +339,7 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 	private RatePlan toRatePlan(MetaRatePlanBaseInfo metaRatePlanBaseInfo, String hotelCode, List<BaseDrrRule> drrRuleList,
 			String roomTypeIds) {
 		RatePlan ratePlan = new RatePlan();
+		ratePlan.setServiceTimePolicyInfo(toServiceTimePolicyInfo(metaRatePlanBaseInfo.getHotel_service_time_policy_list()));
 		ratePlan.setIsLimitTimeSale(metaRatePlanBaseInfo.getIs_limit_time_sale() == 1);
 		ratePlan.setMaxAdvHours(metaRatePlanBaseInfo.getMax_advance_booking_days());
 		ratePlan.setMaxDays(metaRatePlanBaseInfo.getMax_stay_days());
@@ -845,6 +848,43 @@ public class RatePlanAdapter extends AbstractGoodsAdapter<HotelRatePlan, GetBase
 		}
 		return null;
 
+	}
+
+	private ServiceTimePolicyInfo toServiceTimePolicyInfo(List<MetaHotelServiceTimePolicyInfo> hotelServiceTimepolicyList) {
+		if (hotelServiceTimepolicyList == null || hotelServiceTimepolicyList.size() == 0)
+			return null;
+		MetaHotelServiceTimePolicyInfo hotelServiceTimepolicy = hotelServiceTimepolicyList.get(0);
+		ServiceTimePolicyInfo serviceTimePolicyInfo = new ServiceTimePolicyInfo();
+		serviceTimePolicyInfo.setStart_date(new Date(1000 * hotelServiceTimepolicy.getStart_date()));
+		serviceTimePolicyInfo.setEnd_date(new Date(1000 * hotelServiceTimepolicy.getEnd_date()));
+		serviceTimePolicyInfo.setStart_time(toTimeStr(hotelServiceTimepolicy.getStart_time()));
+		serviceTimePolicyInfo.setEnd_time(toTimeStr(hotelServiceTimepolicy.getEnd_time()));
+		// 周有效:二进制位表示:周日:0,周一:1,周二:2,周三:3,周四:4,周五:5,周六:6
+		long goodsWeekEffective = hotelServiceTimepolicy.getWeek_effective();
+		List<Integer> weekEffective = new ArrayList<Integer>();
+		if ((goodsWeekEffective & 1) == 1) {
+			weekEffective.add(0);
+		}
+		if ((goodsWeekEffective & 2) == 2) {
+			weekEffective.add(1);
+		}
+		if ((goodsWeekEffective & 4) == 4) {
+			weekEffective.add(2);
+		}
+		if ((goodsWeekEffective & 8) == 8) {
+			weekEffective.add(3);
+		}
+		if ((goodsWeekEffective & 16) == 16) {
+			weekEffective.add(4);
+		}
+		if ((goodsWeekEffective & 32) == 32) {
+			weekEffective.add(5);
+		}
+		if ((goodsWeekEffective & 64) == 64) {
+			weekEffective.add(6);
+		}
+		serviceTimePolicyInfo.setWeek_effective(weekEffective);
+		return serviceTimePolicyInfo;
 	}
 
 	/**
