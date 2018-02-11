@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +22,6 @@ import com.elong.nb.common.ComparableUtil;
 import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
-import com.elong.nb.dao.adapter.cache.M_SRelationCache;
 import com.elong.nb.dao.adapter.repository.InventoryRepository;
 import com.elong.nb.model.bean.Inventory;
 import com.elong.nb.model.inventory.InventoryCondition;
@@ -46,8 +46,6 @@ import com.elong.nb.util.DateUtil;
 @Service
 public class InventoryService implements IInventoryService {
 
-	@Resource
-	private M_SRelationCache m_SRelationCache;
 	@Resource
 	private InventoryRepository inventoryRepository;
 
@@ -122,7 +120,16 @@ public class InventoryService implements IInventoryService {
 		if (!StringUtils.isBlank(roomTypeId)) {
 			roomTypeIds = Arrays.asList(roomTypeId.split(","));
 		}
-		return inventoryRepository.getInventorys(hotelMap, roomTypeIds, startDate, endDate, isNeedInstantConfirm, proxyInfo.getOrderFrom(),
-				guid);
+		List<Inventory> inventories = inventoryRepository.getInventorys(hotelMap, roomTypeIds, startDate, endDate, isNeedInstantConfirm,
+				proxyInfo.getOrderFrom(), guid);
+		Iterator<Inventory> iter = inventories.iterator();
+		while (iter.hasNext()) {
+			Inventory inventory = iter.next();
+			// 过滤直签
+			if (proxyInfo.isIsOnlyStraight() && inventory.getCooperationType() == 2) {
+				iter.remove();
+			}
+		}
+		return inventories;
 	}
 }

@@ -99,6 +99,7 @@ public class InventoryRepository {
 									if (shotel != null && shotel.getSroom_detail() != null && shotel.getSroom_detail().size() > 0) {
 										for (SroomDetail sroom : shotel.getSroom_detail()) {
 											if (sroom != null && sroom.getInv_detail() != null && sroom.getInv_detail().size() > 0) {
+												int cooperationType = (int) sroom.getCooperation_type_convert();
 												for (InvDetail item : sroom.getInv_detail()) {
 													Inventory inv = new Inventory();
 													inv.setHotelID(SafeConvertUtils.ToHotelId(mhotel.getMhotel_id()));
@@ -112,6 +113,7 @@ public class InventoryRepository {
 													inv.setStatus(item.getStatus() == 0);// 0:有效
 													inv.setOverBooking(item.getIs_over_booking());// 0:可超售 1:不可超售
 													inv.setHotelCode(SafeConvertUtils.ToHotelId(shotel.shotel_id));
+													inv.setCooperationType(cooperationType);
 													if (isNeedInstantConfirm) {
 														inv.setIsInstantConfirm(item.instant_confirm);
 														String icBeginTime = item.getIc_begin_time();

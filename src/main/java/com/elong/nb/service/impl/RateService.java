@@ -3,6 +3,7 @@ package com.elong.nb.service.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Service;
 import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
-import com.elong.nb.dao.adapter.cache.M_SRelationCache;
 import com.elong.nb.dao.adapter.repository.RateRepository;
 import com.elong.nb.model.HotelIdAttr;
 import com.elong.nb.model.bean.enums.EnumPaymentType;
@@ -32,8 +32,6 @@ public class RateService implements IRateService {
 
 	@Resource
 	private RateRepository rateRepository;
-	@Resource
-	private M_SRelationCache m_SRelationCache;
 
 	@Override
 	public RestResponse<RateResult> getRates(RestRequest<RateCondition> request, ProxyAccount proxyAccount) throws Exception {
@@ -108,8 +106,15 @@ public class RateService implements IRateService {
 		Date validDate = DateUtil.addYears(DateUtil.getDate(new Date()), 1);
 
 		List<String> hotelCodeList = new ArrayList<String>();
-		for (Rate item : response) {
-			String hotelCode = item.getHotelCode();
+		Iterator<Rate> iter = response.iterator();
+		while (iter.hasNext()) {
+			Rate rate = iter.next();
+			// 过滤直签
+			if (proxyInfo.isIsOnlyStraight() && rate.getCooperationType() == 2) {
+				iter.remove();
+				continue;
+			}
+			String hotelCode = rate.getHotelCode();
 			if (hotelCodeList.contains(hotelCode))
 				continue;
 			hotelCodeList.add(hotelCode);

@@ -43,6 +43,7 @@ public class RateAdapter extends AbstractGoodsAdapter<Rate, GetBasePrice4NbRespo
 												RatePlanBasePrice rpBasePrice = roomTypeBasePrice.getRateplan_base_price().get(l);
 												int ratePlanId = rpBasePrice.getRateplan_id();
 												if (rpBasePrice.getBase_price() != null) {
+													int cooperationType = (int) rpBasePrice.getCooperation_type_convert();
 													int baseSize = rpBasePrice.getBase_price().size();
 													for (int m = 0; m < baseSize; m++) {
 														BasePrice basePrice = rpBasePrice.getBase_price().get(m);
@@ -61,6 +62,7 @@ public class RateAdapter extends AbstractGoodsAdapter<Rate, GetBasePrice4NbRespo
 														rate.setStatus(basePrice.getStatus() == 1);
 														rate.setWeekend(dealPrice(basePrice.getWeekend_price_origin()));
 														rate.setWeekendCost(dealPrice(basePrice.getWeekend_cost_origin()));
+														rate.setCooperationType(cooperationType);
 														if (rate.getStatus()) {
 															rates.add(rate);
 														}

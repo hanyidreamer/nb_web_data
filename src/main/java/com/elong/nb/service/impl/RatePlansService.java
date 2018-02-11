@@ -17,7 +17,6 @@ import com.elong.nb.common.model.ErrorCode;
 import com.elong.nb.common.model.ProxyAccount;
 import com.elong.nb.common.model.RestRequest;
 import com.elong.nb.common.model.RestResponse;
-import com.elong.nb.dao.adapter.cache.M_SRelationCache;
 import com.elong.nb.dao.adapter.repository.RatePlanRepository;
 import com.elong.nb.model.HotelIdAttr;
 import com.elong.nb.model.bean.enums.EnumInvoiceMode;
@@ -34,8 +33,6 @@ public class RatePlansService implements IRatePlansService {
 
 	@Resource
 	private RatePlanRepository ratePlanRepository;
-	@Resource
-	private M_SRelationCache m_SRelationCache;
 
 	public List<HotelRatePlan> getRatePlans(RestRequest<RatePlanCondition> request, ProxyAccount proxyAccount) {
 		List<HotelRatePlan> result = new LinkedList<HotelRatePlan>();
@@ -47,30 +44,16 @@ public class RatePlansService implements IRatePlansService {
 			}
 		}
 		String[] mHotelArrays = request.getRequest().getHotelIds().replaceAll(" ", "").split(",");
-		List<String[]> sHotelIdArrays = m_SRelationCache.getSHotelIds(mHotelArrays);
 
-		result = getRatePlansFromGoods(request.getLocal(), Arrays.asList(mHotelArrays), sHotelIdArrays, request.getRequest()
+		result = getRatePlansFromGoods(request.getLocal(), Arrays.asList(mHotelArrays), request.getRequest()
 				.getPaymentType(), proxyAccount, request.getVersion(), request.getRequest().getOptions(), request.getGuid());
 		return result;
 	}
 
-	public List<HotelRatePlan> getRatePlansFromGoods(EnumLocal language, List<String> mHotelIds, List<String[]> shotelIdArrs,
+	public List<HotelRatePlan> getRatePlansFromGoods(EnumLocal language, List<String> mHotelIds,
 			EnumPaymentType paymentType, ProxyAccount proxyInfo, double requestVersion, String options, String guid) {
 		Map<String, EnumPaymentType> hotelCodeFilterType = new HashMap<String, EnumPaymentType>();
 		List<HotelIdAttr> hotelIdAttrs = new LinkedList<HotelIdAttr>();
-		for (int i = 0; i < mHotelIds.size(); i++) {
-			List<String> showHotelCode = new LinkedList<String>();
-			String[] sHotelIds = shotelIdArrs.get(i);
-			for (String hotelCode : sHotelIds) {
-				showHotelCode.add(hotelCode);
-			}
-			if (showHotelCode != null && showHotelCode.size() > 0) {
-				HotelIdAttr hotelIdAttr = new HotelIdAttr();
-				hotelIdAttr.setHotelId(mHotelIds.get(i));
-				hotelIdAttr.setHotelCodes(showHotelCode);
-				hotelIdAttrs.add(hotelIdAttr);
-			}
-		}
 		if (hotelIdAttrs != null && hotelIdAttrs.size() > 0) {
 			List<HotelRatePlan> ratePlans = this.ratePlanRepository.getRatePlans(proxyInfo, hotelIdAttrs, paymentType, hotelCodeFilterType,
 					language == EnumLocal.zh_CN, options, guid, requestVersion);
